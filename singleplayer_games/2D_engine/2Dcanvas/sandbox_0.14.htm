@@ -1,0 +1,941 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html>
+<head>
+<title>Physics Sandbox - Luke's 2D JavaScript Engine version 1.65.6</title>
+<script src="../keys.js" type="text/javascript"></script>
+<script src="../canvas2.js" type="text/javascript"></script>
+</head>
+<body onkeydown="keydown(event)" onkeyup="keyup(event)">
+<!--you MUST pre-load all images used in the game like this, as some browsers do very weird things when new images are called up by javascript.  Also helps stop problems with images not loaidng in time
+Also, make sure you have a background div of some sort, over the top, to hide them. (display:none; will also do weird things in my experience in IE)
+//-->
+<img src="balls/white.gif" alt=""><img src="balls/blue.gif" alt=""><img src="balls/green.gif" alt=""><img src="balls/blue.gif" alt=""><img src="balls/red.gif" alt=""><img src="balls/yellow.gif" alt=""><img src="balls/orange.gif" alt=""><img src="blank.gif" alt=""><img src="balls/black.gif" alt="">
+<span id="worldspan"></span>
+
+<div style="position:absolute;left:860;top:100;">
+<b>World Options:</b><br>
+<br>
+<input type="button" id="pausebutton" value="Pause" onClick="togglepause();">
+<br>
+<input type="button" value="Clear World" onClick="clearworld();">
+<br>
+<input type="button" value="Load World" onClick="greyout(true);if(!paused){togglepause()};document.getElementById('loaddiv').style.display='block';">
+<br>
+<br>
+<form action="javascript:updategravity();">
+Gravity: <input type="text" size="5" id="customgravity" value="200"><input type="button" value="Update" onClick="updategravity();">
+</form>
+<form action="javascript:updatefriction();">
+Friction: <input type="text" size="5" id="customfriction" value="5"><input type="button" value="Update" onClick="updatefriction();">(0=none, 20=lots)
+</form>
+<br>
+<br>
+<b>Mouse Click Will:</b><br>
+<select id="mousedoes" onchange="extramouse();" onClick="extramouse();">
+<option value="drag">Drag Object</option>
+<option value="delete">Delete Object</option>
+<option value="create">Create Object</option>
+<option value="fix">Fix Object</option>
+<option value="free">Free Object</option>
+<option value="breaksprings">Break Springs</option>
+<option value="givecharge">Give Charge</option>
+<option value="nocharge">Make Neutral</option>
+<option value="springconnect">Connect with Spring</option>
+<option value="stringconnect">Connect with String</option>
+</select>
+<br><br>
+
+<span id="chargespan" style="display:none">Charge: <input type="button" id="chargebutton" value="+" onClick="togglecharge();"><input type="text" size="5" id="chargesize" value="0.2"></span>
+<span id="springspan" style="display:none">
+Stiffness: <input type="text" size="5" id="customk" value="1000"><br>
+Length: <input type="text" size="5" id="customspringlength" value="0"> (Use 0 for auto)<br>
+Line: <select id="customlinetype"><option value=1>Dots</option><option value=0>None</option></select><br>
+</span>
+
+<span id="stringspan" style="display:none">
+Density:<input type="text" size="5" id="stringdensity" value="40"><br>
+Dotsize:<input type="text" size="5" id="stringdotsize" value="6"><br>
+Stiffness:<input type="text" size="5" id="stringk" value="5000"><br>
+</span>
+<span id="createspan" style="display:none">
+Type: <select id="createtype"><option value=0>Movable</option><option value=1>Static</option></select><br>
+Shape: <select id="createshape" onchange="extracreate();" onClick="extracreate();"><option value=0>Circle</option><option value=1>Rectangle</option></select><br>
+<span style="display:none" id="createsquare">
+Width: <input type="text" size="5" id="createwidth" value="50"><br>
+Height: <input type="text" size="5" id="createheight" value="50"><br>
+</span>
+<span style="display:none" id="createcircle">
+Diameter:<select id="creatediameter"><option value=50>50</option><option value=20>20</option><option value=9>9</option></select><br>
+</span>
+Elasticity:<input type="text" size="5" id="createelastic" value="0.95">(0 to 1)<br>
+Mass:<input type="text" size="5" id="createmass" value="50"><br>
+Collision Detection <input type="checkbox" id="createcolision" checked>
+</span>
+<span id="dragspan" style="display:none">Collision Detection <input type="checkbox" id="dragcollisions" checked></span>
+
+<span id="selectedspan" style="display:none"></span>
+</div>
+
+<div id="loaddiv" style="position:absolute;display:none;left:300;top:250;border:solid black 2px;z-index:5;background-color:white; padding:20px;">
+<h3>Choose world to load</h3>
+<form action="javascript:loadworld()">
+<select id="loadselect">
+<option value="cradle">Newton's Cradle</option>
+<option value="susbridge">Suspension Bridge</option>
+<option value="example">Example World</option>
+<option value="orbit">Orbit Example</option>
+</select>
+<input type='submit' value="load">
+<br><br>
+<center>
+<input type='button' value="Cancel" onclick="greyout(false);document.getElementById('loaddiv').style.display='none';togglepause();">
+</center>
+</form>
+</div>
+<div id="greyoutdiv" style="display:none; z-index:4; width:800;height:500; top:50; left:50; position:absolute; background-color:gray; filter:alpha(opacity=75);-moz-opacity:.75;opacity:.75;" ></div>
+<script src="2D_engine2.00.js" type="text/javascript"></script>
+<script src="../sandbox_worlds_0.1.js" type="text/javascript"></script>
+
+<body onload="draw();">
+<canvas id="canvastag" width="800" height="550"></canvas>
+
+<div id="testspan" style="position:relative; z-index:5;"></div>
+<div id="testspan2" style="position:relative; z-index:5;"></div>
+<script language="JavaScript" type="text/javascript">
+<!--
+
+var worldcanvas;
+var ctx;
+
+function draw()
+{
+worldcanvas= document.getElementById('canvastag');
+if (canvas.getContext){
+ctx = canvas.getContext('2d');
+}
+
+var extras=new Array();
+extras.push("selectedspan");
+extras.push("chargespan");
+extras.push("springspan");
+extras.push("dragspan");
+extras.push("stringspan");
+extras.push("createspan");
+
+
+function closeextras(except)
+{//closes all the extra options except the exception
+for(var k=0;k<extras.length;k++)
+{
+if(extras[k]!==except){document.getElementById(extras[k]).style.display="none";}
+}
+}
+
+function extramouse()
+{//run when a mouse option is selected, and opens up/closes the extra options
+closeextras(document.getElementById('mousedoes').value)
+switch(document.getElementById('mousedoes').value)
+{
+case 'givecharge':
+document.getElementById("chargespan").style.display="block";
+break;
+case 'springconnect':
+document.getElementById("springspan").style.display="block";
+break;
+case 'drag':
+document.getElementById("dragspan").style.display="block";
+break;
+case 'stringconnect':
+document.getElementById("stringspan").style.display="block";
+break;
+case 'create':
+document.getElementById("createspan").style.display="block";
+break;
+}
+
+}
+
+extramouse()
+
+function extracreate()
+{//opens/closes options for circles and squares in the create menu
+if(document.getElementById('createshape').value=='0')
+{
+document.getElementById('createsquare').style.display='none';
+document.getElementById('createcircle').style.display='block';
+}
+else
+{document.getElementById('createsquare').style.display='block';
+document.getElementById('createcircle').style.display='none';}
+}
+extracreate()
+
+var negposcharge=1;
+
+function togglecharge()
+{//changes the button in the charge options from + to - and vice versa
+if(negposcharge>0){negposcharge=-1;document.getElementById('chargebutton').value="-";}
+else
+{negposcharge=1;document.getElementById('chargebutton').value="+";}
+}
+
+function updategravity()
+{//updates the world's gravity to what's in the text box
+if(!isNaN(parseFloat(document.getElementById('customgravity').value))){gravityY=document.getElementById('customgravity').value}else{document.getElementById('customgravity').value=100;gravityY=100;}
+}
+updategravity()
+//polytest 1.65 - collision detection with polys works by interesctions of circles and straight lines.  Works reliably, but is in-efficient.
+
+function updatefriction()
+{
+if(!isNaN(parseFloat(document.getElementById('customfriction').value)))
+{
+friction=1-document.getElementById('customfriction').value/1000
+//alert(friction)
+}
+
+
+}
+
+//greys out the play area
+function greyout(dowhat)
+{switch (dowhat)
+{case true:document.getElementById('greyoutdiv').style.display='block';break;
+case false:document.getElementById('greyoutdiv').style.display='none';break;}}
+
+function loadworld()
+{
+clearworld();
+
+//reset grav and friction to defaults
+gravityY=200;
+document.getElementById('customgravity').value=200;
+friction=0.995;
+document.getElementById('customfriction').value=5;
+
+switch(document.getElementById('loadselect').value)
+{
+case 'cradle':
+loadcradle();
+break;
+case 'example':
+loadexample();
+break;
+case 'susbridge':
+loadsusbridge();
+break;
+case 'orbit':
+loadorbit();
+break;
+}
+greyout(false);
+document.getElementById('loaddiv').style.display='none';
+togglepause();
+}
+
+var wholeworld= new Array()
+
+//General variables used to define major things in the world
+
+var world=document.getElementById('worldspan');
+//gravity, and in which direction (could be used as a cheap wind, like Worms 1)  100 seems to be a nice value
+var gravityY=200;
+var gravityX=0;
+//how much  speed everything retains per loop (fraction)
+var friction=0.995
+//time/s per refresh
+var timeperloop=0.02
+//essentially fps
+var refreshrate;
+if (document.all){var IE=true}else{var IE = false}
+if(IE){refreshrate=timeperloop*796;}else{refreshrate=timeperloop*1000;}
+//velocity retained during collision (as fraction), set to 1 for inelastic collisions
+var dampen=1
+//most force the user can apply to 'us'
+var maxuserforce=20000
+var incriment=maxuserforce/10
+
+//the minimum speed anything can have before it's stopped (set to 0 for no min speed)
+var minspeed=10
+
+
+function clearworld()
+{
+/*
+for(var k=0;k<wholeworld.length;k++)
+{
+if(wholeworld[k].gametype!==0)
+{
+wholeworld[k].kill();
+//wholeworld[k].state=3;
+
+}
+}
+
+*/
+
+
+
+document.getElementById('linesspan').innerHTML=''
+
+var wholeworld2=wholeworld.slice(0,5);
+wholeworld=new Array();
+chargedobjects=new Array();
+wholeworld=wholeworld2;
+
+//alert(wholeworld.length)
+redrawworld();
+//alert(wholeworld[1].name)
+//needredraw=true;
+}
+
+
+
+
+//here are where objects are created
+//NAMES MUST BE UNIQUE
+
+//entity(state,name,x,y,width,height,mass,image,type,vx,vy,fx,fy,hard,sticky,shape,divoptions,gametype,elastic,onclick)
+//x,y co-ords are for the top left hand corner, div options are standard HTML bits and bobs for the style of the div
+//these are for the borders, you'll always want some kind of border (even if invisible) to stop anything being able to leave the screen
+
+//gametypes: 0=border, etc, not deletable, 1=otherwise
+//mouseclick()
+var bg=new entity(1,'bg',00,00,850,600,0,false,1,0,0,0,0,false,false,1,'background-color:white;',0,1,'');
+
+var lowerborder=new entity(1,'lowerborder',0,550,850,50,10,false,1,0,0,0,0,true,false,1,'background-color:#808080;',0,1,'');
+var upperborder=new entity(1,'upperborder',0,0,850,50,10,false,1,0,0,0,0,true,false,1,'background-color:#808080;',0,1,'');
+var leftborder=new entity(1,'leftborder',0,0,50,600,10,false,1,0,0,0,0,true,false,1,'background-color: #808080;',0,1,'');
+var rightborder=new entity(1,'rightborder',800,0,50,600,10,false,1,0,0,0,0,true,false,1,'background-color:#808080;',0,1,'');
+
+//var borderpoly=new entity(1,'borderpoly',[200,600,600,200],[100,100,500,500],1,1,10,'black',1,0,0,0,0,true,false,3,'',3,1,true);
+//springlines[0].breakspring()
+//ball.cutfree();
+var ball=new entity(1,'ball',200,100,50,50,50,'balls/red.gif',0,0,0,0,0,true,false,0,'',1,0.95,'');
+
+var ball2=new entity(1,'ball2',600,100,50,50,50,'balls/green.gif',0,0,0,0,0,true,false,0,'',1,0.95,'');
+
+//ball.makecharged(0.2)
+//ball2.makecharged(0.2)
+//var square=new entity(1,'square',300,275,30,50,100,false,0,0,0,0,0,true,false,1,'border:solid black 1px;',1,0.95);
+
+//var fixedpoint1=new entity(1,'fixedpoint1',50,60,1,1,100,false,1,0,0,0,0,true,false,0,'',2,1);
+//var fixedpoint2=new entity(1,'fixedpoint2',800,60,1,1,100,false,1,0,0,0,0,true,false,0,'',2,1);
+
+var fixedpoint3=new entity(1,'fixedpoint3',400,200,50,50,100,'balls/black.gif',1,0,0,0,0,true,false,0,'',2,1,'');
+
+
+stringbetween(ball.arraypos,ball2.arraypos,30,6,5000)
+
+//stringbetween(fixedpoint1.arraypos,fixedpoint2.arraypos,30,6,10000)
+
+//var ball3=new entity(1,'ball3',200,150,50,50,100,'balls/green.gif',0,0,0,0,0,true,false,0,'',1,0.95);
+
+//connect(ball.arraypos,fixedpoint.arraypos,1000,300,1)
+
+//var charge1=new entity(1,'charge1',520,150,9,9,100,'tinyballs/red.gif',0,-10,0,0,0,true,false,0,'',2,1);
+//var charge2=new entity(1,'charge2',250,200,50,50,100,'balls/black.gif',1,0,0,0,0,true,false,0,'',2,1);
+
+//connect(ball.arraypos,charge2.arraypos,100000,200)
+//connect(ball2.arraypos,charge2.arraypos,100000,200)
+
+//charge1.makecharged(0.02)
+//charge2.makecharged(-0.1)
+
+//var fixedpoint2=new entity(1,'fixedpoint2',20,200,2,2,100,false,1,0,0,0,0,true,false,0,'background-color:green;',2,1);
+//var fixedpoint3=new entity(1,'fixedpoint3',800,200,2,2,100,false,1,0,0,0,0,true,false,0,'background-color:green;',2,1);
+
+
+var aproxmass=100
+var giveortake=5
+
+//for polygons entity(state,name,x array,y array,thickness,z-index,mass,colour,type,vx,vy,fx,fy,hard,sticky,shape,ignore,gametype,elastic,hollow)
+
+
+var smallball1=new entity(1,'smallball1',150,300,9,9,50,'tinyballs/red.gif',0,0,0,0,0,true,false,0,'',2,1,'');
+var smallball2=new entity(1,'smallball2',200,300,9,9,50,'tinyballs/red.gif',0,0,0,0,0,true,false,0,'',2,1,'');
+var smallball3=new entity(1,'smallball3',150,350,9,9,50,'tinyballs/red.gif',0,0,0,0,0,true,false,0,'',2,1,'');
+var smallball4=new entity(1,'smallball4',200,350,9,9,50,'tinyballs/red.gif',0,0,0,0,0,true,false,0,'',2,1,'');
+
+connect(smallball1.arraypos,smallball2.arraypos,10000,false,0)
+connect(smallball1.arraypos,smallball3.arraypos,10000,false,0)
+connect(smallball2.arraypos,smallball3.arraypos,10000,false,0)
+connect(smallball4.arraypos,smallball1.arraypos,10000,false,0)
+connect(smallball4.arraypos,smallball2.arraypos,10000,false,0)
+connect(smallball4.arraypos,smallball3.arraypos,10000,false,0)
+
+
+
+
+
+
+
+
+
+
+var counter=0;
+//loop stuff
+var loopme=setInterval('loop()',refreshrate)
+function loop()
+{
+//moveus()
+replotentities()
+
+switch(needredraw)
+{
+case true:
+redrawworld()
+needredraw=false
+break;
+}
+if(followmouse!==false)
+{
+if(wholeworld[followmouse].type==1 && wholeworld[followmouse].gametype!==0)
+{
+
+var cancontinue=true;
+//alert(document.getElementById('dragcollisions').checked)
+if(document.getElementById('dragcollisions').checked)
+{
+canwepopout=checkforanycollide2(wholeworld[followmouse],mouseX-wholeworld[followmouse].width/2,mouseY-wholeworld[followmouse].height/2)
+if (canwepopout!==false){cancontinue=false}
+}
+
+if(cancontinue)
+{
+wholeworld[followmouse].x=mouseX-wholeworld[followmouse].width/2;
+wholeworld[followmouse].y=mouseY-wholeworld[followmouse].height/2
+wholeworld[followmouse].updatediv2();
+}
+
+}
+}
+
+counter++
+}
+
+
+function pauseloop()
+{
+
+if(followmouse!==false)
+{
+//wholeworld[followmouse].type==1 && 
+if(wholeworld[followmouse].gametype!==0)
+{
+var cancontinue=true;
+//alert(document.getElementById('dragcollisions').checked)
+if(document.getElementById('dragcollisions').checked)
+{
+canwepopout=checkforanycollide2(wholeworld[followmouse],mouseX-wholeworld[followmouse].width/2,mouseY-wholeworld[followmouse].height/2)
+if (canwepopout!==false){cancontinue=false}
+}
+
+if(cancontinue)
+{
+wholeworld[followmouse].x=mouseX-wholeworld[followmouse].width/2;
+wholeworld[followmouse].y=mouseY-wholeworld[followmouse].height/2
+wholeworld[followmouse].updatediv2();
+}
+
+
+}
+}
+
+}
+
+var player=ball.arraypos;
+
+function moveus()
+{
+
+if (moveright){wholeworld[player].fx+=incriment; if (wholeworld[player].fx>maxuserforce){wholeworld[player].fx=maxuserforce};}
+if (moveleft){wholeworld[player].fx-=incriment; if (wholeworld[player].fx<-maxuserforce){wholeworld[player].fx=-maxuserforce}}
+if(!moveright && !moveleft){if (wholeworld[player].fx>0){wholeworld[player].fx-=incriment};if (wholeworld[player].fx<0){wholeworld[player].fx+=incriment}}
+if (moveup){wholeworld[player].fy-=incriment; if (wholeworld[player].fy < -maxuserforce){wholeworld[player].fy=-maxuserforce}}
+if (movedown){wholeworld[player].fy+=incriment; if (wholeworld[player].fy > maxuserforce){wholeworld[player].fy=maxuserforce}}
+if (!moveup && !movedown){wholeworld[player].fy+=incriment*2; if (wholeworld[player].fy > 0){wholeworld[player].fy=0}}
+
+/*
+if(moveleft){player.vx=-100;player.fy=-100}
+if(moveright){player.vx=100;player.fy=-100}
+if(!moveleft && !moveright){player.vx=0;}
+*/
+//document.getElementById('testspan').innerHTML="ourfx ="+us.fx+" ourfx ="+us.fy+" ourvx ="+us.vx+" ourvy ="+us.vy
+}
+
+
+
+
+
+function springforce(x1,x2,y1,y2,sprstr,sprlng)
+{
+var farapart=Math.sqrt( Math.pow(x2-x1,2) + Math.pow(y2-y1,2)  )
+var springforce=-sprstr*(farapart-sprlng);
+var springangle=getangle(x1-x2,y1-y2);
+return [farapart,springforce,springangle];
+}
+
+
+function posfromforce(vx,vy,testfx,testfy,ourangle,ourspeedfriction,times)
+{
+var testax=testfx/wholeworld[i].mass
+var testay=testfy/wholeworld[i].mass
+//var testnewvy=Math.sin(ourangle)*ourspeedfriction+(testfx/wholeworld[i].mass)*times
+//var testnewvx=Math.cos(ourangle)*ourspeedfriction+(testfy/wholeworld[i].mass)*times
+
+var testnewvy=vy+(testfx/wholeworld[i].mass)*times
+var testnewvx=vx+(testfy/wholeworld[i].mass)*times
+
+var testnewx=(testnewvx*times+1/2*testax*timeperloop*timeperloop)+wholeworld[i].x
+var testnewy=(testnewvy*times+1/2*testay*timeperloop*timeperloop)+wholeworld[i].y
+return[testnewx,testnewy];
+}
+
+
+
+//IDEA FOR FRICITON, ADD FRICTION TO SPEED, THEN RESLOVE FOR X AND Y VELOCITIES
+
+function replotentities()
+{
+updatedlines=new Array()
+for (i=0;i<wholeworld.length;i++)
+//for (i=wholeworld.length-1;0<i;i--)
+{
+if(wholeworld[i].type == 0 && wholeworld[i].state==1)
+{
+//if type=0 then we're a entity and thus need to be replotted, and we're not dead
+ourspeed=Math.sqrt(wholeworld[i].vx*wholeworld[i].vx+wholeworld[i].vy*wholeworld[i].vy)
+
+var ourangle
+
+if(wholeworld[i].vx<0){ourangle=(Math.PI)+(Math.atan(wholeworld[i].vy/wholeworld[i].vx))}
+else if(wholeworld[i].vx>0 && wholeworld[i].vy>=0){ourangle=Math.atan(wholeworld[i].vy/wholeworld[i].vx)}
+else if(wholeworld[i].vx>0 && wholeworld[i].vy < 0){ourangle=2*(Math.PI)+Math.atan(wholeworld[i].vy/wholeworld[i].vx)}
+else if(wholeworld[i].vx==0 && wholeworld[i].vy == 0){ourangle=0}
+else if(wholeworld[i].vx==0 && wholeworld[i].vy>=0){ourangle=(Math.PI)/2}
+else{ourangle=3*(Math.PI)/2}
+
+var ourspeedfriction=ourspeed*friction
+
+//if(wholeworld[i].connected.length>0){ourspeedfriction/=2;}
+
+//acceleration of object to be updated; f=ma therefore a=f/m
+var fx=wholeworld[i].fx+gravityX*wholeworld[i].mass//-wholeworld[i].vx
+var fy=wholeworld[i].fy+gravityY*wholeworld[i].mass//-wholeworld[i].vy
+
+if(wholeworld[i].charged)
+{for(var k=0;k<chargedobjects.length;k++)
+{if(chargedobjects[k].name!==wholeworld[i].name)
+{var rsqrd=Math.pow(wholeworld[i].x-chargedobjects[k].x,2)+Math.pow(wholeworld[i].y-chargedobjects[k].y,2)
+//coloumbs law:
+//f=k.q1.q2/r^2
+var coulombforce=8990000000*chargedobjects[k].charge*wholeworld[i].charge/rsqrd
+var coulombangle=getangle(wholeworld[i].x-chargedobjects[k].x,wholeworld[i].y-chargedobjects[k].y)
+fy+=Math.sin(coulombangle)*coulombforce
+fx+=Math.cos(coulombangle)*coulombforce}}}
+
+var tempvx=Math.cos(ourangle)*ourspeedfriction
+var tempvy=Math.sin(ourangle)*ourspeedfriction
+
+//for(var k=wholeworld[i].connected.length-1;k>=0;k--)
+
+var runspringfor=wholeworld[i].connected.length
+//if(followmouse==i){runspringfor=1}
+for(var k=0;k<runspringfor;k++)
+{
+
+//if(followmouse!==i){
+var them=wholeworld[i].connected[k];
+springlines[wholeworld[i].springlinearraypos[k]].updateline();
+
+var tempspringstrength=wholeworld[i].springstrength[k];
+var tempspringlength=wholeworld[i].springlength[k];
+var themx=(wholeworld[them].x+wholeworld[them].width/2)
+var themy=(wholeworld[them].y+wholeworld[them].height/2)
+/*}
+else
+{
+var themx=mouseX;var themy=mouseY;
+var tempspringstrength=1000;
+var tempspringlength=10;
+}
+*/
+//Hooke's Law:
+//F=-kx
+var springvar = springforce((wholeworld[i].x+wholeworld[i].width/2),themx,(wholeworld[i].y+wholeworld[i].height/2),themy,tempspringstrength,tempspringlength)
+//(wholeworld[us].x+wholeworld[us].width/2)-themx,(wholeworld[us].y+wholeworld[us].height/2)-themy
+
+//force from current position
+var testfy=Math.sin(springvar[2])*springvar[1]//+wholeworld[i].vx
+var testfx=Math.cos(springvar[2])*springvar[1]//+wholeworld[i].vy
+
+//force from one loop's time if the above force were applied
+var testpositions=posfromforce(tempvx,tempvy,testfx,testfy,ourangle,ourspeedfriction,timeperloop/2);
+springvar = springforce((testpositions[0]+wholeworld[i].width/2),themx,(testpositions[1]+wholeworld[i].height/2),themy,tempspringstrength,tempspringlength)
+var testfy2=Math.sin(springvar[2])*springvar[1]
+var testfx2=Math.cos(springvar[2])*springvar[1]
+
+//force on thingy if it moved using average of above two forces
+testpositions=posfromforce(tempvx,tempvy,(testfx+testfx2)/2,(testfy+testfy2)/2,ourangle,ourspeedfriction,timeperloop);
+springvar = springforce((testpositions[0]+wholeworld[i].width/2),themx,(testpositions[1]+wholeworld[i].height/2),themy,tempspringstrength,tempspringlength)
+var testfy3=Math.sin(springvar[2])*springvar[1]
+var testfx3=Math.cos(springvar[2])*springvar[1]
+/*
+testpositions=posfromforce((testfx+testfx2+testfx3)/3,(testfy+testfy2+testfy3)/3,ourangle,ourspeedfriction,timeperloop);
+springvar = springforce((testpositions[0]+wholeworld[i].width/2),(wholeworld[them].x+wholeworld[them].width/2),(testpositions[1]+wholeworld[i].height/2),(wholeworld[them].y+wholeworld[them].height/2),wholeworld[i].springstrength[k],wholeworld[i].springlength[k])
+var testfy4=Math.sin(springvar[2])*springvar[1]
+var testfx4=Math.cos(springvar[2])*springvar[1]
+*/
+//fy+=(testfy+testfy3+testfy2+testfy4)/4
+//fx+=(testfx+testfx3+testfx2+testfx4)/4
+
+fy+=(testfy+testfy2+testfy3)/3
+fx+=(testfx+testfx2+testfx3)/3
+
+//fy+=testfy4
+//fx+=testfx4
+}
+
+
+ax=fx/wholeworld[i].mass
+ay=fy/wholeworld[i].mass
+
+//v=u+at
+newvy=Math.sin(ourangle)*ourspeedfriction+ay*timeperloop
+newvx=Math.cos(ourangle)*ourspeedfriction+ax*timeperloop
+//wholeworld[i].vy=newvy
+//wholeworld[i].vx=newvx
+//optimisation, if we're not moving, don't faff about re-plotting our position
+if(newvy!==0 || newvx!==0){
+// if we're moving really slowly, and there's no force on us, then stop moving.
+if(ourspeedfriction <=minspeed && wholeworld[i].fx==0 && wholeworld[i].fy==0 && ax==0 && ay==0){newvx=0;newvy=0;}
+//s=ut + 0.5at^2 therefore, new position = old position + ut+1/2at^2
+newx=(wholeworld[i].vx*timeperloop+1/2*ax*timeperloop*timeperloop)+wholeworld[i].x
+newy=(wholeworld[i].vy*timeperloop+1/2*ay*timeperloop*timeperloop)+wholeworld[i].y
+
+if(followmouse==i){newx=mouseX-wholeworld[i].width/2;newy=mouseY-wholeworld[i].height/2;}
+
+for (var i2=0;i2<wholeworld.length;i2++)
+{
+if(wholeworld[i2].hard==true && i!==i2 && wholeworld[i2].state==1)
+{
+if(checkcollide(newx,newy,wholeworld[i].width,wholeworld[i].height,wholeworld[i].shape,wholeworld[i2].x,wholeworld[i2].y,wholeworld[i2].width,wholeworld[i2].height,wholeworld[i2].shape,wholeworld[i],wholeworld[i2]))
+{//if there is a collision
+
+switch(wholeworld[i].gametype)
+{
+//case 1: if(wholeworld[i2].gametype==2){if(wholeworld[i].name=='us'){wholeworld[i].state=4;}else{wholeworld[i].state=3}};break;
+//use this to detect stuff
+}
+
+
+if(wholeworld[i2].sticky==false)
+{
+if(wholeworld[i].shape==0 && wholeworld[i2].shape==0)
+{
+wholeworld[i].vx=newvx
+wholeworld[i].vy=newvy
+collideascircles(wholeworld[i],wholeworld[i2])
+
+}else if(wholeworld[i].shape==3|| wholeworld[i2].shape==3){collidewithpoly(wholeworld[i],wholeworld[i2])}
+else
+{
+collideassquares(wholeworld[i],wholeworld[i2])
+}
+
+if(wholeworld[i2].type==0){wholeworld[i2].vx=theirnewvx;wholeworld[i2].vy=theirnewvy}
+//newx=wholeworld[i].x;newy=wholeworld[i].y;
+
+
+//this bit is new (v1.48), the idea is to solve problems when a ball is stuck between two plates, or similar.
+var dx=newx-wholeworld[i].x
+var dy=newy-wholeworld[i].y
+if(checkcollide((newx-dx/4),(newy-dy/4),wholeworld[i].width,wholeworld[i].height,wholeworld[i].shape,wholeworld[i2].x,wholeworld[i2].y,wholeworld[i2].width,wholeworld[i2].height,wholeworld[i2].shape,wholeworld[i],wholeworld[i2])!==true){newx-=dx/4;newy-=dy/4;}
+else if(checkcollide((newx-dx/2),(newy-dy/2),wholeworld[i].width,wholeworld[i].height,wholeworld[i].shape,wholeworld[i2].x,wholeworld[i2].y,wholeworld[i2].width,wholeworld[i2].height,wholeworld[i2].shape,wholeworld[i],wholeworld[i2])!==true){newx-=dx/2;newy-=dy/2;}
+else if(checkcollide((newx-(dx/4)*3),(newy-(dy/4)*3),wholeworld[i].width,wholeworld[i].height,wholeworld[i].shape,wholeworld[i2].x,wholeworld[i2].y,wholeworld[i2].width,wholeworld[i2].height,wholeworld[i2].shape,wholeworld[i],wholeworld[i2])!==true){newx-=(dx/4)*3;newy-=(dy/4)*3;}
+else{newx=wholeworld[i].x;newy=wholeworld[i].y;}
+
+wholeworld[i].vx=newvx
+wholeworld[i].vy=newvy
+
+//end of if sticky
+}
+
+newvx*=wholeworld[i].elastic
+newvy*=wholeworld[i].elastic
+
+//end of there is a collision
+}
+//end of collidable if statement
+}
+//end of i2 (collision) loop
+}
+
+wholeworld[i].vx=newvx
+wholeworld[i].vy=newvy
+
+wholeworld[i].x=newx
+wholeworld[i].y=newy
+
+whichdiv=document.getElementById(wholeworld[i].div);
+whichdiv.style.left=Math.round(newx);
+whichdiv.style.top=Math.round(newy);
+
+//end of if we're moving statement
+}
+
+//end of if entity statement
+}
+//this will attempt to bring back to life anything which couldn't come back because somehting was in the way 
+else if(wholeworld[i].state==2){wholeworld[i].unkill()}
+else if(wholeworld[i].state==3){wholeworld[i].destroy();}
+else if(wholeworld[i].state==4){wholeworld[i].kill();wholeworld[i].x=100;wholeworld[i].y=275;wholeworld[i].fx=0;wholeworld[i].fy=0;wholeworld[i].vx=0;wholeworld[i].vy=0;wholeworld[i].unkill();}
+//end of wholeworld loop 
+}
+//end of replotentities()
+}
+
+function update(updateme)
+{}
+
+var paused=false;
+function togglepause()
+{
+if(paused){
+clearInterval(loopme);
+paused=false;loopme=setInterval('loop()',refreshrate);document.getElementById("pausebutton").value="Pause"
+
+
+}
+else{
+paused=true;clearInterval(loopme);document.getElementById("pausebutton").value="Play"
+loopme=setInterval('pauseloop()',refreshrate)
+
+}
+}
+
+
+
+// variables to hold mouse x-y position
+var mouseX = 0
+var mouseY = 0
+var oldmouseX = 0
+var oldmouseY = 0
+var changeinX=0;
+var changeinY=0;
+var oldtop
+var oldleft
+var diffinx
+var diffiny
+
+var mousein=false;
+
+//this is called anytime the mouse button is released on the page. Stops windows 'sticking' to the mouse
+function finalmouseup()
+{followmouse=false;}
+
+//detect IE or not for mouse capture
+if (document.all){var IE=true}else{var IE = false}
+if (IE==false) {document.captureEvents(Event.MOUSEMOVE)}
+
+function getMouseXY(e)
+{if(IE){
+//grab the x-y pos.s if browser is IE
+mouseX = event.clientX + document.body.scrollLeft
+mouseY = event.clientY + document.body.scrollTop
+}else{
+//grab the x-y pos.s if browser is NS
+mouseX = e.pageX
+mouseY = e.pageY}
+//catch possible negative values in NS4
+if (mouseX < 0){mouseX = 0}
+if (mouseY < 0){mouseY = 0}
+//this will do things with the mouse movement
+checkmice();
+oldmouseX=mouseX;
+oldmouseY=mouseY;}
+
+function checkmice()
+{
+/*
+if(mousein!==false)
+{
+if(wholeworld[mousein].state==1 && wholeworld[mousein].type==0 && wholeworld[mousein].hard)
+{
+
+}
+
+
+}
+
+*/
+}
+
+var selected=false;
+var followmouse=false;
+
+var created=0;
+
+
+function mousegonedown(event,here)
+{
+switch(document.getElementById('mousedoes').value)
+{
+case 'drag':
+mousein=here
+followmouse=here
+//wholeworld[here].followmouse();
+break;
+case 'breaksprings': 
+wholeworld[here].cutfree();
+break;
+case 'givecharge':
+if(!isNaN(parseFloat(document.getElementById('chargesize').value)))
+{wholeworld[here].makecharged(document.getElementById('chargesize').value*negposcharge)
+}else{wholeworld[here].makecharged(negposcharge*0.2);document.getElementById('chargesize').value=0.2;}
+break;
+case 'nocharge':
+wholeworld[here].makecharged(0)
+break;
+case 'springconnect':
+if(selected===false && wholeworld[here].name!=='bg')
+{selected=here;
+document.getElementById('selectedspan').innerHTML="Connect "+wholeworld[here].name;
+document.getElementById('selectedspan').style.display="block";
+}else if(selected!==here && wholeworld[here].name!=='bg'){document.getElementById('selectedspan').innerHTML='';
+document.getElementById('selectedspan').style.display="none";
+
+if(!isNaN(parseFloat(document.getElementById('customk').value))){var customk=document.getElementById('customk').value;}else{var customk=5000;}
+if(document.getElementById('customspringlength').value==0){var customlength=false;}
+else if(!isNaN(parseFloat(document.getElementById('customspringlength').value))){var customlength=document.getElementById('customspringlength').value;}else{var customlength=false;}
+
+connect(selected,here,customk,customlength,document.getElementById('customlinetype').value)
+selected=false;}
+break;
+
+
+case 'stringconnect':
+if(selected===false)
+{selected=here;
+document.getElementById('selectedspan').innerHTML="Connect "+wholeworld[here].name;
+document.getElementById('selectedspan').style.display="block";
+}else{document.getElementById('selectedspan').innerHTML='';
+document.getElementById('selectedspan').style.display="none";
+
+var tempdensity=30
+var tempdotsize=6
+var tempk=5000
+
+if(!isNaN(parseFloat(document.getElementById('stringdensity').value))){tempdensity=document.getElementById('stringdensity').value}else{document.getElementById('stringdensity').value=30}
+if(!isNaN(parseFloat(document.getElementById('stringdotsize').value))){tempdotsize=document.getElementById('stringdotsize').value}else{document.getElementById('stringdotsize').value=6}
+if(!isNaN(parseFloat(document.getElementById('stringk').value))){tempk=document.getElementById('stringk').value}else{document.getElementById('stringk').value=5000}
+
+
+stringbetween(selected,here,tempdensity,tempdotsize,tempk)
+selected=false;}
+break;
+
+case 'delete':
+//wholeworld[here].destroy();
+//wholeworld[here].cutfree();
+if(wholeworld[here].gametype!==0){wholeworld[here].kill();}
+break;
+
+case 'fix':
+//make object static
+wholeworld[here].type=1;
+break;
+case 'free':
+//make object movable
+if(wholeworld[here].gametype!==0)
+{
+wholeworld[here].type=0;
+}
+break;
+
+case 'create':
+
+var tempshape=document.getElementById('createshape').value;
+var temptype=document.getElementById('createtype').value;
+var tempwidth
+var tempheight
+var tempelastic
+var tempmass
+
+switch(tempshape)
+{
+case '1'://rectangle
+if(!isNaN(parseFloat(document.getElementById('createheight').value))){tempheight=document.getElementById('createheight').value}else{tempheight=document.getElementById('createheight').value=50}
+if(!isNaN(parseFloat(document.getElementById('createwidth').value))){tempwidth=document.getElementById('createwidth').value}else{tempwidth=document.getElementById('createwidth').value=50}
+break;
+case '0'://circle
+if(!isNaN(parseFloat(document.getElementById('creatediameter').value))){tempwidth=document.getElementById('creatediameter').value;tempheight=document.getElementById('creatediameter').value;}else{document.getElementById('createwidth').value=50}
+switch(tempwidth)
+{
+case '50':
+var tempimage='balls/red.gif';
+break;
+case '20':
+var tempimage="balls/black20.gif";
+break;
+case '9':
+var tempimage="tinyballs/green.gif";
+break;
+}
+
+break;
+}
+
+
+if(!isNaN(parseFloat(document.getElementById('createmass').value))){tempmass=document.getElementById('createmass').value}else{document.getElementById('createmass').value=50}
+if(!isNaN(parseFloat(document.getElementById('createelastic').value))){tempelastic=document.getElementById('createelastic').value}else{document.getElementById('createelastic').value=1}
+
+if(checkforanycollide3(mouseX-tempwidth/2,mouseY-tempheight/2,tempwidth*1,tempheight*1,tempshape*1)==false || document.getElementById('createcolision').checked==false)
+{//only create shape if it's not colliding or collision detection isn't wanted
+
+switch(tempshape)
+{case '0':
+new entity(1,'circle'+created,mouseX-tempwidth/2,mouseY-tempheight/2,tempwidth*1,tempheight*1,tempmass*1,tempimage,temptype*1,0,0,0,0,true,false,0,'',1,tempelastic*1,'');
+break;
+case '1':
+var temp=new entity(1,'square'+created,mouseX-tempwidth/2,mouseY-tempheight/2,tempwidth*1,tempheight*1,tempmass*1,false,temptype*1,0,0,0,0,true,false,0,'background-color:blue;',1,tempelastic*1,'');
+break;}
+}
+
+created++;
+break;
+
+
+}
+
+
+if (event.preventDefault){event.preventDefault();}
+
+event.returnValue = false;
+
+return false;
+//alert(here)
+}
+
+document.onmouseup   = finalmouseup;
+document.onmousemove = getMouseXY;
+
+//document.onmousedown= mousegonedown
+
+
+/*
+
+if (event.preventDefault)
+event.preventDefault();
+event.returnValue = false;
+
+*/
+//-->
+</script>
+
+</body>
+</html>
+
+

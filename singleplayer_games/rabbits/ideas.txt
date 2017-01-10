@@ -1,0 +1,77 @@
+- burrows for exit
+- hatches for entrance.
+- different coloured ears and bodies.
+- use squinkles instead of rabbits?
+- simply squashing the hexagons along the y axis might be enough to make it look 3d
+
+from pitdroids:
+-ratio arrows
+-only so many rabbits arrows
+-re-colour rabbit tile
+-immovable arrows
+
+need series of levels, so the tutorials all run into each other, etc. "Next Level" seen at end of level.
+
+animation system ideas:
+-two steps to an animation,
+-for simple mopving forward it would be move forward and then move forward again.
+-for crashing, it would be move forward, then crash
+-for turning, move forward, then turn.
+-could be stored as an array.
+
+
+re-paint cell - background has four colours, top has either circle, ears or object?
+
+sam H's - able to keep toolbox open / drag it about
+Josh's - toggleable fast forwards.
+
+IE optimisation - scrap different colours for each cell, just block in whole area with one green, and pop lines over top.
+-maybe use an array to build up a set of functions to draw the lines, so all can be stroked at once?
+
+eg linearray.push(function(){canvas.moveTo......})
+then run them all at once with one big beginPath and stroke.
+
+above idea works beautiflly! idea2 - put all the IEdraws into another .js file and just use if(IE){drawArrow=IEdrawArrow}
+
+even after all this hard work with the IEdraw stuff- would two canvases, one for bunnies, one for world, be as fast?  Would make it easier in not needing two functions for all the objects, and reduce the number of layers needed.
+
+-adapt IEfill stuff for an array of layers, (of adaptable size?), for all browsers?
+
+-walk blindly then check after having finished moving?
+
+for a potential upload level - make them complete it first before allowing it to be uploaded.  Prehaps also store where they placed arrows?
+
+MOAR LEVELS
+
+hand-draw-scanned pics (squinkles style) for backgrounds, buttons, etc?
+
+for on/off thing - a rabbit trap?  One of thoes clampy teeth things?
+
+In game - Main Menu link takes to a pop up asking Are you sure? Load Another Level, Main Menu, Back to Game
+
+Add level welcome message to the level object, rather than a bit of JS to be evaled when level is loaded?
+
+Maybe a Skip This Level option?  and better system for level orders in groups like Medium?
+-sub groups?  Have first from eachn subgroup,then second, so on?
+
+linked locks - ones which simply copy another lock
+
+Jenny's - Reset Arrows button.
+
+Images/another canvas for toolbox?
+
+for text above bunnies, etc, use centre co-ords and minus half the string length*fontwidth*constant?
+
+Mike's - Save Solution option, either save arrows or just make it able to view level again?
+
+Pit droids collisions:  droids can't collide when entering the exit hole, they seem to count as exited when entering that square.
+
+Mike's ideas:
+-option for when a hutch should start
+-fix stupid options for gates (and tidy up red/carrot stuff?)
+
+-bring back the IEdraw idea for the bunnies - will speed up drawing lots at once.
+
+-in editor, link key to lock in a similar way to linking a fakelock?
+
+-02/09/2008 : Add animate quality option to main menu and in game menu?  Pegs-style click on to scroll through Simple (0), Good (1), Best (2).

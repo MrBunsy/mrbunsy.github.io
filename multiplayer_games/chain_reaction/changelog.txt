@@ -1,0 +1,50 @@
+Chain Reaction Change Log
+
+0.01 (29-02-08):
+-Got simple world generator working, using .PNGs for bombs, and just a grid of images.
+-Clicking a cell adds a bomb.
+(01-03-08):
+-Clicking changes colour of go.
+
+0.02 (01-03-08):
+-Detection of when too many bombs are in one cell.
+
+0.03 (02-03-08):
+-Improving detection functions
+
+0.04 (02-03-08):
+-Exploding algorythm works - but can get stuck in infitite loop.  Needs to be run more slowly so you can see what's going on.
+
+0.05 (02-03-08):
+-Slowed down explosions, one every second and explosion image.
+
+0.07 (03-03-08):
+-Win detection added and de-bugged.
+
+0.09 (04-03-08):
+-Re-written players and win system so it can cope with any number of players (going to limit it at 4 though).
+
+0.10 (5-03-08):
+-Which cell to be exploded is done by a weightings system - more weight to over-full cells, cells near other players and cells near previous explosion.
+
+0.11 (5-03-08):
+-Easy AI finished (bit pointless though)
+-Medium AI working, probably not finished.
+-Not started on hard AI yet.
+
+0.12 (5-03-08):
+-improvment to medium AI and UI
+
+0.13 (5-03-08):
+-Much better UI.  Still could do with tweaking though.
+
+0.14 (6-03-08):
+-Width and height only specified in first window now.
+-AI skill option added, but only medium and easy as options.  Hard hasn't been written yet.
+
+0.15 (6-03-08):
+-Changed names of new game buttons to: human v human, human v AI, etc.
+
+0.16 (6-03-08):
+-Added kill annoucments.
+-Added help window and CSS to make h2 smaller

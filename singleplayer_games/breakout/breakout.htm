@@ -1,0 +1,1178 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<title>Breakout on Luke's 2D JavaScript Engine version 0.94 (modified)</title>
+<script src="keys3.js" type="text/javascript"></script>
+<script src="levels12b.js" type="text/javascript"></script>
+<script src="ajax2.js" type="text/javascript"></script>
+</head>
+<body onkeydown="keydown(event)" onkeyup="keyup(event)">
+<!--you MUST pre-load all images used in the game like this, as some browsers do very weird things when new images are called up by javascript.  Also helps stop problems with images not loaidng in time
+Also, make sure you have a background div of some sort, over the top, to hide them. (display:none; will also do weird things in my experience in IE)
+//-->
+<!--<img src="squares/blue.gif" alt=""><img src="squares/green.gif" alt=""><img src="squares/purple.gif" alt=""><img src="squares/red.gif" alt=""><img src="squares/yellow.gif" alt=""><img src="squares/orange.gif" alt=""><img src="squares/blank.gif" alt="">//-->
+<br>
+<img src="squares/blackball.gif" alt=""><img src="squares/normalpaddle.gif" alt=""><img src="squares/bigpaddle.gif" alt=""><img src="squares/smallpaddle.gif" alt="">
+<br>
+<img src="bonuses/bigpaddle.gif"><img src="bonuses/smallpaddle.gif"><img src="bonuses/3balls.gif"><img src="bonuses/slowdown.gif"><img src="bonuses/speedup.gif"><img src="bonuses/extralife.gif"><img src="bonuses/loselife.gif"><img src="bonuses/guns.gif"><img src="bonuses/hardball.gif">
+<img src="bonuses/sticky.gif"><img src="bonuses/softball.gif">
+
+<div style="position:absolute;top:50;left:50"><img src="levelpics/level1small.png" alt=""></div>
+<div style="position:absolute;top:50;left:50"><img src="levelpics/level2small.png" alt=""></div>
+<div style="position:absolute;top:50;left:50"><img src="levelpics/level3small.png" alt=""></div>
+<div style="position:absolute;top:50;left:50"><img src="levelpics/level4small.png" alt=""></div>
+<div style="position:absolute;top:50;left:50"><img src="levelpics/level5small.png" alt=""></div>
+<div style="position:absolute;top:50;left:50"><img src="levelpics/level6small.png" alt=""></div>
+<div style="position:absolute;top:50;left:50"><img src="levelpics/level7small.png" alt=""></div>
+<div style="position:absolute;top:50;left:50"><img src="levelpics/level8small.png" alt=""></div>
+<div style="position:absolute;top:50;left:50"><img src="levelpics/level9small.png" alt=""></div>
+<div style="position:absolute;top:50;left:50"><img src="levelpics/level10small.png" alt=""></div>
+<div style="position:absolute;top:50;left:50"><img src="levelpics/level11small.png" alt=""></div>
+<div style="position:absolute;top:50;left:50"><img src="levelpics/level12small.png" alt=""></div>
+<div style="position:absolute;top:50;left:50"><img src="levelpics/level13small.png" alt=""></div>
+
+<span id="worldspan"></span>
+<div id="scorediv" style="position:absolute;left:660;top:50;border:solid black 1px; width:100;height:200">Score: 0<br>Level: 1<br>Lives: 3<br>Squares: 50</div>
+<div id="optionsspan" style="position:absolute;left:660;top:250;border:solid black 1px; width:100;height:100">
+<!--<span onclick="nextlevel()">nextlevel()</span> window.open('scoreboard.php','Breakout_Scoreboard','height=500, width=300');return false;//-->
+<table>
+<tr><td><span style="cursor:hand; cursor:pointer;" onClick="document.getElementById('helpdiv').style.display='none';document.getElementById('scoreboarddiv').style.display='block';PHPtoelement('scoreboard.php', 'scoreboarddiv')"><u>Scoreboard</u></a></span></td></tr>
+<tr><td><span style="cursor:hand; cursor:pointer;" onClick="document.getElementById('scoreboarddiv').style.display='none';document.getElementById('helpdiv').style.display='block'"><u>Help</u></a></span></td></tr>
+</table>
+</div>
+
+<!--
+
+
+------------------- A Warning to the Curious --------------------- 
+
+
+Type DEBUG to get access to a panel of controls I used for bebugging.  
+
+This allows you to do things like skip a level and add any bonus by pressing the number keys
+
+You used to be able to use bonuses which aren't in the game, however they've since been replaced with other bonuses I'm afraid, but if you still want to see Sticky Paddle go to the '/old' directory and have a look through and see how the game's developed.
+
+Also, you can't submit your score if you've used the debug at all :P 
+
+
+
+
+//-->
+
+<div id="debugdiv" style="position:absolute;left:660;top:350;border:solid black 1px; width:100;height:200; display:none;">
+<span onclick="nextlevelpartA();setTimeout('nextlevel()',1);setTimeout('nextlevelpartB()',2);" style="cursor:hand; cursor:pointer;">nextlevel()</span>
+<br>
+<span onclick="alert(wholeworld.length)" style="cursor:hand; cursor:pointer;">wholeworld</span>
+<br>
+<span onclick="alert(ballspeed)" style="cursor:hand; cursor:pointer;">ballspeed</span>
+<br>
+Number keys for bonuses.
+</div>
+
+
+<div id="greyoutdiv" style="display:none; z-index:7; width:600;height:600; top:50; left:50; position:absolute; background-color:white; filter:alpha(opacity=50);-moz-opacity:.50;opacity:.50;" ></div>
+
+<div id="helpdiv" onClick="document.getElementById('helpdiv').style.display='none'" style="z-index:8; width:300; height:600; position:absolute; left:800;top:50; background-color:white; display:none; border:solid black 2px;">
+<center>
+<h2>Help</h2>
+</center>
+<h3>Controls</h3>
+<table>
+<tr><td>Move Paddle</td><td> = Arrow Keys</td></tr>
+<tr><td>Fire ball or bullets</td><td> = Spacebar</td></tr>
+<tr><td>Pause</td><td> = P</td></tr>
+<tr><td>Close a window</td><td> = Click on it</td></tr>
+</table>
+<h3>How To Play? - <span style="cursor:hand; cursor:pointer;" onClick="demo=true"><b><u>Run Demo</u></b></span></h3>
+<h3>Bonuses</h3>
+<table>
+<tr><td><img src="bonuses/bigpaddle.gif" alt="big paddle bonus"></td><td> = Makes paddle large.</td></tr>
+<tr><td><img src="bonuses/smallpaddle.gif" alt="small paddle bonus"></td><td> = Makes paddle small.</td></tr>
+<tr><td><img src="bonuses/hardball.gif" alt="hard ball bonus"></td><td> = Ball goes through tiles.</td></tr>
+<tr><td><img src="bonuses/softball.gif" alt="soft ball bonus"></td><td> = Ball does no damage.</td></tr>
+<tr><td><img src="bonuses/slowdown.gif" alt="slow down bonus"></td><td> = Slows ball down.</td></tr>
+<tr><td><img src="bonuses/speedup.gif" alt="small paddle bonus"></td><td> = Speeds ball up.</td></tr>
+<tr><td><img src="bonuses/extralife.gif" alt="extra life bonus"></td><td> = Gives you an extra life.</td></tr>
+<tr><td><img src="bonuses/loselife.gif" alt="lose life bonus"></td><td> = Takes away a life.</td></tr>
+<tr><td><img src="bonuses/guns.gif" alt="gun bonus"></td><td> = Gives paddle a dual-gun.</td></tr>
+<tr><td><img src="bonuses/3balls.gif" alt="3 balls bonus"></td><td> = Gives you 3 balls.</td></tr>
+</table>
+<p>
+<center><font size="2">Script and Images Copyright &copy; Luke Wallin 2007</font></center>
+</div>
+
+<div id="scoreboarddiv" onClick=";document.getElementById('scoreboarddiv').style.display='none'" style="z-index:8; width:300; height:500; position:absolute; left:800;top:50; background-color:white; display:none; border:solid black 2px;"></div>
+
+<div id="pausediv" style="z-index:8; width:300; height:300; position:absolute; left:200;top:200; background-color:white; display:none; border:solid black 2px;">
+<center><h2>Paused</h2>Press 'P' to unpause.</center>
+</div>
+
+<div id="nextleveldiv" style="z-index:8; width:300; height:300; position:absolute; left:200;top:200; background-color:white; display:none; border:solid black 2px;">
+<center><h2>Level 2</h2></center></div>
+
+<div id="endgamediv" style="z-index:8; width:300; height:300; position:absolute; left:200;top:200; background-color:white; display:none; border:solid black 2px;">
+<center>
+<h2>Game Over</h2>
+<h3>Submit Your Score?</h3>
+<form name="scoreform" action="javascript:submitscore()">
+Your Name:<br>
+<input type="text" size="20" name="name">
+<br>
+<input type="submit" value="Add Score">
+</form>
+<span onClick="history.go(0)" style="cursor:hand; cursor:pointer;"><h3>Play Again!</h3></span>
+</center>
+</div>
+
+<form  name='hiddenform' action='endgame.php' method='POST'>
+<input type='hidden' name='name' value=''>
+<input type='hidden' name='score' value=''>
+<input type='hidden' name='level' value=''>
+</form>
+
+<script language="JavaScript" type="text/javascript">
+<!--
+var wholeworld=new Array()
+
+if (document.all){var IE=true}else{var IE = false}
+
+//General variables used to define major things in the world
+
+var world=document.getElementById('worldspan');
+//gravity, and in which direction (could be used as a cheap wind, like Worms 1)  100 seems to be a nice value
+var gravityY=0;
+var gravityX=0;
+//how much things slow down by, by themselves
+var friction=0
+//time/s per refresh
+var timeperloop= 0.02
+//essentially fps
+//ie speed seems to be about 2/3:1  with FF
+//796:1000 ie:ff seems to work best with a side by side test
+var refreshrate;
+if(IE){refreshrate=timeperloop*796}else{refreshrate=timeperloop*1000}
+//velocity retained during collision (as fraction), set to 1 for inelastic collisions
+var dampen=1
+//most force the user can apply to 'us'
+var maxuserforce=20000
+var incriment=maxuserforce/10
+
+//ballspeed and paddlespeed are the set speeds of the ball
+var startballspeed=300
+var ballspeed=startballspeed;
+var ballspeednobonus=startballspeed;
+var paddlespeed=400;
+var paddlespeednobonus=400;
+
+//number of bonuses avaliable+1, used for loops to kill all bonuses and similar
+var numberofbonuses=11;
+
+var stickypaddle=false
+
+
+
+//the minimum speed anything can have before it's stopped (set to 0 for no min speed)
+var minspeed=2
+
+var addtoworld;
+
+function entity(state,name,x,y,width,height,mass,image,type,vx,vy,fx,fy,hard,sticky,shape,divoptions,squaretype)
+{
+var testarray=testnameinarray(name)
+if(testarray == false)
+{//if this entity isn't already in the world array, add it.....
+this.name=name;this.x=x*1;this.y=y*1;this.width=width*1;this.height=height*1;this.mass=mass*1;this.image=image;
+this.div=name+'div';
+//consider using documenty.gEtelkememtbyid?
+this.img=name+'img';
+//types 0 =moveable entitiy, 1= still object
+this.type=type;
+//v=veloctity,f=force
+this.vx=vx;this.vy=vy;this.fx=fx;this.fy=fy;
+//state is used for wether it's alive or dead (out of the world) or whatever 0=dead, 1=alive (in the world), 2= waiting to be brought back
+this.state=state
+//sticky types: false means elastic collision, true means all momentum is lost
+this.sticky=sticky;
+//shapes, 1= rectangle, 0=circle, 2=square/rectangle, but collide as circle
+this.shape=shape
+//can it collide?
+this.hard=hard
+//square types: 0-not a square, 1= normal square, 2= two life square, 3=3 life square, 4=gives a bonus, 5=falling bonus square, 7=bullet, 8=paddle, 9=ball,
+this.squaretype=squaretype;
+//enter our object into the world array
+wholeworld.push(this)
+this.divoptions=divoptions
+if(!testfordiv(this.div))
+{addtoworld="<div id=\'"+this.div+"' style='position:absolute;  width:"+this.width+";"+this.divoptions+" height:"+this.height+";  top:"+this.y+"; left:"+this.x+';'
+if(this.state!==1){addtoworld+="display:none;"}else{addtoworld+="display:block;"}
+addtoworld+="'>";
+if(this.image!==false){addtoworld+="<img id='"+this.name+"img' src='"+this.image+"'>";}
+addtoworld+="</div>"
+world.innerHTML+=addtoworld}
+}else{
+//....the worldarray already contains something by this name, so update it
+wholeworld[testarray].name=name;wholeworld[testarray].x=x*1;wholeworld[testarray].y=y*1;wholeworld[testarray].width=width*1;wholeworld[testarray].height=height*1;wholeworld[testarray].mass=mass*1;wholeworld[testarray].image=image;
+wholeworld[testarray].div=name+'div';
+wholeworld[testarray].img=name+'img';
+wholeworld[testarray].type=type;
+wholeworld[testarray].vx=vx;wholeworld[testarray].vy=vy;wholeworld[testarray].fx=fx;wholeworld[testarray].fy=fy;
+wholeworld[testarray].state=state
+wholeworld[testarray].sticky=sticky;
+wholeworld[testarray].shape=shape
+wholeworld[testarray].hard=hard
+wholeworld[testarray].divoptions=divoptions
+wholeworld[testarray].squaretype=squaretype;
+wholeworld[testarray].UpdateDiv();
+}
+//functions
+//this.UpDateMe=UpDateMe
+this.Vanish=Vanish
+this.UnVanish=UnVanish
+this.PlotMe=PlotMe
+this.UpdateDiv=UpdateDiv
+}
+
+
+function testfordiv(id)
+{var testme=document.getElementById(id);
+if(testme){return true;}else{return false;}}
+
+function testnameinarray(thisname)
+{for (var i5=0;i5<wholeworld.length;i5++)
+{if(wholeworld[i5].name == thisname){return i5;}}
+return false;}
+
+//here are where objects are created
+//NAMES MUST BE UNIQUE
+//entity(state,name,x,y,width,height,mass,image,type,vx,vy,fx,fy,hard,sticky,shape,divoptions,squaretype)
+//x,y co-ords are for the top left hand corner, div options are standard HTML bits and bobs for the style of the div
+
+var bonustime=new Array(0,0,0,0,0)
+//these are for the borders, you'll always want some kind of border (even if invisible) to stop anything being able to leave the screen
+var lowerborder=new entity(1,'lowerborder',0,650,700,50,10,false,1,0,0,0,0,true,false,1,'background-color:white;',0);
+var upperborder=new entity(1,'upperborder',0,0,700,50,10,false,1,0,0,0,0,true,false,1,'background-color:white;',0);
+var leftborder=new entity(1,'leftborder',0,0,50,700,10,false,1,0,0,0,0,true,false,1,'background-color:white;',0);
+var rightborder=new entity(1,'rightborder',650,0,50,700,10,false,1,0,0,0,0,true,false,1,'background-color:white;',0);
+var bgdiv=new entity(1,'bgdiv',50,50,600,600,10,false,1,0,0,0,0,false,false,1,'background-color:white; border: solid black 1px;',0);
+
+//var scorediv=new entity(1,'scorediv',660,50,100,200,1,false,1,0,0,0,0,false,false,1,'background-color:white; border: solid black 1px;',0);
+
+var ball=new entity(1,'ball',340,530,20,20,100,'squares/blackball.gif',0,0,0,0,0,true,false,0,'z-index:3;',9);
+var ballb=new entity(0,'ballb',340,530,20,20,100,'squares/blackball.gif',0,0,0,0,0,true,false,0,'z-index:3;',9);
+var ballc=new entity(0,'ballc',340,530,20,20,100,'squares/blackball.gif',0,0,0,0,0,true,false,0,'z-index:3;',9);
+
+var bullets=new Array();
+for(var i=0;i<=10;i++)
+{
+bullets[i]=new entity(0,'bullet'+i,340,530,3,10,100,false,0,0,0,0,0,false,false,0,'background-color:black; line-height:0; clip:rect(0,3px,10px,0); z-index:3;',7);
+}
+var paddle=new entity(1,'paddle',315,550,70,20,100,'squares/normalpaddle.gif',0,0,0,0,0,true,false,2,'',0);
+
+
+
+
+
+var score=0;
+var level=1;
+var lives=3;
+var ballonpaddle=true;
+
+
+
+
+var needredraw=false
+
+//blanks world span and re-draws it from scratch, (only including 'living' objects).  Not very efficient, causes a judder.
+function redrawworld()
+{world.innerHTML='';
+for (i4=0;i4<wholeworld.length;i4++)
+{wholeworld[i4].PlotMe()}}
+
+var canwepopout;
+
+//simply updates the actual div of an entity with that entities current values
+function UpdateDiv()
+{document.getElementById(this.div).style.left=this.x
+document.getElementById(this.div).style.top=this.y
+document.getElementById(this.div).style.width=this.width
+document.getElementById(this.div).style.height=this.height}
+
+//essentially kills an entity off
+function Vanish()
+{this.state=0;
+document.getElementById(this.div).style.display='none';}
+
+//brings entity back
+function UnVanish()
+{canwepopout=checkforanycollide(this)
+if (canwepopout !==false){this.state=2;}else{this.state=1;document.getElementById(this.div).style.display='block';}}
+
+//creates div in worldspan
+function PlotMe()
+{if(!testfordiv(this.div))
+{addtoworld="<div id=\'"+this.div+"' style='position:absolute;  width:"+this.width+";"+this.divoptions+" height:"+this.height+";  top:"+this.y+"; left:"+this.x+";";
+if(this.state!==1){addtoworld+="display:none;"}else{addtoworld+="display:block;"}
+addtoworld+="'>";
+if(this.image!==false){addtoworld+="<img id='"+this.name+"img' src='"+this.image+"'>";}
+addtoworld+="</div>"
+world.innerHTML+=addtoworld}}
+
+//if a ball collides with something, this checks to see what to do
+function checksquares(checkthis,thisball)
+{switch(checkthis.squaretype)
+{case 1:checkthis.Vanish();livesquares--;score++;break;
+case 4:collideassquares(thisball,checkthis);turnsquaretobonus(checkthis);livesquares--;score++;break;
+case 3:checkthis.squaretype=2;document.getElementById(checkthis.div).style.backgroundColor="#00ff00";break;
+case 2:checkthis.squaretype=1;document.getElementById(checkthis.div).style.backgroundColor="orange";break;
+case 0:if(checkthis.name=='lowerborder'){thisball.Vanish();if(countballs()==0){lives--;clearbonuses();resetball();}};break;}}
+
+//if a falling bonus collides, this checks what to do
+function checkbonuses(collideingwith,collidee)
+{if(collideingwith.name=='paddle' && collidee.state==1){givebonus(collidee.bonus);score+=20;collidee.Vanish();}
+if(collideingwith.name=='lowerborder'){collidee.Vanish();}}
+
+//if a flying bullet collides, this checks what to do
+function checkbullets(collideingwith,collidee)
+{if(collideingwith.squaretype!==9 && collidee.state==1)//if not a ball and alive
+{if(collideingwith.squaretype==1){collideingwith.Vanish();score++;livesquares--;}
+else if(collideingwith.squaretype==3){collideingwith.squaretype=2;document.getElementById(collideingwith.div).style.backgroundColor="#00ff00";}
+else if(collideingwith.squaretype==2){collideingwith.squaretype=1;document.getElementById(collideingwith.div).style.backgroundColor="orange";}
+else if(collideingwith.squaretype==4){turnsquaretobonus(collideingwith);score++;livesquares--;}//give BONUS
+collidee.Vanish()}}
+
+//changes the width of the paddle - used by bonuses mostly
+function changepaddlewidth(newwidth)
+{if(newwidth>200){newwidth=200}
+if(newwidth<20){newwidth=20}
+if(newwidth>paddle.width){if(paddle.x+newwidth>650){paddle.x=650-newwidth}}
+paddle.width=newwidth
+if(newwidth>70){document.getElementById(paddle.img).src="squares/bigpaddle.gif";paddle.image="squares/bigpaddle.gif";}
+else if (newwidth==70){document.getElementById(paddle.img).src="squares/normalpaddle.gif";paddle.image="squares/normalpaddle.gif";}
+else if(newwidth<70){document.getElementById(paddle.img).src="squares/smallpaddle.gif";paddle.image="squares/smallpaddle.gif";}
+paddle.UpdateDiv();}
+
+var randomnumber;
+
+//turns the specified square into a falling bonus, and randomly allocates it which bonus to be
+function turnsquaretobonus(thissquare)
+{thissquare.hard=false;
+thissquare.type=0;
+thissquare.vy=200;
+thissquare.squaretype=5;//falling bonus
+randomnumber = Math.ceil(Math.random()*10)
+
+//my initial solution to stickyballs was flawed, so sticky balls was then turned off.  It was more recently entirely replaced with a negative bonus soft ball 
+//I still *want* stickyballs to work (fond memories of it), but too much needs to be re-written for it to happen, so I've decided to wait until I feel like re-writing major parts of the script.  Considering I've spent ages weeding bugs out of this current script it ain't gonna happen.
+switch(randomnumber)
+{case 1:document.getElementById(thissquare.div).innerHTML='<img src="bonuses/bigpaddle.gif">';break;
+case 2:document.getElementById(thissquare.div).innerHTML='<img src="bonuses/smallpaddle.gif">';break;
+case 3:document.getElementById(thissquare.div).innerHTML='<img src="bonuses/slowdown.gif">';break;
+case 4:document.getElementById(thissquare.div).innerHTML='<img src="bonuses/speedup.gif">';break;
+case 5:document.getElementById(thissquare.div).innerHTML='<img src="bonuses/hardball.gif">';break;
+case 6:document.getElementById(thissquare.div).innerHTML='<img src="bonuses/guns.gif">';break;
+case 7:document.getElementById(thissquare.div).innerHTML='<img src="bonuses/softball.gif">';break;
+case 8:document.getElementById(thissquare.div).innerHTML='<img src="bonuses/3balls.gif">';break;
+case 9:document.getElementById(thissquare.div).innerHTML='<img src="bonuses/loselife.gif">';break;
+case 10:document.getElementById(thissquare.div).innerHTML='<img src="bonuses/extralife.gif">';break;}
+document.getElementById(thissquare.div).style.zIndex="2";
+thissquare.bonus=randomnumber;}
+
+//returns the HTML for the image of a bonus - used mostly by the display function
+function bonusimg(bonusnum)
+{switch (bonusnum)
+{case 1:return '<img src="bonuses/bigpaddle.gif">';break;
+case 2:return '<img src="bonuses/smallpaddle.gif">';break;
+case 3:return '<img src="bonuses/slowdown.gif">';break;
+case 4:return '<img src="bonuses/speedup.gif">';break;
+case 5:return '<img src="bonuses/hardball.gif">';break;
+case 6:return '<img src="bonuses/guns.gif">';break;
+case 7:return '<img src="bonuses/softball.gif">';break;
+case 8:return '<img src="bonuses/3balls.gif">';break;
+case 9:return '<img src="bonuses/loselife.gif">';break;
+case 10:return '<img src="bonuses/extralife.gif">';break;}}
+
+var hardball=false;
+var softball=false;
+var guns=false;
+var randomangle;
+
+//updates the speed of all the balls to the current ballspeed
+function updatespeeds()
+{if(ball.state==1 && !ballonpaddle){ourtempspeed=Math.sqrt(ball.vx*ball.vx+ball.vy*ball.vy)
+ourratio=ballspeed/ourtempspeed
+ball.vx=ball.vx*ourratio
+ball.vy=ball.vy*ourratio}
+if(ballb.state==1 && !ballonpaddle){ourtempspeed=Math.sqrt(ballb.vx*ballb.vx+ballb.vy*ballb.vy)
+ourratio=ballspeed/ourtempspeed
+ballb.vx=ballb.vx*ourratio
+ballb.vy=ballb.vy*ourratio}
+if(ballc.state==1 && !ballonpaddle){ourtempspeed=Math.sqrt(ballc.vx*ballc.vx+ballc.vy*ballc.vy)
+ourratio=ballspeed/ourtempspeed
+ballc.vx=ballc.vx*ourratio
+ballc.vy=ballc.vy*ourratio}}
+
+function givebonus(bonus)
+{
+//makes paddle flash yellow
+bonustime[10]=25;
+switch(bonus)
+{case 1:
+//make paddle wider
+//changepaddlewidth(midpaddle.width+30);
+changepaddlewidth(100);
+bonustime[1]=1000;
+bonustime[2]=0;
+break;
+case 2:
+//make paddle smaller
+//changepaddlewidth(midpaddle.width-30);
+changepaddlewidth(40);
+bonustime[2]=1000;
+bonustime[1]=0;
+break;
+case 3:
+//slow down ball
+ballspeed=ballspeednobonus*(2/3);
+updatespeeds()
+bonustime[3]=1000;
+bonustime[4]=0;
+break;
+case 4:
+//speed up ball
+ballspeed=ballspeednobonus*(3/2)
+updatespeeds()
+bonustime[4]=500;
+bonustime[3]=0;
+break;
+case 5:
+//make ball 'hard' (idea for new bonus - soft ball, bounces off everything causing no damage)
+hardball=true;
+softball=false;
+bonustime[7]=0;
+bonustime[5]=500;
+break;
+case 6:
+//give paddle guns
+guns=true;
+bonustime[6]=500;
+break;
+case 7:
+//make paddle sticky - currently this can't happen though
+//stickypaddle=true;
+softball=true;
+hardball=false
+bonustime[7]=500;
+bonustime[5]=0;
+break;
+case 8:
+//3 balls
+if(countballs()<=2)
+{if(ball.state!==1 && ballb.state==1){ball.x=ballb.x;ball.y=ballb.y;ball.vx=ballb.vx;ball.vy=ballb.vy;ballb.Vanish();ball.UnVanish();}
+else if(ball.state!==1 && ballc.state==1){ball.x=ballc.x;ball.y=ballc.y;ball.vx=ballc.vx;ball.vy=ballc.vy;ballc.Vanish();ball.UnVanish();}}
+if(ballb.state!==1)
+{ballb.x=ball.x;ballb.y=ball.y;
+randomangle=Math.random()*Math.PI*2
+ballb.vx=Math.cos(randomangle)*ballspeed;ballb.vy=-Math.sin(randomangle)*ballspeed;
+ballb.state=2;
+ballb.UpdateDiv()}
+if(ballc.state!==1)
+{ballc.x=ball.x;ballc.y=ball.y;
+randomangle=Math.random()*Math.PI*2
+ballc.vx=Math.cos(randomangle)*ballspeed;ballc.vy=-Math.sin(randomangle)*ballspeed;
+ballc.state=2;
+ballc.UpdateDiv()}
+break;
+case 9:
+//lose life
+lives--;
+document.getElementById('scorediv').style.backgroundColor="yellow";
+bonustime[9]=20;
+break;
+case 10:
+//gain life
+lives++;
+document.getElementById('scorediv').style.backgroundColor="yellow";
+bonustime[9]=20;
+break;}}
+
+//ends the bonus specified
+function endbonus(bonus)
+{switch(bonus)
+{case 1:changepaddlewidth(70);break;
+case 2:changepaddlewidth(70);break;
+case 3:ballspeed=ballspeednobonus;updatespeeds();break;
+case 4:ballspeed=ballspeednobonus;updatespeeds();break;
+case 5:hardball=false;break;
+case 6:guns=false;break;
+//case 7:stickypaddle=false;break;
+case 7:softball=false;break;
+case 9:document.getElementById('scorediv').style.backgroundColor="white";break;
+case 10:document.getElementById(paddle.div).style.backgroundColor="white";break;}}
+
+//counts the number of balls currently alive
+function countballs()
+{ballsinplay=0;
+if(ball.state==1){ballsinplay++;}
+if(ballb.state==1){ballsinplay++;}
+if(ballc.state==1){ballsinplay++;}
+return ballsinplay;}
+
+var ballsinplay
+
+//puts the ball back on the paddle and centres the paddle
+function resetball()
+{ballonpaddle=true;
+if(ballb.state==1){ballb.Vanish();}
+if(ballc.state==1){ballc.Vanish();}
+ball.UnVanish();
+paddle.x=315;
+ball.x=paddle.x+paddle.width/2-ball.width/2
+ball.y=paddle.y-ball.width;
+ball.vx=0;
+ball.vy=0;
+document.getElementById(paddle.div).style.left=paddle.x
+document.getElementById(ball.div).style.left=ball.x
+document.getElementById(ball.div).style.top=ball.y}
+
+//clears each bonus if it's active
+function clearbonuses()
+{for(var i=1;i<numberofbonuses;i++)
+{if(bonustime[i]!==0){bonustime[i]=0;endbonus(i)}}
+//kills all falling bonus squares and bullets - this doesn't call the function because for some reason IE reported percular bugs when it did
+for (i6=0;i6<wholeworld.length;i6++)
+{if(wholeworld[i6].squaretype == 5 && wholeworld[i6].state==1){wholeworld[i6].Vanish();}
+if(wholeworld[i6].squaretype == 7 && wholeworld[i6].state==1){wholeworld[i6].Vanish();}}}
+
+//kills all falling bonus squares and bullets
+function clearflyingstuff()
+{for (var i7=0;i7<wholeworld.length;i7++)
+{if(wholeworld[i7].squaretype == 5 && wholeworld[i7].state==1){wholeworld[i7].Vanish();}
+if(wholeworld[i7].squaretype == 7 && wholeworld[i7].state==1){wholeworld[i7].Vanish();}}}
+
+var scoreboard=document.getElementById('scorediv')
+
+//updates the display div
+function updatedisplay()
+{scoreboard.innerHTML="Score: "+score+"<br>Level: "+level+"<br>Lives: "+lives+"<br>Squares: "+livesquares
+if(Math.ceil(timebonuspoints)>0){scoreboard.innerHTML+="<br>Bonus: "+Math.ceil(timebonuspoints);}else{scoreboard.innerHTML+="<br>No Bonus"}
+//bonuses 9 and 10 are there simply to make the scoreboard div flash yellow.  Otherwise it puts the image of the bonus and the time (roughly) in seconds until it ends
+for(var i=1;i<numberofbonuses;i++)
+{if(bonustime[i]>0 && i!==9 && i!==10){scoreboard.innerHTML+='<br>'+bonusimg(i)+' : '+Math.ceil(bonustime[i]/(1000/refreshrate))}}}
+
+var land=1;//land is the level's name in reguard to which actual level it is, as opposed to how far the player's got.
+
+function inarray(haystack,needle)
+{for(var a=0;a<haystack.length;a++)
+{if(haystack[a]===needle){return true;}}
+return false;}
+
+var numoflands=13;
+var usedlands=new Array();
+var firstland=Math.ceil(Math.random()*numoflands)
+usedlands[0]=firstland;
+var currentland=firstland;
+createlevel(firstland);
+
+function createlevel(thislevel)
+{switch(thislevel)
+{case 1:createlevel1();break;
+case 2:createlevel2();break;
+case 3:createlevel3();break;
+case 4:createlevel4();break;
+case 5:createlevel5();break;
+case 6:createlevel6();break;
+case 7:createlevel7();break;
+case 8:createlevel8();break;
+case 9:createlevel9();break;
+case 10:createlevel10();break;
+case 11:createlevel11();break;
+case 12:createlevel12();break;
+case 13:createlevel13();break;
+}
+}
+
+//moves play into the next level
+function nextlevel()
+{inlevel=false;
+if(Math.round(timebonuspoints)>0){score+=Math.round(timebonuspoints)}
+ballspeednobonus+=15;
+if(bonustime[3]==0 && bonustime[4]==0){ballspeed=ballspeednobonus}
+clearflyingstuff()
+resetball();
+score+=100;
+createlevel(currentland)
+level++;
+redrawworld();}
+
+//greys out game, and pulls up "Level X" div
+function nextlevelpartA()
+{clearInterval(loopme)
+
+//below works out the next level you'll play.
+if(usedlands.length<numoflands)
+{//if we've not played all the lands yet.
+currentland=Math.ceil(Math.random()*numoflands)
+while(inarray(usedlands,currentland))
+{currentland=Math.ceil(Math.random()*numoflands);}
+usedlands.push(currentland);
+}else{//keep on looping.
+currentland=usedlands[level%numoflands];}
+
+greyout(true);
+document.getElementById('nextleveldiv').style.display='block';
+document.getElementById('nextleveldiv').innerHTML="<center><h2>Level "+(level+1)+"</h2><img src='levelpics/level"+(usedlands[level%numoflands])+"small.png' alt='levelpreview'></center>"
+if(demo){document.getElementById('nextleveldiv').innerHTML+="<p><center><h3>- Demo Loop -</h3></center>"}
+else if(Math.round(timebonuspoints)>0){document.getElementById('nextleveldiv').innerHTML+="<p><center>Time Bonus = "+(Math.round(timebonuspoints))+"</center>"}
+}
+
+//does opposite of above
+function nextlevelpartB()
+{loopme=setInterval('loop()',refreshrate);
+document.getElementById('nextleveldiv').style.display='none';
+greyout(false)}
+
+//used by AI to find a nearby bonus
+function findfirstbonus(faraway)
+{for (i9=0;i9<wholeworld.length;i9++)
+{if(wholeworld[i9].squaretype == 5 && wholeworld[i9].state==1)
+{if(wholeworld[i9].x>paddle.x-faraway && wholeworld[i9].x<paddle.x+paddle.width+faraway){return wholeworld[i9]}}}
+return false;}
+
+var demo=false
+var statleveltimes=new Array(new Array, new Array);//0=land, 1=time;
+var currentleveltime=0;
+var oldstatlevel=0;
+
+var nearbonus
+var goforthis
+
+function rundemo()
+{
+if(ballonpaddle){moveleft=true;spacepressed()}
+else{
+if(guns){spacedown=true;}else{spacedown=false;}
+
+if(ball.state==1){goforthis=ball;}
+else if(ballb.state==1){goforthis=ballb;}
+else if(ballc.state==1){goforthis=ballc;}
+//if the ball is going UP go for nearly every bonus, if the ball is coming DOWN, look less and less far away for bonuses the closer the ball gets
+//not infallable, and it goes for bad bonuses too, but works well enough for a demo :) (plus it's more realistic)
+if(ball.vy<0){nearbonus=findfirstbonus(500);if(nearbonus!==false){goforthis=nearbonus;}}
+else if(ball.y<50){nearbonus=findfirstbonus(300);if(nearbonus!==false){goforthis=nearbonus;}}
+else if(ball.y<150){nearbonus=findfirstbonus(200);if(nearbonus!==false){goforthis=nearbonus;}}
+else if(ball.y<250){nearbonus=findfirstbonus(150);if(nearbonus!==false){goforthis=nearbonus;}}
+else if(ball.y<300){nearbonus=findfirstbonus(100);if(nearbonus!==false){goforthis=nearbonus;}}
+
+moveleft=false
+moveright=false
+if(goforthis.x<paddle.x){moveleft=true}
+else if (goforthis.x+goforthis.width>paddle.x+paddle.width){moveright=true}
+//end of ballonpaddle if
+}
+
+}
+
+
+function rundebug()
+{
+if(debug){document.getElementById('debugdiv').style.display="block";}else{document.getElementById('debugdiv').style.display="none";}
+}
+
+var timebonuspoints=120;
+var inlevel=false;
+
+//loop stuff
+var loopme=setInterval('loop()',refreshrate)
+function loop()
+{
+if(demo==true){rundemo()}
+moveus()
+replotentities()
+updatedisplay()
+if(livesquares==0){nextlevelpartA();setTimeout('nextlevel()',1);setTimeout('nextlevelpartB()',2);}
+if(lives<=0){endgame();}
+
+if(!ballonpaddle)
+{for(var i=1;i<numberofbonuses;i++)
+{if(bonustime[i]>1){bonustime[i]--}
+else if(bonustime[i]==1){bonustime[i]=0;endbonus(i);}}}
+if(currentland!==oldstatlevel){statleveltimes[0].push(currentland);statleveltimes[1].push(currentleveltime);oldstatlevel=currentland;currentleveltime=0;}
+
+if(inlevel){currentleveltime+=timeperloop;if(timebonuspoints > 0){timebonuspoints-=timeperloop*2;}}
+
+}
+
+var paused=false;
+
+function pause()
+{
+if(paused==false){paused=true;clearInterval(loopme);greyout(true);document.getElementById('pausediv').style.display='block';}
+else{document.getElementById('pausediv').style.display='none';paused=false;greyout(false);loopme=setInterval('loop()',refreshrate);}
+}
+
+function endgame()
+{
+if(demo){
+submittimes(statleveltimes,'ai');statleveltimes=new Array(new Array, new Array);
+
+score=-100;level=0;lives=3;
+ballspeed=startballspeed;
+ballspeednobonus=startballspeed;
+clearbonuses()
+nextlevelpartA()
+setTimeout('nextlevel()',1);
+setTimeout('nextlevelpartB()',2);}
+else{clearInterval(loopme)
+if(!debugpressed){submittimes(statleveltimes,'player');}
+else{submittimes(statleveltimes,'debug');}
+greyout(true)
+document.getElementById('endgamediv').style.display='block';
+document.scoreform.name.focus();}
+}
+
+function submittimes(times,scorer)
+{
+var levelsstring='';
+for(var k=0;k<times[0].length;k++)
+{levelsstring+=times[0][k]+';';}
+var timesstring='';
+for(var k=0;k<times[1].length;k++)
+{timesstring+=times[1][k]+';';}
+
+runPHP('recordstats.php?levels='+levelsstring+'&times='+timesstring+'&scorer='+scorer)
+}
+
+//greys out the play area
+function greyout(dowhat)
+{switch (dowhat)
+{case true:document.getElementById('greyoutdiv').style.display='block';break;
+case false:document.getElementById('greyoutdiv').style.display='none';break;}}
+
+//if it's not the demo then this sends your score and name off to endgame.php
+function submitscore()
+{
+if(document.scoreform.name.value == ''){alert('Please enter a name.')}
+else if(demo){alert("Sorry, AI doesn't count.")}
+else if(debugpressed){alert("Sorry, using debug counts as cheating.")}
+else{document.hiddenform.name.value = document.scoreform.name.value;
+document.hiddenform.score.value = score;
+document.hiddenform.level.value = level;
+document.hiddenform.submit();}
+}
+
+var lastbullet=20;
+var thisbullet;
+var lastfiredbullet=0
+
+function moveus()
+{
+if(ballonpaddle){ball.vx=0;}
+
+if (moveleft){if(ballonpaddle && paddle.x>60){ball.vx=-paddlespeed};paddle.vx=-paddlespeed}
+else if (moveright){if(ballonpaddle && paddle.x+paddle.width<640){ball.vx=paddlespeed};paddle.vx=paddlespeed}
+else if(!moveleft && !moveright){if(ballonpaddle){ball.vx=0};paddle.vx=0}
+
+
+if(spacedown && guns && lastbullet>20 && !ballonpaddle)//only fire if space not pressed!
+{//fire a bullet
+lastbullet=0;
+thisbullet=lastfiredbullet+1
+lastfiredbullet++
+bullets[thisbullet].x=paddle.x
+bullets[thisbullet].y=paddle.y-10;
+bullets[thisbullet].vy=-500;
+bullets[thisbullet].state=1;
+bullets[thisbullet].UpdateDiv();
+bullets[thisbullet].UnVanish();
+thisbullet=lastfiredbullet+1
+lastfiredbullet++
+bullets[thisbullet].x=paddle.x+paddle.width-3
+bullets[thisbullet].y=paddle.y-10;
+bullets[thisbullet].vy=-500;
+bullets[thisbullet].state=1;
+bullets[thisbullet].UpdateDiv();
+bullets[thisbullet].UnVanish();
+if(lastfiredbullet>8){lastfiredbullet=0;}
+}
+lastbullet++;
+}
+
+//finds the last bullet that's not being used
+function findsparebullet()
+{i=0;
+while(bullets[i].state==1 && i<9){i++;}
+return i;}
+
+//launches ball
+function spacepressed()
+{if(ballonpaddle)
+{if(moveleft){ball.vy=-Math.sin(toradians(45))*ballspeed;ball.vx=-Math.cos(toradians(45))*ballspeed;}
+else if(moveright){ball.vy=-Math.sin(toradians(45))*ballspeed;ball.vx=Math.cos(toradians(45))*ballspeed;}
+else{ball.vy=-ballspeed;}
+ballonpaddle=false;
+if(!inlevel){inlevel=true;}}}
+
+//displacement
+var currentleft;
+var currenttop;
+//velocity
+var currentvx;
+var currentvy;
+var newvx
+var newvy
+//force
+var currentfx;
+var currentfy;
+//acceleration
+var ax
+var ay
+//seconds per loop
+var collide;
+var collide2;
+var ourvx;
+var theirvx;
+var ourvy;
+var theirvy;
+
+var whichdiv;
+var ournewvx;
+var ournewvy;
+var theirnewvx;
+var theirnewvy;
+
+var ourleft
+var ourright
+var ourtop
+var ourbottom
+var theirleft
+var theirright
+var theirtop
+var theirbottom
+var dontcontinue
+
+var diffinx
+var diffiny
+var collisionangle
+var theirspeed
+var ourspeed
+
+var ourperpendicularv;
+var ourparellelv;
+var theirperpendicularv;
+var theirparellelv;
+
+var ournewperpendicularv;
+var ournewparellelv;
+var theirnewperpendicularv;
+var theirnewparellelv;
+
+var ouranglebelowx
+var theiranglebelowx
+
+var currentlycolliding
+
+ax=0;
+ay=0;
+
+//IDEA FOR FRICITON, ADD FRICTION TO SPEED, THEN RESLOVE FOR X AND Y VELOCITIES
+
+function replotentities()
+{
+for (i=0;i<wholeworld.length;i++)
+{
+if(wholeworld[i].type == 0 && wholeworld[i].state==1)
+{
+//if type=0 then we're a entity and thus need to be replotted, and if state == 1 we're not dead
+//v=u+at
+newvy=wholeworld[i].vy//+ay*timeperloop
+newvx=wholeworld[i].vx//+ax*timeperloop
+//optimisation, if we're not moving, don't faff about re-plotting our position
+if(newvy!==0 || newvx!==0){
+newx=(wholeworld[i].vx*timeperloop+1/2*ax*timeperloop*timeperloop)+wholeworld[i].x
+newy=(wholeworld[i].vy*timeperloop+1/2*ay*timeperloop*timeperloop)+wholeworld[i].y
+for (i2=0;i2<wholeworld.length;i2++)
+{
+//this loops through the whole world again, looking for hard living objects and enitites
+if(wholeworld[i2].hard==true && i!==i2 && wholeworld[i2].state==1)
+{
+if(checkcollide(newx,newy,wholeworld[i].width,wholeworld[i].height,wholeworld[i].shape,wholeworld[i2].x,wholeworld[i2].y,wholeworld[i2].width,wholeworld[i2].height,wholeworld[i2].shape)==true )
+{//if there is a collision:
+
+switch(wholeworld[i].squaretype)
+{
+//if this is a ball
+case 9:if(!softball || wholeworld[i2].name=='lowerborder'){checksquares(wholeworld[i2],wholeworld[i])};break;
+//if this is a falling bonus
+case 5:checkbonuses(wholeworld[i2],wholeworld[i]);break;
+//if this is a bullet
+case 7:checkbullets(wholeworld[i2],wholeworld[i]);break;
+}
+
+if(wholeworld[i].hard && wholeworld[i2].hard)
+{
+newx=wholeworld[i].x;
+newy=wholeworld[i].y;
+//if this is two circles - essentially two balls
+if(wholeworld[i].shape==0 && wholeworld[i2].shape==0){wholeworld[i].vx=newvx;wholeworld[i].vy=newvy;collideascircles(wholeworld[i],wholeworld[i2]);}
+//if this is a ball and it's hit the paddle
+else if(wholeworld[i].squaretype==9 && wholeworld[i2].name=="paddle"){collideaspaddle(wholeworld[i],wholeworld[i2]);}
+//if this is the paddle and it's hit a ball
+else if(wholeworld[i].name=='paddle' && wholeworld[i2].squaretype==9 ){collideaspaddle(wholeworld[i],wholeworld[i2]);}
+else{collideassquares(wholeworld[i],wholeworld[i2])}
+
+if(wholeworld[i2].type==0 && wholeworld[i2].name!=='paddle'){wholeworld[i2].vx=theirnewvx;wholeworld[i2].vy=theirnewvy}
+
+wholeworld[i].vx=newvx
+wholeworld[i].vy=newvy
+//end of if hard
+}
+//end of there is a collision
+}
+//end of collidable if statement
+}
+//end of i2 (collision) loop
+}
+wholeworld[i].vx=newvx
+wholeworld[i].vy=newvy
+wholeworld[i].x=newx
+wholeworld[i].y=newy
+document.getElementById(wholeworld[i].div).style.left=Math.round(newx);
+document.getElementById(wholeworld[i].div).style.top=Math.round(newy);
+//end of if we're moving statement
+}
+//end of if entity statement
+}
+//this will attempt to bring back to life anything which couldn't come back because somehting was in the way 
+else if(wholeworld[i].state==2){wholeworld[i].UnVanish()}
+//end of wholeworld loop 
+}
+//end of replotentities()
+}
+
+var paddletest=0;
+
+//converts degrees to radians
+function toradians(degrees)
+{return ((Math.PI/180)*degrees)}
+
+
+function collideaspaddle(thisball,thispaddle)
+{
+if(stickypaddle)
+{
+if(thisball.squaretype==9 && thispaddle.name=='paddle'){newvx=thispaddle.vx;newvy=0;ballonpaddle=true;}
+else{theirnewvx=thisball.vx;theirnewvy=0;ballonpaddle=true;newvx=thisball.vx;newvy=thisball.vy;}
+}else{
+
+if(thisball.squaretype==9 && thispaddle.name=='paddle')
+{//if a ball is hitting the paddle
+
+if(thisball.y<thispaddle.y)
+{
+if(thisball.x+thisball.width < thispaddle.x+10){if(thisball.x<60){newvx=0;newvy=-ballspeed}else if(moveleft){newvx=-Math.cos(toradians(30))*ballspeed;newvy=-Math.sin(toradians(30))*ballspeed}else{newvx=-Math.cos(toradians(45))*ballspeed;newvy=-Math.sin(toradians(45))*ballspeed;}}//angle off left 30 or 45 degrees
+else if(thisball.x+thisball.width < thispaddle.x+25){if(moveleft){newvx=-Math.cos(toradians(50))*ballspeed;newvy=-Math.sin(toradians(50))*ballspeed}else{newvx=-Math.cos(toradians(60))*ballspeed;newvy=-Math.sin(toradians(60))*ballspeed;}}//angle off left 50 or 60 degrees
+else if(thisball.x <= thispaddle.x+thispaddle.width-25 ){newvy=-thisball.vy;newvx=thisball.vx}//bounce off a flat surface
+else if(thisball.x < thispaddle.x+thispaddle.width-10){if(moveright){newvx=Math.cos(toradians(50))*ballspeed;newvy=-Math.sin(toradians(50))*ballspeed}else{newvx=Math.cos(toradians(60))*ballspeed;newvy=-Math.sin(toradians(60))*ballspeed;}}//angle off right 60 or 50 degrees
+else{if(thisball.x+thisball.width>640){newvx=0;newvy=-ballspeed}else if(moveleft){newvx=Math.cos(toradians(30))*ballspeed;newvy=-Math.sin(toradians(30))*ballspeed}else{newvx=Math.cos(toradians(45))*ballspeed;newvy=-Math.sin(toradians(45))*ballspeed;}}//angle off right 40 or 30 degrees
+
+}else{//ball too low down
+
+if(moveleft && thisball.x>60){newvx=-Math.cos(0.785)*ballspeed;newvy=Math.sin(0.785)*ballspeed;}
+else if(moveright && thisball.x+thisball.width<640){newvx=Math.cos(0.785)*ballspeed;newvy=Math.sin(0.785)*ballspeed;}
+else{newvx=0;newvy=ballspeed;}
+//end of low down else if
+}
+
+}else
+{
+
+if(thispaddle.y<thisball.y)
+{
+if(thispaddle.x+thispaddle.width < thisball.x+10){if(thispaddle.x<60){theirnewvx=0;theirnewvy=-ballspeed}else if(moveleft){theirnewvx=-Math.cos(toradians(30))*ballspeed;theirnewvy=-Math.sin(toradians(30))*ballspeed}else{theirnewvx=-Math.cos(toradians(45))*ballspeed;theirnewvy=-Math.sin(toradians(45))*ballspeed;}}//angle off left 30 or 45 degrees
+else if(thispaddle.x+thispaddle.width < thisball.x+25){if(moveleft){theirnewvx=-Math.cos(toradians(50))*ballspeed;theirnewvy=-Math.sin(toradians(50))*ballspeed}else{theirnewvx=-Math.cos(toradians(60))*ballspeed;theirnewvy=-Math.sin(toradians(60))*ballspeed;}}//angle off left 50 or 60 degrees
+else if(thispaddle.x <= thisball.x+thisball.width-25 ){theirnewvy=-thispaddle.vy;theirnewvx=thispaddle.vx}//bounce off a flat surface
+else if(thispaddle.x < thisball.x+thisball.width-10){if(moveright){theirnewvx=Math.cos(toradians(50))*ballspeed;theirnewvy=-Math.sin(toradians(50))*ballspeed}else{theirnewvx=Math.cos(toradians(60))*ballspeed;theirnewvy=-Math.sin(toradians(60))*ballspeed;}}//angle off right 60 or 50 degrees
+else{if(thispaddle.x+thispaddle.width>640){theirnewvx=0;theirnewvy=-ballspeed}else if(moveleft){theirnewvx=Math.cos(toradians(30))*ballspeed;theirnewvy=-Math.sin(toradians(30))*ballspeed}else{theirnewvx=Math.cos(toradians(45))*ballspeed;theirnewvy=-Math.sin(toradians(45))*ballspeed;}}//angle off right 40 or 30 degrees
+
+}else{//ball too low down
+
+if(moveleft && thispaddle.x>60){theirnewvx=-Math.cos(0.785)*ballspeed;theirnewvy=Math.sin(0.785)*ballspeed;}
+else if(moveright && thispaddle.x+thispaddle.width<640){theirnewvx=Math.cos(0.785)*ballspeed;theirnewvy=Math.sin(0.785)*ballspeed;}
+else{theirnewvx=0;theirnewvy=ballspeed;}
+
+newvx=paddle.vx
+newvy=paddle.vy
+
+//end of low down else if
+}
+
+
+}
+
+
+
+//end of else stickypaddle
+}
+//end of paddle collide function
+}
+
+
+//the 'collide as' functions collide the two objects given to them, 'us' and 'them', and sets the global variables newvy, newvx, theirnewvy and theirnewvx
+
+function collideassquares(us,them)
+{
+//from an equation I found on the internet (elastic collisons, re-arrengement of the above two equations)
+if(them.type == 0){//we're colliding with an entity, so it can also move
+//1D collision equations dervived from kinetic energer and conservation of momentum, probably incorrectly applied in a 2D context
+newvx=( (us.mass-them.mass)/(us.mass+them.mass))*us.vx+( (2*them.mass)/(us.mass+them.mass) )*them.vx
+newvy=( (us.mass-them.mass)/(us.mass+them.mass))*us.vy+( (2*them.mass)/(us.mass+them.mass) )*them.vy
+theirnewvx=( (them.mass-us.mass)/(them.mass+us.mass))*them.vx+( (2*us.mass)/(them.mass+us.mass) )*us.vx
+theirnewvy=( (them.mass-us.mass)/(them.mass+us.mass))*them.vy+( (2*us.mass)/(them.mass+us.mass) )*us.vy
+}else{//they're an object
+dontcontinue=0
+theirleft=them.x
+theirright=them.x+them.width
+theirtop=them.y
+theirbottom=them.y+them.height
+if(us.y>theirtop && us.y<theirbottom && dontcontinue==0  && us.shape !==3){newvx=us.vx*(-1);newvy=us.vy;}
+else if(us.x>theirleft &&us.x<theirright && dontcontinue==0 && us.shape !==3){newvy=us.vy*(-1);newvx=us.vx;}
+else if(us.y+us.height>theirtop && us.y+us.height<theirbottom && dontcontinue==0 && us.shape !==3){newvx=us.vx*(-1);newvy=us.vy;}
+else if(us.x+us.width>theirleft && us.x+us.width<theirright && dontcontinue==0 && us.shape !==3){newvy=us.vy*(-1);newvx=us.vx;}
+else if(us.shape ==3){collideascircles(us,them)}
+else{newvy=us.vy*(-1);newvx=us.vx*(-1);}
+
+//if the hard ball bonus is on and they are a square, the ball goes straight through them.
+if(hardball==true)
+{switch(them.squaretype)
+{case 1:
+case 2:
+case 3:
+case 4:
+newvy=us.vy;newvx=us.vx
+break;}}
+
+}
+
+}
+
+var ourtempspeed;
+var ourratio;
+var theirtempspeed;
+var theirratio;
+
+function collideascircles(us,them)
+{
+ourcentrex=us.x+us.width/2
+ourcentrey=us.y+us.height/2
+theircentrex=them.x+them.width/2
+theircentrey=them.y+them.height/2
+diffinx=theircentrex-ourcentrex
+diffiny=theircentrey-ourcentrey
+
+if(diffinx == 0){collisionangle=0}else{collisionangle=Math.atan(diffiny/diffinx)}
+
+//essentially, momentum is conserved parrellel and perpendicular to the angle of collision
+//http://director-online.com/buildArticle.php?id=532 proved immensly useful, and in actual fact, rendered most of 
+//my previous work at collisions wasted as I re-wrote a lot of it
+if(us.vx<0){ouranglebelowx=(Math.PI)+(Math.atan(us.vy/us.vx))}
+else if(us.vx>0 && us.vy>=0){ouranglebelowx=Math.atan(us.vy/us.vx)}
+else if(us.vx>0 && us.vy < 0){ouranglebelowx=2*(Math.PI)+(Math.atan(us.vy/us.vx))}
+else if(us.vx==0 && us.vy == 0){ouranglebelowx=0}
+else if(us.vx==0 && us.vy>=0){ouranglebelowx=(Math.PI)/2}
+else{ouranglebelowx=3*(Math.PI)/2}
+if(them.vx<0){theiranglebelowx=(Math.PI)+(Math.atan(them.vy/them.vx))}
+else if(them.vx>0 && them.vy>=0){theiranglebelowx=Math.atan(them.vy/them.vx)}
+else if(them.vx>0 && them.vy < 0){theiranglebelowx=2*(Math.PI)+(Math.atan(them.vy/them.vx))}
+else if(them.vx==0 && them.vy == 0){theiranglebelowx=0}
+else if(them.vx==0 && them.vy>=0){theiranglebelowx=(Math.PI)/2}
+else{theiranglebelowx=3*(Math.PI)/2}
+
+ourspeed=ballspeed
+theirspeed=ballspeed
+
+ourparellelv=ourspeed*(Math.cos(ouranglebelowx-collisionangle))
+ourperpendicularv=ourspeed*(Math.sin(ouranglebelowx-collisionangle))
+theirparellelv=theirspeed*(Math.cos(theiranglebelowx-collisionangle))
+theirperpendicularv=theirspeed*(Math.sin(theiranglebelowx-collisionangle))
+if(them.type == 0){//we're colliding with an entity, so it can also move
+
+ournewparellelv=( (us.mass-them.mass)/(us.mass+them.mass))*ourparellelv+( (2*them.mass)/(us.mass+them.mass) )*theirparellelv
+theirnewparellelv=( (them.mass-us.mass)/(them.mass+us.mass))*theirparellelv+( (2*us.mass)/(them.mass+us.mass) )*ourparellelv
+
+newvx=ournewparellelv*(Math.cos(collisionangle))+ourperpendicularv*(Math.cos(collisionangle+(Math.PI/2)))
+newvy=ournewparellelv*(Math.sin(collisionangle))+ourperpendicularv*(Math.sin(collisionangle+(Math.PI/2)))
+theirnewvx=theirnewparellelv*(Math.cos(collisionangle))+theirperpendicularv*(Math.cos(collisionangle+(Math.PI/2)))
+theirnewvy=theirnewparellelv*(Math.sin(collisionangle))+theirperpendicularv*(Math.sin(collisionangle+(Math.PI/2)))
+
+//the idea here is to stop the ball being able to collide with another ball and fly off at a really shallow angle
+if(0<newvy && newvy<100){newvy=100}
+if(0<theirnewvy && theirnewvy<100){theirnewvy=100}
+if(0>=newvy && newvy>-100){newvy=-100}
+if(0>=theirnewvy && theirnewvy>-100){theirnewvy=-100}
+
+//these two make sure that the speed of the ball is still about 500
+ourtempspeed=Math.sqrt(newvx*newvx+newvy*newvy)
+ourratio=ballspeed/ourtempspeed
+newvx=Math.round(newvx*ourratio)
+newvy=Math.round(newvy*ourratio)
+
+theirtempspeed=Math.sqrt(theirnewvx*theirnewvx+theirnewvy*theirnewvy)
+theirratio=ballspeed/theirtempspeed
+theirnewvx=Math.round(theirnewvx*theirratio)
+theirnewvy=Math.round(theirnewvy*theirratio)
+}else{//we're colliding with an object, so it can't move
+ournewparellelv=ourparellelv*(-1)
+newvx=ournewparellelv*(Math.cos(collisionangle))+ourperpendicularv*(Math.cos(collisionangle+(Math.PI/2)))
+newvy=ournewparellelv*(Math.sin(collisionangle))+ourperpendicularv*(Math.sin(collisionangle+(Math.PI/2)))
+}
+}
+
+
+function checkforanycollide(collidee)
+{
+for(i5=0;i5<wholeworld.length;i5++)
+{
+if(wholeworld[i5].type==0 && wholeworld[i5].state==1)
+{
+var testcollide=checkcollide(collidee.x,collidee.y,collidee.width,collidee.height,collidee.shape,wholeworld[i5].x,wholeworld[i5].y,wholeworld[i5].width,wholeworld[i5].height,wholeworld[i5].shape)
+if(testcollide == true){return wholeworld[i5]}
+}
+}
+return false;
+}
+
+
+//x,y=topleft coords, w=width,h=height,s=shape
+function checkcollide(x1,y1,w1,h1,s1,x2,y2,w2,h2,s2)
+{
+rightx1=x1+w1
+rightx2=x2+w2
+bottomy1=y1+h1
+bottomy2=y2+h2
+centrex1=x1+w1/2
+centrex2=x2+w2/2
+centrey1=y1+h1/2
+centrey2=y2+h2/2
+rad1=h1/2
+rad2=h2/2
+if(s1==0 && s2==0)
+{
+//both are circles
+radii=rad1+rad2
+//pythagoras
+var circledistance=Math.sqrt( (centrex1-centrex2)*(centrex1-centrex2)+(centrey1-centrey2)*(centrey1-centrey2) )
+//if the distance between the two circles is less than or equal to the sum of their two radii then they'll collide
+if(circledistance<radii){return true}
+}else{
+//one of us isn't a circle
+if(rightx1 > x2 && x1 < (x2+w2) && y1 < (y2+h2) && bottomy1 > y2){return true}
+}
+return false;
+}
+//-->
+</script>
+
+</body>
+</html>
+

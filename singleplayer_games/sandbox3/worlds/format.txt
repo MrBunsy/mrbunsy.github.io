@@ -1,0 +1,6 @@
+function loadworldname()
+{
+...
+}
+loadworldname();
+finishloading();

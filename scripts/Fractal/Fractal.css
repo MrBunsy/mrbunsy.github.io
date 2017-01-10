@@ -1,0 +1,13 @@
+html,body{
+    padding:0px;
+    margin:0px;
+
+}
+
+body{
+    overflow: hidden;
+}
+/*
+canvas{
+    line-height: 0;
+}*/

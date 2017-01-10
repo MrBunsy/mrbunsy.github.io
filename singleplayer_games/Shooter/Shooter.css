@@ -1,0 +1,16 @@
+/* 
+    Document   : Spirograph
+    Created on : Jul 30, 2012, 9:25:30 PM
+    Author     : Luke
+    Description:
+        Purpose of the stylesheet follows.
+*/
+
+html, body {
+ margin: 0px;
+ padding: 0px;
+ border: 0px;
+ padding-bottom: 1em;
+       font-family: Verdana, Arial, Helvetica, sans-serif;
+ }
+ 

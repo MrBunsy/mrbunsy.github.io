@@ -1,0 +1,1938 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html>
+<head>
+<title>Squirms on Luke's 2D JavaScript Engine version 1.74 - Old Polygon Collisions</title>
+<script src="js/keysnew.js" type="text/javascript"></script>
+<script src="js/canvas.js" type="text/javascript"></script>
+<script src="js/teams.js" type="text/javascript"></script>
+<script src="js/divwindows.js" type="text/javascript"></script>
+<link rel="stylesheet" href="style.css" type="text/css">
+<script language="JavaScript" type="text/javascript">
+<!--
+var xmlhttp;
+var xmlhttp2;
+try
+{
+// Firefox, Opera 8.0+, Safari
+xmlhttp=new XMLHttpRequest();
+}
+catch (e)
+{
+// Internet Explorer
+try
+{
+xmlhttp=new ActiveXObject("Msxml2.XMLHTTP");
+}
+catch (e)
+{
+try
+{xmlhttp=new ActiveXObject("Microsoft.XMLHTTP");}
+catch (e)
+{alert("Your browser does not support AJAX!");}
+
+}
+}
+
+
+try
+{
+// Firefox, Opera 8.0+, Safari
+xmlhttp2=new XMLHttpRequest();
+}
+catch (e)
+{
+// Internet Explorer
+try
+{
+xmlhttp2=new ActiveXObject("Msxml2.XMLHTTP");
+}
+catch (e)
+{
+try
+{
+xmlhttp2=new ActiveXObject("Microsoft.XMLHTTP");
+}
+catch (e)
+{
+alert("Your browser does not support AJAX!");
+//return false;
+}
+}
+}
+
+//ajaxFunction()
+//var xmlhttp2=xmlhttp;
+//-->
+</script>
+</head>
+<body onkeydown="keydown(event)" onkeyup="keyup(event)">
+<!--you MUST pre-load all images used in the game like this, as some browsers do very weird things when new images are called up by javascript.  Also helps stop problems with images not loaidng in time
+Also, make sure you have a background div of some sort, over the top, to hide them. (display:none; will also do weird things in my experience in IE)
+//-->
+<img src="squirms/boom.gif" alt=""><img src="squirms/aim.gif" alt=""><img src="squirms/grave.gif" alt=""><img src="squirms/die.gif" alt="">
+<img src="squirms/squirmright.gif" alt=""><img src="squirms/squirmleft.gif" alt="">
+<img src="squirms/squirmfallright.gif" alt=""><img src="squirms/squirmfallleft.gif" alt="">
+<img src="squirms/rocketright.gif" alt=""><img src="squirms/rocketleft.gif" alt=""><img src="squirms/rocket.gif" alt="">
+<img src="squirms/grenaderight.gif" alt=""><img src="squirms/grenadeleft.gif" alt=""><img src="squirms/grenade.gif" alt="">
+<img src="squirms/gunright.gif" alt=""><img src="squirms/gunleft.gif" alt=""><img src="squirms/bullet.gif" alt="">
+<span id="worldspan"></span>
+<span id="canvasspan"></span>
+<script src="js/2D_engineOLD.js" type="text/javascript"></script>
+<span id="windowspan"></span>
+<div id="infodiv" style="position:absolute; z-index:5; left:810;top:50;border:solid black 1px; width:200;height:200;display:none;"></div>
+
+<div id="gamemenudiv" style="position:absolute; z-index:5; left:810;top:254;border:solid black 1px; width:200;height:200;display:none;">
+<span class="clickme" onclick="endgame('draw')">End Game</span>
+</div>
+
+<div id="greyoutdiv" style="filter:alpha(opacity=70);-moz-opacity:.70;opacity:.70;background-color:gray; position:absolute;top:50;left:50;height:550;width:750; z-index:7;display:none;"></div>
+<div id="messagediv" style="position:absolute;top:200;left:325;height:200;width:200;border:solid black 2px;z-index:8;display:none;background-color:white"></div>
+<!--
+<div id="testspan" style="position:relative; z-index:5;width:100;" onClick="startgame()">start game</div>
+<div id="testspan2" style="position:relative; z-index:5;" onclick="suddendeath()">sudden death</div>
+//-->
+
+<div id="mainmenu" style="background-color:white;position:absolute;width:800;height:600;border:solid black 2px;top:10;left:10;z-index:1;">
+<center>
+<h2>Squirms!</h2>
+<span class="clickme" onclick="document.getElementById('mainmenu').style.display='none';document.getElementById('aimenu').style.display='block';"><b>Against AI</b></span>
+<p>
+<span class="clickme" onclick="document.getElementById('mainmenu').style.display='none';document.getElementById('multiplayermenu').style.display='block';setuploop=setInterval('setupfunc()',500);"><b>Local Multiplayer</b></span>
+<p>
+<span class="clickme" onclick="document.getElementById('mainmenu').style.display='none';document.getElementById('squirmnetlogin').style.display='block';checkloginstatus();"><b>SquirmNet</b></span>
+</center>
+</div>
+
+<div id="aimenu" style="background-color:white;position:absolute;width:800;height:600;border:solid black 2px;top:10;left:10;z-index:1;display:none;">
+<center>
+<h2>Play VS AI</h2>
+<span class="clickme" onclick="document.getElementById('aimenu').style.display='none';document.getElementById('mainmenu').style.display='block';"><b>Back to Main Menu</b></span>
+<p>
+This isn't finished yet.
+</center>
+</div>
+
+<div id="multiplayermenu" style="background-color:white;position:absolute;width:800;height:600;border:solid black 2px;top:10;left:10;z-index:1;display:none;">
+<center>
+<h2>Multiplayer Setup</h2>
+<span class="clickme" onclick="document.getElementById('multiplayermenu').style.display='none';document.getElementById('mainmenu').style.display='block';clearInterval(setuploop);"><b>Back to Main Menu</b></span>
+<p>
+</center>
+
+<form name="multiplayersetup">
+Number of Teams:
+<select name="teams"><option value=2>2</option><option value=3>3</option><option value=4>4</option></select>
+<br>
+Worms per Team:
+<select name="worms"><option value=1>1</option><option value=2>2</option><option value=3>3</option><option value=4>4</option></select>
+<br>
+Hotseat time (wait between goes):
+<select name="wait"><option value=0.1>0</option><option value=2>2</option><option value=5>5</option><option value=10>10</option></select> Seconds
+<br>
+Turn time:
+<select name="turn"><option value=15>15</option><option value=30>30</option><option value=45>45</option><option value=60>60</option><option value=90>90</option></select> Seconds
+<br>
+Sudden Death:
+<select name="death"><option value=60>1</option><option value=300>5</option><option value=600>10</option><option value=900>15</option><option value=1800>30</option></select> Minutes
+<br>
+Health:
+<select name="health"><option value=50>50</option><option value=100>100</option><option value=150>150</option><option value=200>200</option><option value=90>90</option></select>
+</form>
+<br>
+</p><!-- for some stupid reason IE throws an 'unknown runtime error' when javascript tries to change the innerHTML of the below span if it's in a paragraph. //-->
+<span id='teamnamesspan'></span>
+<br>
+<center>
+<span class="clickme" onclick="document.getElementById('multiplayermenu').style.display='none';startgame();clearInterval(setuploop);"><b>Play!</b></span>
+
+</center>
+</div>
+<script language="JavaScript" type="text/javascript">
+<!--
+
+var setuploop;
+
+var oldnumteamstemp=0;
+var numteamstemp=2;
+var addthistemp;
+
+var thingy="</";
+
+function setupfunc()
+{
+
+numteamstemp=document.multiplayersetup.teams.value
+
+if(numteamstemp!==oldnumteamstemp)
+{
+oldnumteamstemp=numteamstemp;
+addthistemp='<h3>Team Names</h3><form name="teamnamesform">';
+
+for(var k=0;k<numteamstemp;k++)
+{
+addthistemp=addthistemp+"Team "+(k+1)+" <select id='team"+k+"'>"
+//addthistemp=addthistemp+"Team "+(k+1)+" <select name='team"+k+"'>"
+
+for(var k2=0;k2<teamnames.length;k2++)
+{addthistemp=addthistemp+"<option value="+k2+">"+teamnames[k2]+"</option>"}
+
+addthistemp=addthistemp+"</select><br>"
+}
+
+addthistemp=addthistemp+"</form>"
+//alert(addthistemp)
+//addthistemp="cake"
+document.getElementById('teamnamesspan').innerHTML=addthistemp
+}
+
+}
+
+//-->
+</script>
+
+<div id="squirmnetlogin" style="background-color:white;position:absolute;width:800;height:600;border:solid black 2px;top:10;left:10;z-index:1;display:none;">
+<center>
+<h2>Welcome To SquirmNet</h2>
+<span id="loggedinstatespan0">Not logged in.</span><p>
+<span class="clickme" onclick="document.getElementById('squirmnetlogin').style.display='none';document.getElementById('mainmenu').style.display='block';"><b>Back to Main Menu</b></span>
+<p>
+If you have an account you can 
+<span class="clickme" onclick="loginwindow.OpenWindow();document.loginform.name.focus();"><u>Log In</u></span>
+ if not, you can 
+ <!--<span style="cursor:hand;cursor:pointer;" onclick="registerwindow.OpenWindow();document.newaccount.name.focus();loopregister=setInterval('loopreg()',200);"><u>register for an account</u></span>.//-->
+ <a href="../../login/index.php?go=register" target='newindow'> register a new account</a>
+ 
+   With an account you can save your schemes and teams, upload custom graves and no-one else can use your nickname.
+<p>
+Otherwise you can 
+<span class="clickme" onclick="temploginwindow.OpenWindow();document.temploginform.name.focus();"><u>Log In Temporarily</u></span>
+but you will lose everything you create when you leave.
+<p>
+</p>
+<span id="entersquimnetspan" onClick="document.getElementById('squirmnetlogin').style.display='none';document.getElementById('squirmnetmain').style.display='block';enterlobby()" class="clickme" style="display:none;"></span>
+</center>
+</div>
+
+<form  name='hiddenregisterform' action='../login/new_account.php' method='POST'>
+<input type='hidden' name='name' value=''>
+<input type='hidden' name='captcha' value=''>
+<input type='hidden' name='password' value=''>
+</form>
+
+<script language="JavaScript" type="text/javascript">
+<!--
+function checkloginstatus()
+{
+xmlhttp2.open("POST", "loggedinstate.php");
+xmlhttp2.onreadystatechange = function() {if (xmlhttp2.readyState == 4) {loginstatus(xmlhttp2.responseText);}}
+//xmlhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+xmlhttp2.send(null) 
+}
+var loggedin=false;
+var loggedinname='';
+var tempame='';
+
+function loginstatus(state)
+{
+state=state.split(";")
+if(state[0]=='false'){loggedin=false;
+updateloggedinnames("Not logged in.");
+document.getElementById('entersquimnetspan').style.display="none";
+}else if(state[0]=='true'){loggedin=true;loggedinname=state[1];
+updateloggedinnames("Logged in as '"+loggedinname+"'.")
+document.getElementById('entersquimnetspan').innerHTML="<h2>Enter SquirmNet as '"+loggedinname+"'</h2>"
+document.getElementById('entersquimnetspan').style.display="block";
+}else{loggedin=false;
+tempname=state[0]
+document.getElementById('entersquimnetspan').innerHTML="<h2>Enter SquirmNet as '"+tempname+"'</h2>"
+document.getElementById('entersquimnetspan').style.display="block";
+updateloggedinnames("Using temporary name '"+tempname+"'.")
+
+}
+}
+
+function updateloggedinnames(withthis)
+{
+for(var k=0;k<2;k++)
+{document.getElementById('loggedinstatespan'+k).innerHTML=withthis;}
+}
+
+var windowbg="white";
+var windowtitle="#00ff00"
+
+var loginwindow = new divwindow('loginwindow','Log In',10,windowbg,windowtitle,250,120,300,200,3,"<form name='loginform' action='javascript:logmein()'><table><tr><td>Name:</td><td><input type='text' size=20 name='name'></tr><tr><td>Password:</td><td><input type='password' size=20 name='password'></td></tr><tr><td colspan='2'><center><input type='submit' value='Log In'></center></td></tr></table></form>",'')
+
+var temploginwindow = new divwindow('temploginwindow','Log In',10,windowbg,windowtitle,250,100,300,200,3,"<form name='temploginform' action='javascript:templogmein()'><table><tr><td>Name:</td><td><input type='text' size=20 name='name'></tr><tr><td colspan='2'><center><input type='submit' value='Log In'></center></td></tr></table></form>",'')
+
+var afterloginwindow =  new divwindow('afterloginwindow','Logging In',10,windowbg,windowtitle,250,100,300,200,3,"Processing...",'')
+
+function logmein()
+{
+PHPlogin('../../login/ajaxlogin.php', 'name='+encodeURI(document.loginform.name.value)+'&password='+encodeURI(document.loginform.password.value))
+loginwindow.CloseWindow();
+document.getElementById(afterloginwindow.content).innerHTML="Loading..."
+afterloginwindow.OpenWindow();
+}
+
+function checklogin(state)
+{
+if(state=='failed'){
+document.getElementById(afterloginwindow.content).innerHTML="Failed to log in. <p> <span class='clickme' onClick='loginwindow.OpenWindow();afterloginwindow.CloseWindow();document.loginform.name.focus();'><u>Try Again<\/u><\/span>"
+}
+else{
+document.getElementById(afterloginwindow.content).innerHTML=state
+setTimeout('afterloginwindow.CloseWindow()',1000)
+checkloginstatus()
+}
+
+}
+
+function PHPlogin(fragment_url, postthis) 
+{
+xmlhttp.open("POST", fragment_url,true);
+xmlhttp.onreadystatechange = function() {if (xmlhttp.readyState == 4) {checklogin(xmlhttp.responseText);}}
+xmlhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+xmlhttp.send(postthis)
+}
+
+function checktempname(state)
+{
+afterloginwindow.OpenWindow();
+document.getElementById(afterloginwindow.content).innerHTML="Loading..."
+if(state=='failed'){
+document.getElementById(afterloginwindow.content).innerHTML="Sorry, but that name is registered or already in use. <p> <span class='clickme' onClick='temploginwindow.OpenWindow();afterloginwindow.CloseWindow();document.temploginform.name.focus();'><u>Try Again<\/u><\/span>";
+}else{
+document.getElementById(afterloginwindow.content).innerHTML=state
+setTimeout('afterloginwindow.CloseWindow()',1000)
+}
+//firing it a second time on a timer seems to fix problems with Opera.
+setTimeout('checkloginstatus()',2000)
+checkloginstatus()
+}
+
+function templogmein()
+{
+xmlhttp.open("GET", 'usetempname.php?name='+encodeURI(document.temploginform.name.value));
+xmlhttp.onreadystatechange = function() {if (xmlhttp.readyState == 4) {checktempname(xmlhttp.responseText);}}
+xmlhttp.send(null)
+temploginwindow.CloseWindow();
+document.getElementById(afterloginwindow.content).innerHTML="Loading..."
+afterloginwindow.OpenWindow();
+}
+
+//-->
+</script>
+<div id="squirmnetmain" style="background-color:white;position:absolute;width:800;height:600;border:solid black 2px;top:10;left:10;z-index:3;display:none;">
+<div style="position:absolute;top:10;left:10;border:solid black 1px;height:250;width:158;padding:2;">
+<b>SquimNet</b><br><br>
+<span id="loggedinstatespan1">Not logged in.</span><br><br>
+<span class="clickme" onclick="leavelobby();document.getElementById('squirmnetmain').style.display='none';document.getElementById('mainmenu').style.display='block';"><b>Back to Main Menu</b></span><br>
+<span class="clickme" onclick="lobbyoptionswindow.OpenWindow();"><b>Options</b></span><br>
+<span class="clickme" onclick="newonlinegamewindow.OpenWindow();"><b>Host Game</b></span>
+</div>
+<span id="squirmnetspan"></span>
+<div id="squirmnetmotd" style="position:absolute;top:10;left:180;border:solid black 1px;height:250;width:158;padding:2;">Loading...</div>
+<div id="squirmnetgames" style="position:absolute;top:10;left:350;border:solid black 1px;height:250;width:430;padding:2;">Loading...</div>
+<div id="squirmnetpeople" style="position:absolute;top:270;left:10;border:solid black 1px;width:158;height:250;padding:2;">Loading...</div>
+<div id="squirmnetchat" style="position:absolute;top:270;left:180;border:solid black 1px;width:600;height:250;padding:2;">Loading...</div>
+<div style="position:absolute;top:550;left:10;width:750;height:50;"><form action="javascript:lobbysay();"><input type="text" size=110 id="squirmetsaythis"><input type="submit" value="Say"></form></div>
+</div>
+
+<script language="JavaScript" type="text/javascript">
+<!--
+var squirmnetloop;
+var waittosaylobby=false
+var squirmnetcounter=0;
+
+function enterlobby()
+{squirmnetloop=setInterval('squirmnetloopfunc()',750);
+//load message of the day.
+squirmnetstuff('squirmnet.php?bit=motd','squirmnetmotd');}
+
+var aboutwindow =  new divwindow('aboutwindow','About Squirms',10,windowbg,windowtitle,250,200,300,200,3,"Squirms Version 2.08<br>2D JavaScript Engine 1.74.<br><br>Squirms is an attempt at a <i>playable</i> proof of concept multiplayer AJAX game. <br><br> &copy Luke Wallin 2007.",'')
+
+var helpwindow =  new divwindow('helpwindow','Squirms Help',10,windowbg,windowtitle,250,200,300,200,3,"<u>SquirmNet Commands</u><br> '/me'=speak in third person<br> '/anon'=speak anonomously<br>  '/playername'=talk privately to that player",'')
+
+var lobbyoptionswindow =  new divwindow('lobbyoptionswindow','SquirmNet Options',10,windowbg,windowtitle,250,200,300,200,3,"View Announcements <input type='checkbox' id='viewannounce' checked>",'')
+
+var messagewindow =  new divwindow('messagewindow','Message',10,windowbg,windowtitle,250,100,300,200,3,"Loading...",'')
+
+var newonlinegamewindow =  new divwindow('newonlinegamewindow','Host New Game',10,windowbg,windowtitle,250,100,300,200,3,"<form action='javascript:hostnewgame();'>Game Name:<input type='text' size=20 value='Defaultname' id='newgamenamebox'><br>Password:<input type='password' size=20 id='newgamepassbox'><input type='submit' value='Create Game'></form>",'')
+
+
+function leavelobby()
+{clearInterval(squirmnetloop);
+lobbyoptionswindow.CloseWindow();
+aboutwindow.CloseWindow();
+
+xmlhttp.open("GET", 'leave.php?where=lobby');
+//xmlhttp.onreadystatechange = function() {if (xmlhttp.readyState == 4) {alert(xmlhttp.responseText);}}
+xmlhttp.send(null);
+}
+
+function squirmnetloopfunc()
+{var extrastuff='';
+if(waittosaylobby){extrastuff="&say="+document.getElementById('squirmetsaythis').value;document.getElementById('squirmetsaythis').value='';document.getElementById('squirmetsaythis').focus();waittosaylobby=false;}
+
+switch(squirmnetcounter)
+{
+case 0:squirmnetstuff('squirmnet.php?bit=games'+extrastuff,'squirmnetgames');break;
+case 1:squirmnetstuff('squirmnet.php?bit=people'+extrastuff,'squirmnetpeople');break;
+case 2:squirmnetstuff('squirmnet.php?bit=chat&extra='+document.getElementById('viewannounce').checked+extrastuff,'squirmnetchat');squirmnetcounter=-1;break;
+}
+squirmnetcounter++
+}
+
+function squirmnetstuff(phpname,elname)
+{xmlhttp2.open("GET", phpname);
+xmlhttp2.onreadystatechange = function() {if (xmlhttp2.readyState == 4) {document.getElementById(elname).innerHTML=xmlhttp2.responseText;}}
+xmlhttp2.send(null)}
+
+function cursortoend(thiselement)
+{var ele=document.getElementById(thiselement)
+if (ele.createTextRange)
+{var v = ele.value;
+var r = ele.createTextRange();
+r.moveStart('character', v.length);
+r.select();}}
+
+function privatechat(whom)
+{document.getElementById('squirmetsaythis').value='/'+whom+' ';
+document.getElementById('squirmetsaythis').focus();
+cursortoend('squirmetsaythis');}
+
+function lobbysay()
+{switch(document.getElementById('squirmetsaythis').value)
+{case "/version":
+case "/about":
+aboutwindow.OpenWindow();
+document.getElementById('squirmetsaythis').value='';
+break;
+case "/help":
+helpwindow.OpenWindow();
+document.getElementById('squirmetsaythis').value='';
+break;
+default:waittosaylobby=true;break;}}
+
+function hostnewgame()
+{
+xmlhttp.open("POST", 'newgame.php',true);
+xmlhttp.onreadystatechange = function() {if (xmlhttp.readyState == 4) {hostnewgame2(xmlhttp.responseText);}}
+xmlhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+xmlhttp.send("gamename="+encodeURI(document.getElementById('newgamenamebox').value)+"&gamepass="+encodeURI(document.getElementById('newgamepassbox').value))
+}
+
+var inthisgame;
+
+function hostnewgame2(responded)
+{
+newonlinegamewindow.CloseWindow();
+leavelobby();
+document.getElementById('squirmnetmain').style.display='none';
+document.getElementById('preonlinegamediv').style.display='block';
+inthisgame=responded
+gamename=document.getElementById('newgamenamebox').value;
+entergamelobby()
+//alert(inthisgame)
+}
+
+var needpasswindow =  new divwindow('needpasswindow','Password Required',10,windowbg,windowtitle,250,100,300,200,3,"<form action='javascript:joingame2();'>Password:<input type='password' size=20 id='entergamepassbox'><input type='submit' value='Join Game'><\/form>",'')
+
+var iwanttojoin;
+
+function joingame(thisgame,needpass)
+{
+iwanttojoin=thisgame;
+if(needpass)
+{
+needpasswindow.OpenWindow();
+//document.getElementById(needpasswindow.content).innerHTML=""
+}else{
+joingame2(thisgame)
+}
+
+
+
+}
+
+function joingame2()
+{
+needpasswindow.CloseWindow();
+var pass=document.getElementById('entergamepassbox').value
+
+xmlhttp.open("POST", 'canjoin.php');
+xmlhttp.onreadystatechange = function() {if (xmlhttp.readyState == 4) {joingame3(xmlhttp.responseText);}}
+xmlhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+xmlhttp.send("game="+iwanttojoin+"&gamepass="+encodeURI(document.getElementById('entergamepassbox').value))
+document.getElementById('entergamepassbox').value='';
+}
+
+function joingame3(respond)
+{
+switch(respond)
+{
+case 'canjoin':
+finaljoingame(iwanttojoin)
+break;
+case 'full':
+document.getElementById(messagewindow.content).innerHTML='Sorry, this game is full.<br><center><input type="button" value="Okay" onClick="messagewindow.CloseWindow();"></center>'
+messagewindow.OpenWindow();
+break;
+case 'wrongpass':
+needpasswindow.OpenWindow();
+break;
+}
+}
+
+function finaljoingame(thisgame)
+{
+needpasswindow.CloseWindow();
+inthisgame=thisgame;
+
+leavelobby();
+document.getElementById('squirmnetmain').style.display='none';
+document.getElementById('preonlinegamediv').style.display='block';
+entergamelobby()
+}
+
+//-->
+</script>
+
+<div id="preonlinegamediv" style="background-color:white;position:absolute;width:800;height:600;border:solid black 2px;top:10;left:10;z-index:3;display:none;">
+<div style="position:absolute;top:10;left:10;border:solid black 1px;height:250;width:158;padding:2;">
+<b>SquimNet - '<span id='gamenamespan'></span>'</b><br><br>
+<span onClick="leavegamelobby();document.getElementById('preonlinegamediv').style.display='none';document.getElementById('squirmnetmain').style.display='block';enterlobby()" class="clickme"><b>Back to Lobby.</b></span><br>
+<span class="clickme" onclick="lobbyoptionswindow.OpenWindow();"><b>Options</b></span><br>
+</div>
+<div id="pregameoptionsadmin" style="position:absolute;top:10;left:180;border:solid black 1px;width:158;height:250;padding:2;display:none;">Max Players:<select id='maxplayersselect'><option value=2>2</option><option value=3>3</option><option value=4>4</option></select></div>
+<div id="pregameoptionsuser" style="position:absolute;top:10;left:180;border:solid black 1px;width:158;height:250;padding:2;display:none;">Max Players:<span id='maxplayersspan'></span></div>
+<div id="pregameteams" style="position:absolute;top:10;left:349;border:solid black 1px;width:158;height:250;padding:2;">Loading...</div>
+<div id="pregamepeople" style="position:absolute;top:270;left:10;border:solid black 1px;width:158;height:250;padding:2;">Loading...</div>
+<div id="pregamechat" style="position:absolute;top:270;left:180;border:solid black 1px;width:600;height:250;padding:2;">Loading...</div>
+<div style="position:absolute;top:550;left:10;width:750;height:50;"><form action="javascript:pregamesay();"><input type="text" size=110 id="pregamesaythis"><input type="submit" value="Say"></form></div>
+</div>
+<script language="JavaScript" type="text/javascript">
+<!--
+var pregameloop;
+var waittosaypregame=false 
+
+function leavegamelobby()
+{clearInterval(pregameloop);
+
+xmlhttp.open("GET", 'leave.php?where=game&game='+inthisgame);
+xmlhttp.send(null);
+}
+
+function entergamelobby()
+{
+document.getElementById('pregameoptionsuser').style.display='none';
+document.getElementById('pregameoptionsadmin').style.display='none';
+document.getElementById('pregamepeople').innerHTML='loading...';
+document.getElementById('pregamechat').innerHTML='loading...';
+pregameloop=setInterval('pregameloopfunc()',750);
+
+setTimeout('amiadmin1()',2000);
+
+}
+
+function amiadmin1()
+{
+xmlhttp.open("GET", 'amiadmin.php?game='+inthisgame);
+xmlhttp.onreadystatechange = function() {if (xmlhttp.readyState == 4) {amiadmin2(xmlhttp.responseText);}}
+xmlhttp.send(null);
+}
+
+var imadmin=false
+
+function amiadmin2(reply)
+{//alert(reply)
+switch(reply)
+{
+case 'yes':document.getElementById('pregameoptionsadmin').style.display='block';document.getElementById('pregameoptionsuser').style.display='none';imadmin=true;break;
+default:document.getElementById('pregameoptionsuser').style.display='block';document.getElementById('pregameoptionsadmin').style.display='none';imadmin=false;break
+}
+}
+
+var pregamecounter=0;
+
+//var maxplayers=false;
+
+function pregameloopfunc()
+{
+var extrastuff='';
+if(waittosaypregame){extrastuff="&say="+document.getElementById('pregamesaythis').value;document.getElementById('pregamesaythis').value='';document.getElementById('pregamesaythis').focus();waittosaypregame=false;}
+if(maxplayers!==document.getElementById('maxplayersselect').value && imadmin){extrastuff+="&maxplayers="+document.getElementById('maxplayersselect').value}
+switch(pregamecounter)
+{
+case 1:squirmnetstuff('ingame.php?where=pre&bit=people&game='+inthisgame+extrastuff,'pregamepeople');break;
+case 2:squirmnetstuff('ingame.php?where=pre&bit=chat&game='+inthisgame+'&extra='+document.getElementById('viewannounce').checked+extrastuff,'pregamechat');break;
+case 3:
+
+pregamevars1(extrastuff)
+
+pregamecounter=0;break;
+}
+pregamecounter++
+}
+
+function pregamevars1(extrastuff)
+{
+xmlhttp2.open("GET", 'ingame.php?where=pre&bit=options&game='+inthisgame+extrastuff);
+xmlhttp2.onreadystatechange = function() {if (xmlhttp2.readyState == 4) {pregamevars2(xmlhttp2.responseText);}}
+xmlhttp2.send(null)
+}
+
+var maxplayers=2;
+
+function pregamevars2(vars)
+{
+var options=vars.split(';');
+
+switch(imadmin)
+{case true:
+document.getElementById('maxplayersselect').value=options[0];
+break;
+case false:
+document.getElementById('maxplayersspan').innerHTML=options[0];
+break;
+}
+maxplayers=options[0];
+
+}
+
+function pregamesay()
+{
+waittosaypregame=true;
+}
+//-->
+</script>
+
+
+<div id="gameoverdiv" style="background-color:white;position:absolute;width:800;height:600;border:solid black 2px;top:10;left:10;z-index:3;display:none;">
+<center>
+<h2>Game Over</h2>
+
+<span class="clickme" onclick="document.getElementById('gameoverdiv').style.display='none';document.getElementById('mainmenu').style.display='block';"><b>Back to Main Menu</b></span>
+<p>
+<span id='debriefspan'></span>
+</center>
+</div>
+
+
+<script language="JavaScript" type="text/javascript">
+<!--
+var wholeworld= new Array()
+
+//General variables used to define major things in the world
+
+var world=document.getElementById('worldspan');
+
+
+//version 1.41 was the first to have working mathematical collision detectiob for circles as well as squares for polygons, 1.42 should be my attempt to optimise this new system
+
+//by version 1.45 I found an odd bug with colliding again, couldn;t fix it, so fell back to version 1.41 and started optimising again
+
+
+//General variables used to define major things in the world
+
+//gravity, and in which direction (could be used as a cheap wind, like Worms 1)  100 seems to be a nice value
+var gravityY=100;
+var gravityX=Math.round((Math.random()-0.5)*100)
+var friction=0.1
+//time/s per refresh
+var timeperloop= 0.02
+//essentially fps
+var refreshrate;
+if (document.all){var IE=true}else{var IE = false}
+if(IE){refreshrate=timeperloop*800;}else{refreshrate=timeperloop*1000;}
+//velocity retained during collision (as fraction), set to 1 for inelastic collisions
+var dampen=1
+//most force the user can apply to 'us'
+var maxuserforce=20000
+var incriment=maxuserforce/10
+
+//the minimum speed anything can have before it's stopped (set to 0 for no min speed)
+var minspeed=10
+
+var commandssystem=true
+
+
+var hurtspeed=150
+
+//here are where objects are created
+//NAMES MUST BE UNIQUE
+
+//entity(state,name,x,y,width,height,mass,image,type,vx,vy,fx,fy,hard,sticky,shape,divoptions,gametype,elastic)
+
+//x,y co-ords are for the top left hand corner, div options are standard HTML bits and bobs for the style of the div
+
+//these are for the borders, you'll always want some kind of border (even if invisible) to stop anything being able to leave the screen
+
+var loopme;
+
+//whether the team is alive or not, and if it is, how the worms inside the team are
+var teamstates=new Array(numteams)
+//the last worm in the team who had a go
+var lastwormonteam=new Array(numteams)
+
+var waittime=5;
+
+var hotseat=waittime;
+
+var turntime=45
+var numteams=2
+var wormsperteam=2
+var healthperworm=100
+var player=0
+var roundtime=300//time till sudden death
+
+//set options to defaults:
+
+document.multiplayersetup.teams.value=2
+document.multiplayersetup.wait.value=2
+document.multiplayersetup.worms.value=2
+document.multiplayersetup.turn.value=45
+document.multiplayersetup.death.value=300
+document.multiplayersetup.health.value=100
+
+var startinggame=true
+
+var theirnames=new Array()
+
+var ingame=false;
+
+function startgame()
+{ingame=true;
+startinggame=true
+
+hidearrow();
+
+hotseat=5;
+
+suddendeathgone=false;
+teamsgo=0
+wormsgo=0;
+player=0
+
+currentcommand=-1
+commands=new Array();
+
+numteams=document.multiplayersetup.teams.value;
+waittime=document.multiplayersetup.wait.value;
+wormsperteam=document.multiplayersetup.worms.value;
+turntime=document.multiplayersetup.turn.value;
+roundtime=document.multiplayersetup.death.value;
+healthperworm=document.multiplayersetup.health.value;
+
+for(var k=0;k<numteams;k++)
+{
+theirnames[k]=document.getElementById('team'+k).value
+}
+//alert(teamnames[theirnames[0]])
+numworms=numteams*wormsperteam
+teamstates=new Array();
+lastwormonteam=new Array();
+//set each number in the array to 0
+for(var k=0;k<numteams;k++)
+{lastwormonteam[k]=0;
+teamstates[k]=new Array()
+for(var k2=0;k2<wormsperteam;k2++)
+{teamstates[k][k2]=true}}
+
+
+createworms();
+
+buildpolycollides([2,10]);
+
+document.getElementById('infodiv').style.display='block';
+document.getElementById('gamemenudiv').style.display='block';
+
+
+
+
+loopme=setInterval('loop()',refreshrate)
+
+
+
+} 
+
+
+
+
+
+function teamcolour(thisteam)
+{
+switch(thisteam)
+{
+case 0:return 'red';break;
+case 1:return 'blue';break;
+case 2:return 'green';break;
+case 3:return 'orange';break;
+default:return 'black';break;
+}
+}
+
+
+var worms=new Array();
+var healths=new Array();
+var healthsbg=new Array();
+
+var names=new Array();
+var namesbg=new Array();
+
+var numworms=numteams*wormsperteam
+/*
+for(var w=0;w<numworms;w++)
+{
+worms[w]=new entity(1,'worms['+w+']',200+w*50,100,30,50,100,'squirms/squirmright.gif',0,0,0,0,0,true,false,1,'z-index:1;',2,0);
+healths[w]=new entity(0,'healths['+w+']',50,20,30,18,0,false,1,0,0,0,0,false,false,1,'border:solid black 1px;z-index:1;background-color:white;',4,1);
+}
+*/
+
+function createworms()
+{
+//this cycles through the teams and worms per team to produce the desired number of teams each with the same number of worms
+var w=0;
+for(var t=0;t<numteams;t++)
+{
+//entity(state,name,x,y,width,height,mass,image,type,vx,vy,fx,fy,hard,sticky,shape,divoptions,gametype,elastic)
+for(var p=0;p<wormsperteam;p++)
+{
+if(typeof(worms[w])=='object')
+{//reset old worms from previous game NEEDS TESTING
+worms[w].state=1;
+worms[w].x=Math.round(52+w*(700/numworms))
+worms[w].y=100;
+worms[w].width=27
+worms[w].height=50
+worms[w].mass=100;
+document.getElementById(worms[w].img).src='squirms/squirmright.gif'
+worms[w].type=0;
+worms[w].vx=0
+worms[w].vy=0
+worms[w].fx=0
+worms[w].fy=0
+worms[w].hard=true;
+worms[w].sticky=false;
+worms[w].shape=1
+worms[w].elastic=0;
+worms[w]=gametype=2
+
+worms[w].health=healthperworm
+worms[w].team=t
+worms[w].wormpos=p;
+worms[w].wormname=wormsnames[theirnames[t]][p]
+worms[w].damaged=0
+worms[w].teamdamaged=0
+document.getElementById(names[w].div).innerHTML=worms[w].wormname
+document.getElementById(names[w].div).style.border='solid '+teamcolour(t)+' 1px;'
+}
+else{
+worms[w]=new entity(1,'worms['+w+']',Math.round(52+w*(700/numworms)),100,27,50,100,'squirms/squirmright.gif',0,0,0,0,0,true,false,1,'z-index:1;',2,0);
+worms[w].team=t
+worms[w].wormpos=p;//which worm in the team this is
+worms[w].wormname=wormsnames[theirnames[t]][p]
+worms[w].damaged=0
+
+worms[w].teamdamaged=0
+
+healthsbg[w]=new entity(0,'healthsbg['+w+']',50,20,27,18,0,false,1,0,0,0,0,false,false,1,'z-index:1;background-color:'+teamcolour(t)+'; filter:alpha(opacity=50);-moz-opacity:.50;opacity:.50;',4,1);
+healths[w]=new entity(0,'healths['+w+']',50,20,26,17,0,false,1,0,0,0,0,false,false,1,'border:solid '+teamcolour(t)+' 1px;z-index:2;',4,1);
+
+namesbg[w]=new entity(0,'namesbg['+w+']',50,20,worms[w].wormname.length*9,20,0,false,1,0,0,0,0,false,false,1,'z-index:1;background-color:'+teamcolour(t)+'; filter:alpha(opacity=70);-moz-opacity:.50;opacity:.50;',4,1);
+names[w]=new entity(0,'names['+w+']',50,20,worms[w].wormname.length*9-1,19,0,false,1,0,0,0,0,false,false,1,'border:solid '+teamcolour(t)+' 1px;z-index:2;',4,1);
+
+document.getElementById(names[w].div).innerHTML='<center>'+worms[w].wormname+'</center>';
+}
+
+w++;
+}
+}
+
+}
+
+for(var k=numworms;k<16;k++)
+{
+if(typeof(worms[w])=='object')
+{
+worms[k].kill();
+}
+}
+
+var arrow=new entity(0,'arrow',50,20,30,40,0,'squirms/arrow.gif',1,0,0,0,0,false,false,1,'z-index:1;',4,1);
+
+
+var borderpoly=new entity(1,'borderpoly',[50,800,800,50],[600,600,50,50],1,1,10,'black',1,0,0,0,0,false,false,3,'',0,1,true);
+
+//var testpoly=new entity(1,'testpoly',[50,200,200,50],[200,200,300,300],1,1,10,'black',1,0,0,0,0,true,false,3,'',0,1);
+
+//var testsquare=new entity(1,'testsquare',50,600,700,50,10,false,1,0,0,0,0,true,false,1,'border:solid black 1px;',0,1);
+
+var bg=new entity(1,'bg',00,00,800,600,0,false,1,0,0,0,0,false,false,1,'background-color:white;',4,1);
+
+
+var lowerborder=new entity(1,'lowerborder',0,600,850,50,10,false,1,0,0,0,0,true,false,1,'',0,1);
+var upperborder=new entity(1,'upperborder',0,0,850,50,10,false,1,0,0,0,0,true,false,1,'',0,1);
+var leftborder=new entity(1,'leftborder',0,0,50,650,10,false,1,0,0,0,0,true,false,1,'',0,1);
+var rightborder=new entity(1,'rightborder',800,0,50,650,10,false,1,0,0,0,0,true,false,1,'',0,1);
+
+
+var aimthing=new entity(0,'aimthing',30,30,3,10,0,'squirms/aim.gif',1,0,0,0,0,false,false,1,'',4,1);
+
+var wepimg=new entity(0,'wepimg',50,50,40,20,0,'squirms/rocketright.gif',1,0,0,0,0,false,false,1,'z-index:4;',4,1);
+
+var weps=new Array()
+var numweps=1
+for(var w=0;w<numweps;w++)
+{weps[w]=new entity(0,'weps['+w+']',300,275,20,20,100,'squirms/rocket.gif',0,0,0,0,0,true,false,1,'',2,1);}
+
+var booms=new Array()
+var numbooms=5
+for(var w=0;w<numbooms;w++)
+{booms[w]=new entity(0,'booms['+w+']',300,275,20,20,0,'squirms/boom.gif',1,0,0,0,0,false,false,1,'',2,1);}
+
+var aproxmass=100
+var giveortake=5
+/*
+var balls=new Array()
+for(var ballnum=0;ballnum<0;ballnum++)
+{balls[ballnum]=new entity(1,'balls['+ballnum+']',80+ballnum*51,200,50,50,100,'balls/green.gif',0,0,0,0,0,true,false,0,'',3,0.9);}
+*/
+//for polygons entity(state,name,x array,y array,thickness,z-index,mass,colour,type,vx,vy,fx,fy,hard,sticky,shape,ignore,gametype,elastic)
+
+//var polytest=new entity(1,'polytest',[700,500,500,700],[300,300,500,500],1,1,10,'blue',1,0,0,0,0,true,false,3,'',3,1);
+
+
+//var leftshape=new entity(1,'leftshape',[90,290,290,90],[250,400,600,250],1,1,10,'black',1,0,0,0,0,true,false,3,'',3,1);
+//var rightshape=new entity(1,'rightshape',[560,360,360,560],[250,400,600,250],1,1,10,'black',1,0,0,0,0,true,false,3,'',3,1);
+
+var genxs=new Array()
+var genys=new Array()
+
+function randompoly()
+{
+var avglength=100
+
+var startx=50
+var finishx=800
+
+var starty=400
+var finishy=400
+
+//var genxs=[startx]
+//var genys=[starty]
+
+var y=starty
+
+for(var x=startx;x<finishx;x+=avglength)
+{
+genxs.push(Math.round(x))
+genys.push(Math.round(y))
+y+=Math.random()*avglength-(avglength*(starty/finishy))/2
+}
+
+genxs.push(finishx)
+genys.push(finishy)
+
+genxs.push(finishx)
+genys.push(600)
+
+genxs.push(startx)
+genys.push(600)
+
+}
+randompoly()
+
+
+var polytest=new entity(1,'polytest',genxs,genys,1,1,10,'blue',1,0,0,0,0,true,false,3,'',1,1,false);
+
+//random mass - specically designed for pool, but can be used anywhere.  Attempt to remove complete uniformness to create a bit more realism
+function randommass(aprox,leeway)
+{var themass=aprox+(Math.random()-1)*2*leeway
+return Math.round(themass)}
+
+
+var needredraw=false
+
+
+
+
+
+
+
+
+function nomovement()
+{
+var moving=0
+var tempspeed;
+for(var h=0;h<numworms;h++)
+{
+tempspeed=worms[h].vx*worms[h].vx+worms[h].vy*worms[h].vy
+if(tempspeed> minspeed*minspeed || worms[h].walk!==0){moving++}
+}
+if(moving==0){return true}else{return false;}
+}
+
+var counter=0;
+//loop stuff
+
+var stilltime=0;
+
+function loop()
+{
+
+
+//document.getElementById('testspan').innerHTML="player = "+player+"<br>player vx="+Math.round(wholeworld[player].vx*10)/10+" player vy="+Math.round(wholeworld[player].vy*10)/10
+
+if(counter==10)
+{
+if(nomovement() && waitforstill){waitforstill=false;hotseat=waittime;}
+
+//if(nomovement()){showhealths();}else{hidehealths()}
+
+
+if(hotseat>0){hotseat-=timeperloop*20;canmove=false;}else if(hotseat<0){endgo();hotseat=0;}
+if(nomovement() && canmove){stilltime+=timeperloop*20;if(stilltime>5){showarrow();stilltime=0;}}else{stilltime=0;}
+if(movetime>0){movetime-=timeperloop*20}
+else if(canmove){endgo()}//if time has run out and the player hasn't fired a weapon (is still able to move), then end the go.
+roundtime-=timeperloop*20
+
+document.getElementById('infodiv').innerHTML="Wind: "+gravityX+" <br>Turn Time: "+Math.ceil(movetime)+" <br><font color="+teamcolour(teamsgo)+">Team "+(teamsgo+1)+"'s Turn</font>"+"<br>Sudden Death: "+Math.ceil(roundtime/60)+' mins'+'<br> Player: '+player
+if(weaponout){document.getElementById('infodiv').innerHTML+="<br>Power: "+power}
+if(hotseat>0){document.getElementById('infodiv').innerHTML="Waiting for "+Math.ceil(hotseat)+" secs"}
+}
+else
+if(counter==20){counter=0;findcommands();currentcommand++;runcommands();}
+
+
+replotentities()
+
+counter++
+
+}
+
+/*
+list of commands:
+
+0=no command
+1=walk left
+2=walk right
+3=stop walking
+4=jump
+5(=backflip?)
+6=small jump
+
+7=aim up
+8=aim down
+
+9=select rocket
+10=select grenade
+11=select gun
+
+12=fire weapon
+13=increase weapon power
+
+weapons:
+rocket
+grenade
+gun
+*/
+
+var movetime=45
+
+
+var commands=new Array();
+
+function canpowerup()
+{
+if(power>=10){return false;}
+
+switch(weapon)
+{
+case 'rocket':return true;break;
+case 'gun':return false;break;
+case 'grenade':return true;break;
+}
+return false
+}
+
+var poweringup=false
+
+function findcommands()
+{
+//alert(lastkeypressed)
+if(lastkeypressed==13 && canmove){commands.push(4)}//enter - jump
+else if(lastkeypressed==8 && canmove){commands.push(6)}//backspace - high jump
+else if(!moveright && !moveleft && wholeworld[player].walk!==0){commands.push(3)}//stop moving
+else if(!canmove && wholeworld[player].walk!==0){commands.push(3)}//shouldn't be able to move and still moving
+else if(lastkeypressed==49 && canmove && wholeworld[player].vx==0 && wholeworld[player].vy==0){commands.push(9)}//number 1
+else if(lastkeypressed==50 && canmove && wholeworld[player].vx==0 && wholeworld[player].vy==0){commands.push(10)}//number 2
+else if(lastkeypressed==51 && canmove && wholeworld[player].vx==0 && wholeworld[player].vy==0){commands.push(11)}//number 2
+else if(lastkeypressed==37 && canmove){commands.push(1)}//left
+else if(lastkeypressed==39 && canmove){commands.push(2)}//right
+else if(lastkeypressed==38 && canmove && wholeworld[player].vx==0 && wholeworld[player].vy==0){commands.push(7)}//up
+else if(lastkeypressed==40 && canmove && wholeworld[player].vx==0 && wholeworld[player].vy==0){commands.push(8)}//down
+
+else if(lastkeypressed==32 && canpowerup() && canmove && wholeworld[player].vx==0 && wholeworld[player].vy==0){commands.push(13);poweringup=true;}//space pressed + power up
+else if(spacedown && canpowerup() && canmove && wholeworld[player].vx==0 && wholeworld[player].vy==0){commands.push(13);poweringup=true;}//space pressed + power up
+else if(lastkeypressed==32 && !canpowerup() && canmove  && wholeworld[player].vx==0 && wholeworld[player].vy==0){commands.push(12);poweringup=false;}//space pressed + fire weapon
+else if(spacedown && !canpowerup() && canmove  && wholeworld[player].vx==0 && wholeworld[player].vy==0){commands.push(12);poweringup=false;}//space pressed + fire weapon
+else if(poweringup && canmove && wholeworld[player].vx==0 && wholeworld[player].vy==0){commands.push(12);poweringup=false}
+else{commands.push(0)}
+
+lastkeypressed=false;
+
+}
+
+var currentcommand=-1
+var weaponout=false
+var weapon='rocket'
+var power=1;
+
+var smallangle=-Math.PI/2+Math.PI/15
+var bigangle=Math.PI/2-Math.PI/15
+
+function runcommands()
+{
+
+switch(commands[currentcommand])
+{
+case 0:break;
+case 1:hidearrow();hideweps();hidehealths();if(checkspecifics(wholeworld[player].x,wholeworld[player].y+1,wholeworld[player].width,wholeworld[player].height,wholeworld[player].shape,wholeworld[player].name,wholeworld[player])!==false){if(wholeworld[player].direction=='right'){wholeworld[player].direction='left';document.getElementById(wholeworld[player].img).src="squirms/squirmleft.gif";}else{wholeworld[player].walk=-100}};break;
+case 2:hidearrow();hideweps();hidehealths();if(checkspecifics(wholeworld[player].x,wholeworld[player].y+1,wholeworld[player].width,wholeworld[player].height,wholeworld[player].shape,wholeworld[player].name,wholeworld[player])!==false){if(wholeworld[player].direction=='left'){wholeworld[player].direction='right';document.getElementById(wholeworld[player].img).src="squirms/squirmright.gif";}else{wholeworld[player].walk=100}};break;
+case 3:hideweps();wholeworld[player].walk=0;break;
+case 4:hidearrow();hideweps();if(checkspecifics(wholeworld[player].x,wholeworld[player].y+1,wholeworld[player].width,wholeworld[player].height,wholeworld[player].shape,wholeworld[player].name,wholeworld[player])!==false){if(wholeworld[player].direction=='right'){wholeworld[player].vx=50;wholeworld[player].vy=-100;}else{wholeworld[player].vx=-50;wholeworld[player].vy=-100;}};break;
+
+case 6:hidearrow();hideweps();if(checkspecifics(wholeworld[player].x,wholeworld[player].y+1,wholeworld[player].width,wholeworld[player].height,wholeworld[player].shape,wholeworld[player].name,wholeworld[player])!==false){if(wholeworld[player].direction=='right'){wholeworld[player].vx=20;wholeworld[player].vy=-130;}else{wholeworld[player].vx=-20;wholeworld[player].vy=-130;}};break;
+
+
+case 7:hidearrow();if(aimangle>smallangle){aimangle-=Math.PI/15;updateweps()};break;
+case 8:hidearrow();if(aimangle<bigangle){aimangle+=Math.PI/15;updateweps()};break;
+
+case 9:hidearrow();weapon='rocket';power=1;updateweps();break;
+case 10:hidearrow();weapon='grenade';power=1;updateweps();break;
+case 11:hidearrow();weapon='gun';power=10;updateweps();break;
+
+case 12:hidearrow();fire();hideweps();break;
+case 13:hidearrow();power+=2;updateweps();break;
+
+default:break;
+}
+
+
+//if(currentcommand==40){alert(commands)}
+
+}
+
+
+
+var canmove=true
+var whosgo=0; 
+var turns=0
+
+
+
+function greyout(onoff,message)
+{
+switch(onoff)
+{
+case true:
+document.getElementById('messagediv').innerHTML=message
+document.getElementById('greyoutdiv').style.display='block';
+document.getElementById('messagediv').style.display='block';
+break;
+case false:
+document.getElementById('greyoutdiv').style.display='none';
+document.getElementById('messagediv').style.display='none';
+break;
+}
+}
+
+function suddendeath()
+{//healthsout=false
+greyout(true,'<center><h1>Sudden Death</h1></center>')
+for(var w=0;w<numworms;w++)
+{//turns animated deaths into gravestones
+if(worms[w].gametype==2){worms[w].health=1}
+}
+setTimeout("greyout(false)",1000)
+}
+
+var teamsgo=0
+
+var wormsgo=0;
+
+var suddendeathgone=false;
+
+function endgo()
+{
+if(startinggame){startinggame=false;}
+
+hidearrow();
+hideweps();
+//healthsout=false;
+
+wholeworld[player].aimangle=aimangle;
+wholeworld[player].weapon=weapon;
+
+for(var w=0;w<numworms;w++)
+{//turns animated deaths into gravestones
+if(worms[w].gametype!==7 && worms[w].health<=0){document.getElementById(worms[w].img).src='squirms/grave.gif';worms[w].height=33;worms[w].y+=17;worms[w].x+=1;worms[w].width=26;worms[w].updatediv();worms[w].gametype=7}
+
+worms[w].elastic=0;
+
+}
+
+
+if(roundtime<=0 && !suddendeathgone){suddendeath();suddendeathgone=true;}
+
+/*
+turns++
+teamsgo=turns%numteams
+lastwormonteam[teamsgo]++;
+player=(lastwormonteam[teamsgo]%wormsperteam+teamsgo*wormsperteam)*3//times three because there are two health divs per worm
+*/
+
+turns++
+var oldteamsgo=teamsgo
+
+teamsgo=turns%numteams
+
+var infiniteloop=0
+while(teamstates[teamsgo]==false && infiniteloop<=numteams)
+{
+turns++
+teamsgo=turns%numteams
+infiniteloop++
+}
+
+var liveteams=0
+for(var k=0;k<teamstates.length;k++)
+{
+if(teamstates[k]!==false){liveteams++}
+}
+if(liveteams==0){endgame('draw')}
+else if(liveteams==1){endgame('win')}
+
+
+lastwormonteam[teamsgo]++;
+
+wormsgo=lastwormonteam[teamsgo]%wormsperteam
+
+while(teamstates[teamsgo][wormsgo]==false)
+{
+lastwormonteam[teamsgo]++;
+wormsgo=lastwormonteam[teamsgo]%wormsperteam
+}
+
+//alert('team='+teamsgo+" worm="+wormsgo)
+
+//player=(wormsgo+teamsgo*wormsperteam)*3//times three because there are two health divs per worm
+
+player=worms[wormsgo+teamsgo*wormsperteam].arraypos
+//alert(wormsgo+teamsgo*wormsperteam)
+//alert(player)
+
+showarrow()
+
+canmove=true;
+movetime=turntime
+aimangle=wholeworld[player].aimangle
+weapon=wholeworld[player].weapon
+//aimangle=0;
+
+weapon='rocket';
+gravityX=Math.round((Math.random()-0.5)*200)
+
+showallinfo();
+}
+
+
+
+function endgame(state)
+{
+
+ingame=false;
+
+//alert(typeof(worms[1]))
+//alert(worms[1].wormname)
+
+clearInterval(loopme)
+document.getElementById('gameoverdiv').style.display='block';
+
+hidehealths();
+
+document.getElementById('infodiv').style.display='none';
+document.getElementById('gamemenudiv').style.display='none';
+switch(state)
+{
+case 'draw':
+document.getElementById('debriefspan').innerHTML='Draw - no winners.'
+break;
+
+case 'win':
+
+var winningteam
+for(var k=0;k<teamstates.length;k++)
+{
+if(teamstates[k]!==false){winningteam=k+1}
+}
+
+document.getElementById('debriefspan').innerHTML='<font color="'+teamcolour(winningteam-1)+'">'+teamnames[theirnames[winningteam-1]]+' </font>wins!'
+
+var maxdamage=0
+var damageworm;
+for(var k=0;k<numworms;k++)
+{
+if(worms[k].damaged>maxdamage){maxdamage=worms[k].damaged;damageworm=worms[k].wormname}
+
+if(worms[k].teamdamaged>worms[k].damaged/2){document.getElementById('debriefspan').innerHTML+="<p>"+worms[k].wormname+' caused more damage to his team than the enemy.'}
+}
+document.getElementById('debriefspan').innerHTML+="<p>"+damageworm+" caused the most damage with a whopping "+maxdamage+'.'
+
+break;
+
+}
+
+
+for(var k=0;k<numworms;k++)
+{
+worms[k].destroy()
+delete worms[k]
+healths[k].destroy()
+delete healths[k]
+healthsbg[k].destroy()
+delete healthsbg[k]
+names[k].destroy()
+delete names[k]
+namesbg[k].destroy()
+delete namesbg[k]
+}
+numworms=0;
+redrawworld();
+
+}
+
+
+
+
+
+function findsparewep()
+{
+for(var wepnum=0;wepnum<numweps;wepnum++)
+{
+if(weps[wepnum].state!==1){return wepnum;}
+}
+return 0;
+}
+
+
+function fire()
+{
+var whichwep=findsparewep()
+//weaponout=false;
+canmove=false;
+movetime=0;
+switch(weapon)
+{
+case 'rocket':
+weps[whichwep].state=1;
+weps[whichwep].boom=50
+weps[whichwep].mass=10;
+weps[whichwep].fy=0;
+weps[whichwep].fx=0;
+weps[whichwep].shape=0;weps[whichwep].width=20;weps[whichwep].height=20;weps[whichwep].gametype=3
+
+if(wholeworld[player].direction=='right'){weps[whichwep].x=wholeworld[player].x+wholeworld[player].width}else{weps[whichwep].x=wholeworld[player].x-20;}
+weps[whichwep].y=wholeworld[player].y+wholeworld[player].height/2-10;
+document.getElementById(weps[whichwep].img).src='squirms/rocket.gif'
+document.getElementById(weps[whichwep].div).style.display='block';
+var wepspeed=100+20*power
+power=1;
+weps[whichwep].updatediv();
+if(wholeworld[player].direction=='right'){weps[whichwep].vx=Math.cos(aimangle)*wepspeed;weps[whichwep].vy=Math.sin(aimangle)*wepspeed}else{weps[whichwep].vx=Math.cos(aimangle*(-1)-Math.PI)*wepspeed;weps[whichwep].vy=Math.sin(aimangle*(-1)-Math.PI)*wepspeed}
+break;
+
+case 'grenade':
+weps[whichwep].mass=10;
+weps[whichwep].boom=40
+weps[whichwep].fy=0;
+weps[whichwep].fx=-weps[whichwep].mass*gravityX
+weps[whichwep].elastic=0.8;
+weps[whichwep].state=1;
+weps[whichwep].shape=0;weps[whichwep].width=20;weps[whichwep].height=20;weps[whichwep].gametype=5
+
+weps[whichwep].fuse=5
+
+if(wholeworld[player].direction=='right'){weps[whichwep].x=wholeworld[player].x+wholeworld[player].width}else{weps[whichwep].x=wholeworld[player].x-20;}
+weps[whichwep].y=wholeworld[player].y+wholeworld[player].height/2-10;
+document.getElementById(weps[whichwep].img).src='squirms/grenade.gif'
+document.getElementById(weps[whichwep].div).style.display='block';
+var wepspeed=100+20*power
+power=1;
+weps[whichwep].updatediv();
+if(wholeworld[player].direction=='right'){weps[whichwep].vx=Math.cos(aimangle)*wepspeed;weps[whichwep].vy=Math.sin(aimangle)*wepspeed}else{weps[whichwep].vx=Math.cos(aimangle*(-1)-Math.PI)*wepspeed;weps[whichwep].vy=Math.sin(aimangle*(-1)-Math.PI)*wepspeed}
+break;
+
+case 'gun':
+weps[whichwep].boom=25
+weps[whichwep].state=1;
+weps[whichwep].mass=10;
+weps[whichwep].fx=-weps[whichwep].mass*gravityX
+weps[whichwep].fy=-weps[whichwep].mass*gravityY
+weps[whichwep].shape=0;weps[whichwep].width=4;weps[whichwep].height=4;weps[whichwep].gametype=3;weps[whichwep].fy=-weps[whichwep].mass*gravityY;
+
+if(wholeworld[player].direction=='right'){weps[whichwep].x=wholeworld[player].x+wholeworld[player].width}else{weps[whichwep].x=wholeworld[player].x-20;}
+weps[whichwep].y=wholeworld[player].y+wholeworld[player].height/2-10;
+document.getElementById(weps[whichwep].img).src='squirms/bullet.gif'
+weps[whichwep].updatediv();
+document.getElementById(weps[whichwep].div).style.display='block';
+var wepspeed=200;
+power=1;
+if(wholeworld[player].direction=='right'){weps[whichwep].vx=Math.cos(aimangle)*wepspeed;weps[whichwep].vy=Math.sin(aimangle)*wepspeed}else{weps[whichwep].vx=Math.cos(aimangle*(-1)-Math.PI)*wepspeed;weps[whichwep].vy=Math.sin(aimangle*(-1)-Math.PI)*wepspeed}
+
+
+
+break;
+}
+
+}
+
+function findspareboom()
+{
+for(var boomnum=0;boomnum<numbooms;boomnum++)
+{
+if(booms[boomnum].state!==1){return boomnum;}
+}
+return 0;
+}
+
+var waitforstill=false
+ 
+ 
+ 
+function killthisworm(thisworm)
+{
+//setTimeout("explosion("+(wholeworld[thisworm].x+wholeworld[thisworm].width/2)+","+(wholeworld[thisworm].y+wholeworld[thisworm].height/2)+",25)",50)
+document.getElementById(wholeworld[thisworm+1].div).style.display='none';
+document.getElementById(wholeworld[thisworm+2].div).style.display='none';
+document.getElementById(wholeworld[thisworm+3].div).style.display='none';
+document.getElementById(wholeworld[thisworm+4].div).style.display='none';//hide the health and name
+//kill this worm
+document.getElementById(wholeworld[thisworm].img).src='squirms/die.gif';//wholeworld[thisworm].type=1;
+//wholeworld[thisworm].gametype=7;
+wholeworld[thisworm].vx=0;wholeworld[thisworm].vy=0;
+wholeworld[thisworm].type=1;
+wholeworld[thisworm].hard=false
+
+
+//var whichworm=thisworm/3
+var worminteam=wholeworld[thisworm].wormpos;
+//alert(worminteam)
+//alert(wormsgo)
+teamstates[wholeworld[thisworm].team][worminteam]=false;
+
+var deadworms=0
+for(var k=0;k<wormsperteam;k++)
+{
+if(teamstates[wholeworld[thisworm].team][k]==false){deadworms++;}
+}
+if(deadworms==wormsperteam){teamstates[wholeworld[thisworm].team]=false}
+
+
+
+} 
+ 
+function explosion(centrex,centrey,radius,whom)
+{
+
+
+for(var k=0;k<numworms;k++)
+{
+worms[k].elastic=0.3;
+}
+
+//var centrex=whom.x+whom.width/2
+//var centrey=whom.y+whom.height/2
+//var radius=whom.boom
+
+var thisboom=findspareboom()
+
+booms[thisboom].state=1;
+document.getElementById(booms[thisboom].div).style.display='block';
+document.getElementById(booms[thisboom].div).style.zIndex=2;
+booms[thisboom].x=centrex-radius
+booms[thisboom].y=centrey-radius
+booms[thisboom].width=radius*2
+booms[thisboom].height=radius*2
+document.getElementById(booms[thisboom].img).src="squirms/boom.gif"
+document.getElementById(booms[thisboom].img).width=radius*2;
+document.getElementById(booms[thisboom].img).height=radius*2;
+booms[thisboom].updatediv();
+
+//whom.kill()
+
+var waitfor=0
+
+
+for(var i9=thisboom;i9<wholeworld.length;i9++)
+{
+
+if(wholeworld[i9].state==1 && wholeworld[i9].hard && booms[thisboom].name!==wholeworld[i9].name && wholeworld[i9].gametype==2)
+{
+if(checkcollide(booms[thisboom].x,booms[thisboom].y,booms[thisboom].width,booms[thisboom].height,booms[thisboom].shape,wholeworld[i9].x,wholeworld[i9].y,wholeworld[i9].width,wholeworld[i9].height,wholeworld[i9].shape,booms[thisboom],wholeworld[i9]))
+{
+//this has been caught in the explosion
+
+var dx=(wholeworld[i9].x+wholeworld[i9].width/2)-centrex
+var dy=(wholeworld[i9].y+wholeworld[i9].height/2)-centrey
+
+//angle between centre of explosion and centre of squirm
+var boomangle=getangle(dx,dy)
+
+var distance=Math.sqrt(dx*dx+dy*dy)-20
+
+//this works out how much of the damage to give the worm depening on how far away it was from the centre of the explosion
+if(distance<0){distance=0;}
+if(distance>radius){radius=distance}
+var fraction=(radius-distance)/radius
+
+wholeworld[i9].vx=Math.cos(boomangle)*200*fraction
+wholeworld[i9].vy=Math.sin(boomangle)*200*fraction
+
+
+
+//alert(fraction+' radius='+radius+' distance='+distance)
+var damage=Math.round(fraction*radius);
+wholeworld[i9].health-=damage
+
+wholeworld[player].damaged+=damage
+
+if(wholeworld[i9].team==wholeworld[player].team){wholeworld[player].teamdamaged+=damage;}
+
+if(wholeworld[i9].health<=0)
+{
+killthisworm(i9)
+}
+
+
+
+waitfor++
+}
+}
+
+}
+
+setTimeout('booms['+thisboom+'].kill()',500)
+if(waitfor==0){hotseat=waittime;}else{waitforstill=true}
+
+}
+
+var aimangle=0;
+
+function updateweps()
+{weaponout=true;
+document.getElementById(wepimg.div).style.display='block'
+document.getElementById(aimthing.div).style.display='block'
+
+
+wepimg.x=Math.round(wholeworld[player].x)-5;
+wepimg.y=Math.round(wholeworld[player].y)+15;
+document.getElementById(wepimg.img).src='squirms/'+weapon+wholeworld[player].direction+'.gif';
+wepimg.updatediv2();
+
+
+if(wholeworld[player].direction=='right'){aimthing.x=Math.round(wholeworld[player].x+wholeworld[player].width/2+Math.cos(aimangle)*50)-15}else{aimthing.x=Math.round(wholeworld[player].x+wholeworld[player].width/2-Math.cos(aimangle)*50)-15}
+aimthing.y=Math.round(wholeworld[player].y+wholeworld[player].height/2+Math.sin(aimangle)*50)-15
+
+aimthing.updatediv2()
+}
+
+function hideweps()
+{weaponout=false
+document.getElementById(wepimg.div).style.display='none'
+document.getElementById(aimthing.div).style.display='none'
+}
+
+
+
+
+
+
+function showhealths()
+{
+/*
+for (var h=0;h<numworms;h++)
+{
+
+if(worms[h].health>0 && worms[h].arraypos!==player)
+{
+document.getElementById(healths[h].div).innerHTML=worms[h].health
+if(!healthsout){
+healths[h].x=worms[h].x;
+healths[h].y=worms[h].y-20;
+healths[h].updatediv2()
+healthsbg[h].x=worms[h].x;
+healthsbg[h].y=worms[h].y-20;
+healthsbg[h].updatediv2()
+document.getElementById(healths[h].div).style.display='block';
+document.getElementById(healthsbg[h].div).style.display='block';
+
+names[h].x=worms[h].x-15;
+names[h].y=worms[h].y-44;
+names[h].updatediv2()
+namesbg[h].x=worms[h].x-15;
+namesbg[h].y=worms[h].y-44;
+namesbg[h].updatediv2()
+//document.getElementById(names[h].div).innerHTML=worms[h].wormname
+document.getElementById(names[h].div).style.display='block';
+document.getElementById(namesbg[h].div).style.display='block';
+
+}
+}
+}
+*/
+//healthsout=true
+
+
+}
+
+
+function showallinfo()
+{
+for(var k=0;k<numworms;k++)
+{//alert(worms[k].arraypos)
+showthisinfo(worms[k].arraypos)
+}
+}
+
+
+function showthisinfo(info)
+{
+if(healthsout && info!==player && wholeworld[info].health>0)
+{
+//alert(wholeworld[i+4].div)
+document.getElementById(wholeworld[info+1].div).style.left=Math.round(wholeworld[info].x)
+document.getElementById(wholeworld[info+1].div).style.top=Math.round(wholeworld[info].y)-25
+
+document.getElementById(wholeworld[info+2].div).style.left=Math.round(wholeworld[info].x)
+
+document.getElementById(wholeworld[info+2].div).style.top=Math.round(wholeworld[info].y)-25
+
+document.getElementById(wholeworld[info+2].div).innerHTML=wholeworld[info].health;
+
+//move the health and name boxes above the worm's head
+
+
+document.getElementById(wholeworld[info+3].div).style.left=Math.round(wholeworld[info].x)-wholeworld[info].wormname.length*4.5+15
+document.getElementById(wholeworld[info+3].div).style.top=Math.round(wholeworld[info].y)-50
+document.getElementById(wholeworld[info+4].div).style.left=Math.round(wholeworld[info].x)-wholeworld[info].wormname.length*4.5+15
+document.getElementById(wholeworld[info+4].div).style.top=Math.round(wholeworld[info].y)-50
+
+document.getElementById(wholeworld[info+1].div).style.display='block';
+
+document.getElementById(wholeworld[info+2].div).style.display='block';
+document.getElementById(wholeworld[info+3].div).style.display='block';
+document.getElementById(wholeworld[info+4].div).style.display='block';
+
+}else
+{
+document.getElementById(wholeworld[info+1].div).style.display='none';
+document.getElementById(wholeworld[info+2].div).style.display='none';
+document.getElementById(wholeworld[info+3].div).style.display='none';
+document.getElementById(wholeworld[info+4].div).style.display='none';
+}
+}
+
+
+function showarrow()
+{if(!arrowout)
+{
+arrow.x=wholeworld[player].x
+arrow.y=wholeworld[player].y-90
+arrow.updatediv2();
+document.getElementById(arrow.div).style.display='block';
+arrowout=true;
+}
+}
+//showarrow();
+function hidearrow()
+{if(arrowout){
+document.getElementById(arrow.div).style.display='none';
+arrowout=false
+}
+}
+
+var healthsout=true;
+var arrowout=false;
+
+function hidehealths()
+{
+/*
+//hidearrow()
+if(healthsout)
+{
+for (var h=0;h<numworms;h++)
+{document.getElementById(healths[h].div).style.display='none';document.getElementById(healthsbg[h].div).style.display='none';
+document.getElementById(names[h].div).style.display='none';document.getElementById(namesbg[h].div).style.display='none';
+}
+*/
+//healthsout=false
+//}
+}
+
+//var player=worms[0]
+
+//var player=ball
+
+
+function moveus()
+{
+if (moveright){wholeworld[player].fx+=incriment; if (wholeworld[player].fx>maxuserforce){wholeworld[player].fx=maxuserforce};}
+if (moveleft){wholeworld[player].fx-=incriment; if (wholeworld[player].fx<-maxuserforce){wholeworld[player].fx=-maxuserforce}}
+if(!moveright && !moveleft){if (wholeworld[player].fx>0){wholeworld[player].fx-=incriment};if (wholeworld[player].fx<0){wholeworld[player].fx+=incriment}}
+if (moveup){wholeworld[player].fy-=incriment; if (wholeworld[player].fy < -maxuserforce){wholeworld[player].fy=-maxuserforce}}
+if (movedown){wholeworld[player].fy+=incriment; if (wholeworld[player].fy > maxuserforce){wholeworld[player].fy=maxuserforce}}
+if (!moveup && !movedown){wholeworld[player].fy+=incriment*2; if (wholeworld[player].fy > 0){wholeworld[player].fy=0}}
+//document.getElementById('testspan').innerHTML="ourfx ="+us.fx+" ourfx ="+us.fy+" ourvx ="+us.vx+" ourvy ="+us.vy
+}
+
+
+
+
+
+function getangle(x,y)
+{
+if(x<0){theangle=(Math.PI)+(Math.atan(y/x))}
+else if(x>0 && y>=0){theangle=Math.atan(y/x)}
+else if(x>0 && y < 0){theangle=2*(Math.PI)+Math.atan(y/x)}
+else if(x==0 && y == 0){theangle=0}
+else if(x==0 && y>=0){theangle=(Math.PI)/2}
+else{theangle=3*(Math.PI)/2}
+
+return theangle;
+}
+
+
+//IDEA FOR FRICITON, ADD FRICTION TO SPEED, THEN RESLOVE FOR X AND Y VELOCITIES
+
+function replotentities()
+{
+for (i=0;i<wholeworld.length;i++)
+{
+if(wholeworld[i].type == 0 && wholeworld[i].state==1)
+{
+//if type=0 then we're a entity and thus need to be replotted, and we're not dead
+ourspeed=Math.sqrt(wholeworld[i].vx*wholeworld[i].vx+wholeworld[i].vy*wholeworld[i].vy)
+//alert(wholeworld[i].name)
+
+//if(apressed){alert(wholeworld[player].vx+'replot')}
+
+var ourangle=getangle(wholeworld[i].vx,wholeworld[i].vy)
+
+var ourspeedfriction=ourspeed-ourspeed*friction*timeperloop
+
+//acceleration of object to be updated; f=ma therefore a=f/m
+
+if(wholeworld[i].gametype!==2){ax=(wholeworld[i].fx+gravityX*wholeworld[i].mass)/wholeworld[i].mass}else{ax=wholeworld[i].fx}
+ay=(wholeworld[i].fy+gravityY*wholeworld[i].mass)/wholeworld[i].mass
+//v=u+at
+newvy=Math.sin(ourangle)*ourspeedfriction+ay*timeperloop
+newvx=Math.cos(ourangle)*ourspeedfriction+ax*timeperloop
+//alert(newvy)
+//wholeworld[i].vy=newvy
+//wholeworld[i].vx=newvx
+
+// if we're moving really slowly, and there's no force on us, then stop moving.
+if(ourspeedfriction <=minspeed && wholeworld[i].fx==0 && wholeworld[i].fy==0  && ax==0 && ay==0){newvx=0;newvy=0;}
+
+//optimisation, if we're not moving, don't faff about re-plotting our position
+if(newvy!==0 || newvx!==0){
+
+//s=ut + 0.5at^2 therefore, new position = old position + ut+1/2at^2
+newx=(wholeworld[i].vx*timeperloop+1/2*ax*timeperloop*timeperloop)+wholeworld[i].x
+newy=(wholeworld[i].vy*timeperloop+1/2*ay*timeperloop*timeperloop)+wholeworld[i].y
+
+if(wholeworld[i].hard || wholeworld[i].gametype==7){
+
+for (i2=0;i2<wholeworld.length;i2++)
+{
+if(wholeworld[i2].hard && i!==i2 && wholeworld[i2].state==1)
+{
+if(checkcollide(newx,newy,wholeworld[i].width,wholeworld[i].height,wholeworld[i].shape,wholeworld[i2].x,wholeworld[i2].y,wholeworld[i2].width,wholeworld[i2].height,wholeworld[i2].shape,wholeworld[i],wholeworld[i2]))
+{//if there is a collision
+
+
+//if(wholeworld[i2].name!=='polytest'){alert(wholeworld[i].name+' '+wholeworld[i2].name)}
+
+if(wholeworld[i].sticky==false)
+{
+if(wholeworld[i].shape==0 && wholeworld[i2].shape==0)
+{
+wholeworld[i].vx=newvx
+wholeworld[i].vy=newvy
+collideascircles(wholeworld[i],wholeworld[i2])
+
+}else if(wholeworld[i].shape==3|| wholeworld[i2].shape==3){collidewithpoly(wholeworld[i],wholeworld[i2])}
+else
+{
+collideassquares(wholeworld[i],wholeworld[i2])
+}
+
+if(wholeworld[i2].type==0){wholeworld[i2].vx=theirnewvx;wholeworld[i2].vy=theirnewvy}
+
+//this bit is new (v1.48), the idea is to solve problems when a ball is stuck between two plates, or similar.
+var dx=newx-wholeworld[i].x
+var dy=newy-wholeworld[i].y
+if(checkcollide((newx-dx/4),(newy-dy/4),wholeworld[i].width,wholeworld[i].height,wholeworld[i].shape,wholeworld[i2].x,wholeworld[i2].y,wholeworld[i2].width,wholeworld[i2].height,wholeworld[i2].shape,wholeworld[i],wholeworld[i2])!==true){newx-=dx/4;newy-=dy/4;}
+else if(checkcollide((newx-dx/2),(newy-dy/2),wholeworld[i].width,wholeworld[i].height,wholeworld[i].shape,wholeworld[i2].x,wholeworld[i2].y,wholeworld[i2].width,wholeworld[i2].height,wholeworld[i2].shape,wholeworld[i],wholeworld[i2])!==true){newx-=dx/2;newy-=dy/2;}
+else if(checkcollide((newx-(dx/4)*3),(newy-(dy/4)*3),wholeworld[i].width,wholeworld[i].height,wholeworld[i].shape,wholeworld[i2].x,wholeworld[i2].y,wholeworld[i2].width,wholeworld[i2].height,wholeworld[i2].shape,wholeworld[i],wholeworld[i2])!==true){newx-=(dx/4)*3;newy-=(dy/4)*3;}
+else{newx=wholeworld[i].x;newy=wholeworld[i].y;}
+
+
+wholeworld[i].vx=newvx
+wholeworld[i].vy=newvy
+//end of if sticky
+}
+
+//newvx*=(wholeworld[i].elastic+wholeworld[i2].elastic)/2
+//newvy*=(wholeworld[i].elastic+wholeworld[i2].elastic)/2
+
+newvy*=wholeworld[i].elastic
+newvx*=wholeworld[i].elastic
+
+
+switch(wholeworld[i].gametype)
+{
+case 3:wholeworld[i].kill();explosion(wholeworld[i].x+wholeworld[i].width/2,wholeworld[i].y+wholeworld[i].height/2,wholeworld[i].boom);break;
+//use this to detect stuff
+
+case 2:
+if(ourspeed>hurtspeed && !startinggame)
+{canmove=false
+wholeworld[i].health-=Math.round(ourspeed/50)
+if(wholeworld[i].health<=0){killthisworm(i);}//alert('death from falling')}
+
+if(wholeworld[i].vx>0){wholeworld[i].direction='right'}else{wholeworld[i].direction='left';}
+document.getElementById(wholeworld[i].img).src="squirms/squirm"+wholeworld[i].direction+".gif"
+waitforstill=true;
+}
+else
+{
+document.getElementById(wholeworld[i].img).src="squirms/squirm"+wholeworld[i].direction+".gif"
+}
+break;
+
+}
+if(apressed){alert(wholeworld[player].vx+'aftercheck')}
+//end of there is a collision
+}
+//end of collidable if statement
+}
+//end of i2 (collision) loop
+}
+//end of if [i] is hard
+}
+
+if(wholeworld[i].gametype==2)//if this is a worm and it's walking
+{
+if(checkspecifics(wholeworld[i].x,wholeworld[i].y+1,wholeworld[i].width,wholeworld[i].height,wholeworld[i].shape,wholeworld[i].name,wholeworld[i])!==false && Math.abs(wholeworld[i].vx)<=1 && Math.abs(wholeworld[i].vy)<=1 && wholeworld[i].walk!==0)
+{
+var loops=0
+var walkangle=Math.PI/2//directly down
+var howfar=Math.abs(wholeworld[i].walk*timeperloop)
+//if(wholeworld[i].walk<0){walkangle+=Math.PI/90}else{walkangle-=Math.PI/90}
+while(checkspecifics(wholeworld[i].x+Math.cos(walkangle)*howfar,wholeworld[i].y+Math.sin(walkangle)*howfar,wholeworld[i].width,wholeworld[i].height,wholeworld[i].shape,wholeworld[i].name,wholeworld[i])!==false && loops<45)
+{
+loops++
+if(wholeworld[i].walk<0){walkangle+=Math.PI/45;}else{walkangle-=Math.PI/45;}
+}
+if(loops<45 && angleinrange(walkangle))
+{newx=wholeworld[i].x+Math.cos(walkangle)*howfar
+newy=wholeworld[i].y+Math.sin(walkangle)*howfar}
+
+if(wholeworld[i].walk>0){wholeworld[i].direction='right';}else{wholeworld[i].direction='left';}
+
+document.getElementById(wholeworld[i].img).src="squirms/squirm"+wholeworld[i].direction+".gif"
+
+}
+
+
+
+}
+
+
+//if(i==player){if(newx!==wholeworld[i].x || newy!==wholeworld[i].y){updateweps()}}
+
+wholeworld[i].vx=newvx
+wholeworld[i].vy=newvy
+
+if(newx!==wholeworld[i].x || newy!==wholeworld[i].y){
+//update the div only if it's moved
+
+wholeworld[i].x=newx
+wholeworld[i].y=newy
+
+
+if(wholeworld[i].gametype==2)
+{
+showthisinfo(i)
+//ourspeed>200
+if(newvy*newvy+newvx*newvx>hurtspeed*hurtspeed){document.getElementById(wholeworld[i].img).src="squirms/squirmfall"+wholeworld[i].direction+".gif"}
+
+
+//end of if a worm
+}
+
+
+
+whichdiv=document.getElementById(wholeworld[i].div);
+whichdiv.style.left=Math.round(newx);
+whichdiv.style.top=Math.round(newy);
+
+}
+
+
+
+
+
+//end of if we're moving statement
+}
+
+
+switch(wholeworld[i].gametype)
+{
+case 5:
+if(wholeworld[i].fuse>0){wholeworld[i].fuse-=timeperloop}else{wholeworld[i].kill();explosion(wholeworld[i].x+wholeworld[i].width/2,wholeworld[i].y+wholeworld[i].height/2,wholeworld[i].boom);}
+break;
+}
+
+//end of if entity statement
+}
+//this will attempt to bring back to life anything which couldn't come back because somehting was in the way 
+else if(wholeworld[i].state==2){wholeworld[i].unkill()}
+else if(wholeworld[i].state==3){wholeworld[i].destroy();}
+else if(wholeworld[i].state==4){wholeworld[i].kill();wholeworld[i].x=100;wholeworld[i].y=275;wholeworld[i].fx=0;wholeworld[i].fy=0;wholeworld[i].vx=0;wholeworld[i].vy=0;wholeworld[i].unkill();}
+//end of wholeworld loop 
+}
+//end of replotentities()
+}
+
+function angleinrange(testangle)
+{
+var testthis=testangle/Math.PI*180
+
+if(-60<testthis && testthis<90){return true;}
+else if(90<testthis && testthis<240){return true;}
+
+return false;
+}
+
+
+//-->
+</script>
+
+</body>
+</html>
+

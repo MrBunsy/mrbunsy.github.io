@@ -1,0 +1,186 @@
+<!--
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+//-->
+  <head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<title>Planet Wars 2 Offline</title>
+<link href="inc_css/planet_wars2.css" type="text/css" rel="stylesheet" media="all" />
+<!--<link href="../inc_css/play.css" type="text/css" rel="stylesheet" media="all" />//-->
+<link href="inc_css/offline.css" type="text/css" rel="stylesheet" media="all" />
+
+  <script type="text/javascript" src="common/common.js">
+</script>
+   <script type="text/javascript" src="common/2Dengine3_general_0.01.js">
+</script>
+   <script type="text/javascript" src="common/2Dengine3_physics.js">
+</script>
+   <script type="text/javascript" src="common/2Dengine3_shapes_0.02.js">
+</script>
+   <script type="text/javascript" src="common/2Dengine3_detect_0.01.js">
+</script>
+   <script type="text/javascript" src="common/2Dengine3_response_0.01.js">
+</script>
+   <script type="text/javascript" src="common/2Dengine3_render_0.01.js">   
+</script>
+	<script type="text/javascript" src="common/Animation.js">
+</script>
+	<script type="text/javascript" src="common/PWAnimations.js">
+</script>
+<!--[if IE]>
+   <script type="text/javascript" src="common/excanvas_gradstuff_compressed.js">   
+</script>
+<![endif]-->
+   <script type="text/javascript" src="inc_js/planet_wars.js">
+</script>
+   <script type="text/javascript" src="inc_js/planet_wars_editor.js">
+</script>
+   <script type="text/javascript" src="inc_js/planet_wars_offline.js">
+</script>
+   <script type="text/javascript" src="inc_js/planet_wars_shipRegions.js">
+</script>
+   <script type="text/javascript" src="inc_js/planet_wars_render.js">
+</script>
+<!--[if IE]>
+   <script type="text/javascript" src="inc_js/planet_wars_IE.js">
+</script>
+<![endif]-->
+  </head>
+  <body bgcolor="black">
+  	
+    <div id='planet_wars_div2' style="z-index:2;position:absolute;margin-left:850px;border:solid white 1px;padding:5px;color:white;">
+        
+		<div id="planet_wars_match_scores" style="display:none;">
+			
+		</div>
+		
+		<div id="planet_wars_mid_game" style="display:none;">
+		
+			<span id="planet_wars_whosgo">
+	        </span>
+	        
+			<form id="planet_wars_input_form" action="javascript:planet_wars.submitFireBox();" method="post" name="planet_wars_input_form">
+				<br>
+				<br>
+				Angle: <input type="text" name="planet_wars_angle_input_box" id="planet_wars_angle_input_box" value="0" />
+				<br>
+				Speed: <input type="text" name="planet_wars_speed_input_box" id="planet_wars_speed_input_box" value="100" />
+				<br>
+				<span id="planet_wars_choose_missile_span" style="display:none;">
+				Missile: <select id="planet_wars_choose_missile_box"><option value=0>Normal</option><option value=1>Red Matter</option></select>
+				</span>
+				<input type="submit" value="Fire" />
+				<br>
+				<br>
+				<a href="javascript:planet_wars.menus['midGameOptions'].open(['midGame','midMatch','scores']);">Options</a>
+			</form>
+			
+			<div id="planet_wars_mid_game_options" style="display:none;">
+				<ul class="noBullet">
+					<li><a href="javascript:planet_wars.lowGraphicsMode();">Low Graphics Mode</a></li>
+					<li><a href="javascript:planet_wars.endGame(false);">Call Stalemate</a></li>
+					<li><a href="javascript:planet_wars.menus['midGameOptions'].close();">Cancel</a></li>
+				</ul class="noBullet">
+				
+				
+			</div>
+		</div>
+		
+		<div id="planet_wars_end_game" style="display:none;">
+			<span id="planet_wars_who_won"></span>
+			<br>
+			<br>
+			<a href="javascript:planet_wars.offlineNewMatch();">Play Again!</a>
+		</div>
+		
+		
+		
+		<div id="planet_wars_mid_match" style="display:none;">
+			<ul class="noBullet">
+				<li><a href="javascript:planet_wars.abandonMatch();">Abandon Match</a></li>
+				<li><a href="javascript:planet_wars.nextRound();">Next Round!</a></li>
+			</ul class="noBullet">
+		</div>
+		
+		<div id="planet_wars_next_round" style="display:none;">
+			<ul class="noBullet">
+				<li class="newmap"><a href="javascript:planet_wars.newMap();">New Map</a></li>
+				<li class="editmap"><a href="javascript:planet_wars.editorAllowShipsEdited=false;planet_wars.openEditor(1,['planet_wars_canvas1'],['planet_wars_editor']);planet_wars.offlineCloseNextMatch();">Edit Map</a></li>
+				<li class="startgame"><a href="javascript:planet_wars.startGame();">Play</a></li>
+			</ul class="noBullet">
+		</div>
+		
+		<div id="planet_wars_pregame">
+			
+			
+			<form id="planet_wars_options_form" action="javascript:planet_wars.newMap();" method="post">
+				<ul class="noBullet">
+					<li>Generate Map
+						<ul class="noBullet">
+							<li><label for="optionPlayers">Players:</label><select id="optionPlayers"><option value="2" selected="selected">2</option><option value="3">3</option><option value="4">4</option></select></li>
+							<li class="newmap"><a href="javascript:document.getElementById('planet_wars_options_form').submit();">New Map</a></li>							
+						</ul class="noBullet">
+					
+					</li>
+					<li class="editmap"><a href="javascript:planet_wars.openEditor(1,['planet_wars_canvas1'],['planet_wars_editor']);planet_wars.menus['preGame'].close();">Edit Map</a></li>
+					<li><a href="javascript:planet_wars.menus['names'].open(['preGame']);">Set Player Names</a></li>
+               		<li id="playMenu">Play
+               			<ul class="noBullet">
+               				<li><a href="javascript:planet_wars.startMatch(parseInt(document.getElementById('optionMatchRounds').value));">First to </a><select id="optionMatchRounds"><option value="2" selected="selected">2</option><option value="3">3</option></select></li>
+							<li class="startgame"><a id="startGameLink" href="javascript:planet_wars.startGame();">Single Round</a></li>
+               			</ul class="noBullet">
+					</li>
+
+				</ul class="noBullet">
+			</form>
+
+		</div>
+			
+		<div id="planet_wars_names_div" style="display:none;z-index:2;color:#FFFFFF;background-color:#000000;">
+			<br>
+				<ul class="noBullet">
+					<li id="planet_wars_names_list_player0" style="color:#FF0000;">Player 1: <input type="text" id="planet_wars_names_form_player0" /></li>
+					<li id="planet_wars_names_list_player1" style="color:#00FF00;">Player 2: <input type="text" id="planet_wars_names_form_player1" /></li>
+					<li id="planet_wars_names_list_player2" style="display:none;color:#FFFF00">Player 3: <input type="text" id="planet_wars_names_form_player2" /></li>
+					<li id="planet_wars_names_list_player3" style="display:none;color:#0000FF">Player 4: <input type="text" id="planet_wars_names_form_player3" /></li>
+					<li><a href="javascript:planet_wars.savePlayerNames();planet_wars.menus['names'].close();">Save</a> <a href="javascript:planet_wars.menus['names'].close();">Cancel</a></li>
+				</ul class="noBullet">
+		</div>	
+			
+		<div id="planet_wars_editor" style="display:none;">
+			<div id="planet_wars_editor_tools_general">
+				<ul class="noBullet">
+					
+				<li><a href="javascript:planet_wars.selectTool('move');">Move Stuff</a></li>
+				<li><a href="javascript:planet_wars.selectTool('resize');">Resize Stuff</a></li>
+				<li><a href="javascript:planet_wars.selectTool('delete');">Delete</a></li>
+				<li><a href="javascript:planet_wars.selectTool('addPlanet');">add planet</a></li>
+				<li><a href="javascript:planet_wars.selectTool('addSpaceStation');">add space station</a></li>
+				<li><a href="javascript:planet_wars.selectTool('addBlackHole');">add black hole</a></li>
+				<li><a href="javascript:planet_wars.selectTool('addShip');">add Ship</a></li>
+				<!--<li><a href="javascript:planet_wars.selectTool('potential');">potential</a></li>//-->
+				<li><a href="javascript:planet_wars.editorClearMap();">Clear Map</a></li>
+				</ul class="noBullet">
+			</div>
+			<div style="display:none;" id="planet_wars_editor_impossible_warning">Warning!  This map may be impossible!</div>
+			
+		<a href="javascript:planet_wars.offlineCloseEditor();">Close Map Editor</a>
+		</div>
+			
+		 
+		
+    </div> 
+    
+	<div id="planet_wars_div" style="border:solid white 1px;width:800px;height:600px;position:absolute;">
+		<canvas id="planet_wars_canvas1" width="800" height="600" style="position:absolute;"></canvas>
+		<canvas id="planet_wars_canvas3" width="800" height="600" style="position:absolute;"></canvas>
+		<canvas id="planet_wars_canvas2" width="1000" height="800" style="position:absolute;"></canvas>
+	</div>
+    
+	  
+	
+	
+	
+	   
+  </body>
+</html>

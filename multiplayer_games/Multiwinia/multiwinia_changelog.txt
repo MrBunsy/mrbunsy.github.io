@@ -1,0 +1,96 @@
+Multiwinia Board Game
+
+0.01 (24/09/2008)
+-some functions there
+
+0.02 (24/09/2008)
+-can draw a grid!
+
+0.03 (24/09/2008)
+-semi-working editor
+
+0.04 (24/09/2008)
+-map saving.
+
+0.05 (24/09/2008)
+-options for map editor (spawn colour, etc)
+
+0.07b (25/09/2008)
+-fixed mouse detection not lining up (drawing wasn't following offsets properly).
+
+0.08 (25/09/2008)
+-reinforcements function nearly finished.
+
+0.10 (25/09/2008)
+-reinfocements function working
+-draw peices working (but not complete)
+-can select / deselect peices
+
+0.11 (26/09/2008)
+-distance function working! :D  Needs lots of options and weightings and tweaks though
+
+0.12 (26/09/2008)
+-water & hills distance working.
+
+0.13 (26/09/2008)
+-spiced up main menu
+
+0.14b (26/09/2008)
+-can click a cell to select all darwinians in cell
+-coloured circle drawn to give rough idea of how far darwinian can move
+
+0.15 (26/09/2008)
+-cells darwinians can move to highlighted (slow, though)
+
+0.16 (26/09/2008)
+-distance saving seems to work, also noticable improvement in speed.
+
+0.17 (26/09/2008)
+-had to distable nice saving system :(
+-this means that enemy darwinians can now be taken into account as impassable cells.
+-something broke
+
+0.17b (26/09/2008)
+-built from 0.16, same features as 0.17
+-can capture empty spawns.
+
+0.18 (26/09/2008)
+-function for changing spawn ownership when nothing on spawn and enemy nearby. (run at wrong time atm)
+
+0.21 (26/09/2008)
+-battle function works out nearby cells and rolls a die
+
+0.23 (27/09/2008)
+-battlePart2 can work out correct targets
+
+0.24 (27/09/2008)
+-lasers!
+-dice colours changed to make teams obvious
+-crash on line 387 - while(MWBG.peices[MWBG.mapCells[fromCell].enemiesNear[tempTarget]].firedAt && targetsTried.length<MWBG.mapCells[fromCell].enemiesNear.length)
+in findTarget
+no idea why, and none of the enemiesNear had obvious problems.
+
+IDEA - enemyNearBy lacks check for edge of map?
+
+FIXED BUG!!
+-when multiwinians spawned, col and row were set the WRONG WAY ROUND, causing a cell with no multiwininas to try and attack.
+-probably still need to check for edge of map, though.
+
+0.25 (27/09/2008)
+-hopefully can't click I've Finished Moving mid-battle anymore
+-darwinian is now killed off when capturing an empty spawn
+
+0.26 (27/09/2008)
+-fixed not being able to capture enemy spawn (killPeice function)
+
+0.27 (27/09/2008)
+-dice spin for 2 secs.
+
+idea for dieing - go dark and get thinner?
+switch back to darwinians, not dice, for firing lasers?
+
+0.28 (29/09/2008)
+-optimised grid highlighting when selecting darwinians:
+  now only checks small area of board
+  cellDistance has a cheat if cells are bordering
+-so it now works in IE!  Still not *as* fast as drawing a circle, but more acceptable.

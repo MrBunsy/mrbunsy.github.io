@@ -1,0 +1,34 @@
+<html>
+<head>
+<title>Canvas tutorial</title>
+<!--[if IE]><script type="text/javascript" src="excanvas.js"></script><![endif]-->
+<script type="text/javascript">
+function draw(){
+var canvas = document.getElementById('tutorial');
+if (canvas.getContext){
+var ctx = canvas.getContext('2d');
+// Filled triangle
+ctx.beginPath();
+ctx.moveTo(25,25);
+ctx.lineTo(105,25);
+ctx.lineTo(25,105);
+ctx.fill();
+
+// Stroked triangle
+ctx.beginPath();
+ctx.moveTo(125,125);
+ctx.lineTo(125,45);
+ctx.lineTo(45,125);
+ctx.closePath();
+ctx.stroke();
+}
+}
+</script>
+<style type="text/css">
+canvas { border: 1px solid black; }
+</style>
+</head>
+<body onload="draw();">
+<canvas id="tutorial" width="150" height="150"></canvas>
+</body>
+</html>

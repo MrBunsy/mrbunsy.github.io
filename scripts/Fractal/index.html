@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>JavaScript Fractal Generator</title>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+        <link rel="stylesheet" type="text/css" href="Fractal.css" />
+        <script type="text/javascript" src="/include/js/jquery-1.7.2.min.js"></script>
+        <script type="text/javascript" src="/scripts/LukesLibrary/WebWorker.js"></script>
+        <script type="text/javascript" src="/scripts/LukesLibrary/Colour.js"></script>
+        <script type="text/javascript" src="/scripts/LukesLibrary/Vector.js"></script>
+        <script type="text/javascript" src="/scripts/LukesLibrary/Complex.js"></script>
+        <script type="text/javascript" src="common.js"></script>
+        <script type="text/javascript" src="Fractal.js"></script>
+    </head>
+    <body>
+        <canvas id="fractalCanvas" width="800" height="800"></canvas>
+        
+        <script>
+            var fractal;
+
+            function main(){
+                fractal = new Fractal(document.getElementById("fractalCanvas"),true);
+                fractal.render();
+            }
+
+            $(document).ready(main);
+        </script>
+    </body>
+</html>

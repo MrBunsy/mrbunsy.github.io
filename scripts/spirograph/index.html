@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+        <link rel="stylesheet" type="text/css" href="Spirograph.css" />
+        <title>Spirograph</title>
+        <script type="text/javascript" src="jquery-1.7.2.min.js"></script>
+        <script type="text/javascript" src="Colour.js"></script>
+        <script type="text/javascript" src="Pen.js"></script>
+        <script type="text/javascript" src="Vector.js"></script>
+        <script type="text/javascript" src="Gear.js"></script>
+        <script type="text/javascript" src="Spirograph.js"></script>
+        <script type="text/javascript" src="ColourPicker.js"></script>
+        <script type="text/javascript" src="SpirographUI.js"></script>
+        <script type="text/javascript" src="Canvas2Image.js"></script>
+        <script type="text/javascript" src="Maths.js"></script>
+        <script type="text/javascript" src="UIController.js"></script>
+        <script type="text/javascript" src="commonFunctions.js"></script>
+        <script type="text/javascript" src="html5slider.js"></script>
+        <!--<link rel="stylesheet" type="text/css" media="screen, projection" href="slider/css/lukes.css" />   
+        <script src="slider/js/fd-slider.min.js"></script>//-->
+        
+        
+        <!--[if lte IE 8]>
+		<script type="text/javascript" src="excanvas3.compiled_edited.js"></script>
+                <script type="text/javascript" src="IESucks.js"></script>
+        <![endif]-->
+        <!--[if lte IE 9]>
+        <link rel="stylesheet" type="text/css" media="screen, projection" href="slider/css/lukes.css" />   
+        <script src="slider/js/fd-slider.js"></script>
+        <![endif]-->
+    </head>
+    <body>
+        <div style="width:600px;height:600px;float:left;margin-right:1em;">
+            <canvas style="position:absolute;top:0;left:0;" id="spirographCanvas" width="600" height="600"></canvas>
+            <canvas style="position:absolute;top:0;left:0;" id="spirographPenCanvas" width="600" height="600"></canvas>
+        </div>
+        <div id="spirographDiv" ></div>
+        <div style="margin:20px;font-size:0.75em;">
+            <!--Tip: If the lines aren't smooth, try increasing the framerate or reducing the speed.//-->
+        </div>
+        <!--[if lte IE 8]>
+        <div style="margin:20px;font-size:0.75em;">You are using an old version of Internet Explorer.  This software is not fully supported in this browser, but will partially work. For the best experience, please <a href="http://www.google.com/chrome">get Chrome</a>.  Or Opera, or Safari, or Firefox.  It will even work in Internet Explorer 9.</div>
+        <![endif]-->
+        <script>
+            <!--
+            /*
+             * <div id="spirographLoadDiv">
+                
+            </div>
+            <div id="spirographFirstDiv">
+                <form id="spirographFirstForm">
+                    <input type="range" name="teeth" min="10" max="200" step="2" value="100" /><input type="text" name="teethValue" value="100" />
+                </form>
+            </div>
+            <div id="spirographNextDiv">
+                <div id="spirographPenDiv">
+                    
+                </div>
+            </div>
+             */
+            
+            // bgcolor="#5C5"
+            var spiro;
+            var spiroUI;
+
+            function main(){
+                spiro = new Spirograph(document.getElementById("spirographCanvas"),20,document.getElementById("spirographPenCanvas"));
+//                spiro.customUpdate=function(){
+//                    this.innerGear.adjustAngle(0.01);
+//                    this.innerGear2.adjustAngle(0.12);
+//                    this.innerGear3.adjustAngle(-0.02);
+//                }
+                
+                spiro.fixedGear = new Gear(20,20,new Colour(200,200,200)).setPos(new Vector(300,300));
+                spiro.innerGear = new Gear(4,20,new Colour(255,0,0)).gearTo(spiro.fixedGear,true).setRevsPerSec(10);//.setInternalGear(60, 9)
+                //spiro.innerGear2 = new Gear(50,9,new Colour(0,255,0)).gearTo(spiro.innerGear,true).setRevsPerSec(5);
+//                spiro.innerGear = new Gear(10, 60,spiro.fixedGear,new Colour(255,0,0),true,60,9);//.setColour("rgb(255,0,0)");
+//                spiro.innerGear2 = new Gear(9, 50,spiro.innerGear, new Colour(0,255,0),true);
+//                spiro.innerGear3 = new Gear(9,20,spiro.innerGear2, new Colour(0,0,255),true);
+                
+//                spiro.innerGear.setSpeed(0.0001);
+//                spiro.innerGear2.setSpeed(0.0012);
+//                spiro.innerGear3.setSpeed(-0.0002);
+                
+//                spiro.innerGear.setRevsPerSec(10);
+//                spiro.innerGear2.setRevsPerSec(3);
+//                spiro.innerGear3.setRevsPerSec(-4);
+//                
+                spiro.addGear(spiro.fixedGear);
+                spiro.addGear(spiro.innerGear);
+                //spiro.addGear(spiro.innerGear2);
+//                spiro.addGear(spiro.innerGear2);
+//                spiro.addGear(spiro.innerGear3);
+                
+                spiro.innerGear.addPen(new Pen(new Colour(0,128,0),spiro.ctxPen,0,10));
+                //spiro.innerGear3.addPen(new Pen(new Colour(0,0,128),spiro.ctxPen,0,0));
+                
+                spiro.start();
+                
+                console.log(JSON.stringify(spiro.serialize()));
+            }
+            
+            function restore(){
+                
+                //var s = JSON.parse('{"framerate":20,"gears":[{"angle":0,"colour":{"r":200,"g":200,"b":200},"fillAlpha":1,"fillColour":{"r":240,"g":240,"b":240,"FACTOR":0.7},"fixed":false,"fixedAngle":0,"fixedRadius":0,"gearedTo":-1,"id":0,"inside":true,"internalGear":false,"internalTeeth":0,"internalToothSize":10,"pens":[],"pos":{"x":300,"y":300,"z":0},"radius":254.64790894703253,"speed":0,"teeth":80,"toothSize":10},{"angle":0,"colour":{"r":255,"g":0,"b":0},"fillAlpha":1,"fillColour":{"r":255,"g":128,"b":128,"FACTOR":0.7},"fixed":false,"fixedAngle":0,"fixedRadius":0,"gearedTo":0,"id":1,"inside":true,"internalGear":true,"internalTeeth":60,"internalToothSize":9,"pens":[],"pos":{"x":0,"y":0,"z":0},"radius":190.9859317102744,"speed":0.6283185307179586,"teeth":60,"toothSize":10},{"angle":0,"colour":{"r":0,"g":255,"b":0},"fillAlpha":1,"fillColour":{"r":128,"g":255,"b":128,"FACTOR":0.7},"fixed":false,"fixedAngle":0,"fixedRadius":0,"gearedTo":1,"id":2,"inside":true,"internalGear":false,"internalTeeth":0,"internalToothSize":9,"pens":[{"angle":0,"colour":{"r":0,"g":128,"b":0},"radius":10,"thick":1}],"pos":{"x":0,"y":0,"z":0},"radius":143.2394487827058,"speed":1.2566370614359172,"teeth":50,"toothSize":9}]} ');
+                var s = JSON.parse('{"framerate":120,"gears":[{"angle":0,"colour":{"r":200,"g":200,"b":200},"fillAlpha":1,"fillColour":{"r":240,"g":240,"b":240},"fixed":false,"fixedAngle":0,"fixedRadius":0,"gearedTo":-1,"id":0,"inside":true,"internalGear":false,"internalTeeth":0,"internalToothSize":6.18018226935697,"pens":[],"pos":{"x":300,"y":300,"z":0},"radius":239.99999999999997,"speed":0,"teeth":122,"toothSize":6.18018226935697},{"angle":99.51368729370571,"colour":{"r":0,"g":255,"b":0},"fillAlpha":1,"fillColour":{"r":128,"g":255,"b":128},"fixed":false,"fixedAngle":0,"fixedRadius":0,"gearedTo":0,"id":1,"inside":true,"internalGear":false,"internalTeeth":0,"internalToothSize":6.18018226935697,"pens":[],"pos":{"x":0,"y":0,"z":0},"radius":96.39344262295083,"speed":5.983986006837702,"teeth":49,"toothSize":6.18018226935697},{"angle":149.2705309405612,"colour":{"r":0,"g":0,"b":255},"fillAlpha":1,"fillColour":{"r":128,"g":128,"b":255},"fixed":false,"fixedAngle":0,"fixedRadius":0,"gearedTo":1,"id":2,"inside":true,"internalGear":false,"internalTeeth":0,"internalToothSize":6.18018226935697,"pens":[{"angle":0,"colour":{"r":0,"g":0,"b":0},"radius":17,"thick":1}],"pos":{"x":0,"y":0,"z":0},"radius":41.31147540983606,"speed":8.975979010256552,"teeth":21,"toothSize":6.18018226935697}]}');
+                var spiro = Spirograph.unSerialize(s, document.getElementById("spirographCanvas"),document.getElementById("spirographPenCanvas"))
+                
+                spiro.start();
+            }
+
+            function ui(){
+                spiro = new Spirograph(document.getElementById("spirographCanvas"),30,document.getElementById("spirographPenCanvas"));
+                spiroUI = new SpirographUI(spiro,document.getElementById("spirographDiv"));
+                
+                //spiroUI.start();
+            }
+
+            //$(document).ready(restore);
+            $(document).ready(ui);
+            //$(document).ready(main);
+            //window.onload=main;
+            //-->
+        </script>
+    </body>
+</html>

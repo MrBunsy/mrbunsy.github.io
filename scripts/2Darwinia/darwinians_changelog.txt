@@ -1,0 +1,20 @@
+0.1 (18/09/2008)
+-basic framework up and running.
+
+0.2 (18/09/2008)
+-added angle 2 for rotation with axis facing out of screen (took a while, but works!)
+-darwinians can jump (uses 2D engine) and rotate while jumping
+
+0.3 (18/09/2008)
+-speed var is actually used now
+-darwinians spawn
+
+0.4 (18/09/2008)
+-spiders spawn, and darwinians run away.
+
+0.6 (18/09/2008)
+-lasers!
+
+0.7 (18/09/2008)
+-randomly angled lasers
+-occasionally if a darwinian is mid-change direction (rotating) and they die, they can't be seen (angle such that they are too thin).

@@ -1,0 +1,88 @@
+0.1 (08/09/2008)
+-newGame function working and putting cards in piles.
+-draw function working.
+
+0.2 (08/09/2008)
+-onMouseDown detections added
+
+0.3 (09/09/2008)
+-Cards checkmice function used.  Dragging cards works.
+-cards can be dragged to empty space
+-Simple Simon card dragging rules working fine
+
+0.4 (09/09/2008)
+-stacks going to ace piles working fine (script straight from simple simon), but not animated yet.
+-Improved 'squishing' function to detect cards are not facing up  It was noticable when there is a large pile on 4 or so upside down cards.
+
+ideas: Abstract piles further and put in Cards?  A *lot* of script was copied straight from Simple simon and solitaire, I'm sure it could be done.
+
+0.5 (09/09/2008)
+-animation for king-ace piles heading to ace stacks working (and tweaked to fit nicely).
+
+0.6 (09/09/2008)
+-fixed bug whereby first 5 (meant to be 4) piles had 6 cards.  As a result there are now 50 cards in the spare deck.
+-spare deck now stacked to show how many sets of 10 are left.
+-clicking spare deck brings down cards (no animation yet)
+-tweaked empty deck stacks to space out symbols a bit more vertically.
+-win detection tested to be working (but no win function yet)
+
+0.7 (11/09/2008)
+-animation for dealing working fairly well.  Could be better, but still good enough for final version I think
+-detection for when dealing more cards is allowed added.  Empty spaces and down facing cards will stop more cards being added.
+-still no win function
+
+0.8 (11/09/2008)
+-tweaked deal animation so there is no longer a slight judder.
+-added work-around (Spider.animateInProgress) to clicking repetadly on the spare deck bug.
+
+found odd glitch which I can't reliably reproduce where having the firebug console up, or spider in a small window in firefox, losing focus of the window then clicking in window will lose the card.
+
+found glitch - if you somehow manage to click a hard (mouseDOWN) while a card is being dragged, the card being dragged will vanish.
+
+-fixed above glitch by adding drag==false to pick up stuff.  This glitch may well exist in the other card games.
+-simple win function added, and acts after last animation has finished
+-reduced default stackheight slightly - stops bits of card underneath dissapearing when not drawn as full, and reduces how often a row needs to be squished.
+
+Weird bug in IE - 8,6 and 9 aren't drawn properly on the minicanvas.  Can't be bothered to fix as I don't see any reason as to why.
+-still no undo
+
+0.9 (11/09/2008)
+-undo function working, but can undo eveyrhting except ace stacks atm.  Need more options.
+-undo not possible after ace stack tested (even works after cards dished out from deck).
+-king-ace stack detection afert cards dished out tested to work.
+
+1.0 (11/09/2008)
+-experimenting with new clipping technique to stop minicanvas leaving cards div
+
+1.1 (12/09/2008)
+-new cliping working, although it's not actually using clip.  A new div exists with overflow:none;
+-minicanvas is now relative, and canvas is now absolute
+-minicanvas uses left and top to be positioned, rather than margin. (fixes spazness in IE)
+
+1.2 (13/09/2008)
+-if more cards can't be dealt, the pile with the reason why will flash yellow
+
+1.3 (13/09/2008)
+-non IE browsers use clearRect for drawPile.
+
+1.4 (13/09/2008)
+-added options button
+
+1.4b(13/09/2008)
+-no options button :P
+-undo can't run when animateInProgress is true.
+-added animateInProgress to ace stack piles
+-option to choose difficulty and undo abilites when creating a new game
+
+1.5 (14-09-08)
+-built from 1.4, with some code taken from 1.4b
+-simple start game dialogue back again
+-option menu for changing undo level (set to normal by default.)
+-fixed exploit where a card could be turned over while the card on top was being dragged.
+-opening a menu calls draw first, stopping them from being able to overlap.
+-finished Help and About menus.
+-everything except ending easter egg is done, I think.
+
+BUG stack check doesn't check to see if a card is actually facing up!
+
+improve undo options - don't auto close menu?  get rid of daft explainations in brackets?

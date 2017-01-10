@@ -1,0 +1,3 @@
+take old tree system, abstract nicely and then make an animation of it!  use seeded random function!
+
+fire - explosionlet fading from yellow to dark brown, follows a sine wave (of varing magnitude) as it fades.  use the canvas transformations to choose what angle the sine wave points

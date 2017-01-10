@@ -1,0 +1,60 @@
+0.1 (29/08/2008)
+-working draw function
+-working newGame function
+-pulled newGameconfirm and about from solitaire
+-if stack of cards is too tall for the screen, it is shortened!  Tested and working well.
+-can pick up and put down any cards anywhere - rule functions are just set to return true.
+
+0.2 (29/08/2008)
+-put down mouseDown is larger
+-minicanvas longer and thiner - can now take 13 cards.
+-rules enforced and working!  Can only pick up a group if same soon and in correct order, can only place in space or on correctly numbered card!
+-no King->Ace or win detection yet.
+
+0.3 (29/08/2008)
+-king to ace detction working!  Not acted upon yet.
+
+idea for winning easter egg - tree of cards?  grows upwards, then grows branches of smaller cards?  does so several times?  Maybe more than one tree before re-drawing?
+
+0.4 (29/08/2008)
+-King->Ace piles taken to ace stacks, and win detected.  No animations or anything fancy yet.
+
+0.5 (29/08/2008)
+-King->Ace stack animation working! Looks brilliant! :D
+-added margin-right and left to text at top - looks better.
+
+0.6 (30/08/2008)
+-stack folding up animation steps reduced in IE
+-smoother moving to pile animation
+-fixed bug where diamonds stack worked as a normal space. (i didn't finish buildMouseDowns properly)
+
+0.7 (30/08/2008)
+-ending now features growing trees with cards for leaves!  The leaves are really rather slow in IE.
+
+0.8 (30/08/2008)
+-two trees near the edge are now taller and more spindly
+-IE only draws the first 3 trees, not using a loop.
+
+0.9 (30/08/2008)
+-added Help
+
+1.0 (31/08/2008)
+-Undo function working.
+-fixed problem with faint line building up after repeated drawPiles in Opera (maybe other browsers too?)
+
+BUG FOUND - when jen played a card was missing.  problem with undo?
+
+-considering animations for undo - though they might get in the way.
+
+1.1 (31/08/2008)
+-fixed card dissapearing undo bug - it was when a card was put down on the pile it had been taken off.
+-cards no longer rise up slightly when mouse goes down.
+
+1.2 (11/09/2008)
+-fixed disapearing card glitch found in spider
+-win function now acts after last animation has finished
+-end text chaned to Play Again?
+
+1.3 (12/09/2008)
+-supports cards 0.30 and clipping.
+-opening a menu calls draw first, stopping them from being able to overlap.

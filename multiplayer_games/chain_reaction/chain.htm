@@ -1,0 +1,618 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html>
+<head>
+<title>Chain Reaction 0.16</title>
+<script src="divwindows.js" type="text/javascript"></script>
+
+<script language="JavaScript" type="text/javascript">
+<!--
+if(document.images)
+{//preload all the images so the game works smoothly
+var pic1= new Image(50,50);pic1.src="bombs/explode.png";
+var pic2= new Image(50,50);pic2.src="bombs/1red.png";
+var pic3= new Image(50,50);pic3.src="bombs/2red.png";
+var pic4= new Image(50,50);pic4.src="bombs/3red.png";
+var pic5= new Image(50,50);pic5.src="bombs/4red.png";
+var pic6= new Image(50,50);pic6.src="bombs/5red.png";
+var pic7= new Image(50,50);pic7.src="bombs/6red.png";
+var pic8= new Image(50,50);pic8.src="bombs/1blue.png";
+var pic9= new Image(50,50);pic9.src="bombs/2blue.png";
+var pic10= new Image(50,50);pic10.src="bombs/3blue.png";
+var pic11= new Image(50,50);pic11.src="bombs/4blue.png";
+var pic12= new Image(50,50);pic12.src="bombs/5blue.png";
+var pic13= new Image(50,50);pic13.src="bombs/6blue.png";
+
+var pic14= new Image(50,50);pic14.src="bombs/1green.png";
+var pic15= new Image(50,50);pic15.src="bombs/2green.png";
+var pic16= new Image(50,50);pic16.src="bombs/3green.png";
+var pic17= new Image(50,50);pic17.src="bombs/4green.png";
+var pic18= new Image(50,50);pic18.src="bombs/5green.png";
+var pic19= new Image(50,50);pic19.src="bombs/6green.png";
+
+var pic20= new Image(50,50);pic20.src="bombs/1yellow.png";
+var pic21= new Image(50,50);pic21.src="bombs/2yellow.png";
+var pic22= new Image(50,50);pic22.src="bombs/3yellow.png";
+var pic23= new Image(50,50);pic23.src="bombs/4yellow.png";
+var pic24= new Image(50,50);pic24.src="bombs/5yellow.png";
+var pic25= new Image(50,50);pic25.src="bombs/6yellow.png";
+
+var pic26= new Image(50,50);pic26.src="bombs/blank.png";
+
+} 
+//-->
+</script>
+
+
+<style type="text/css">
+body
+{
+font-family: Helvetica,Arial, "trebuchet MS",  sans-serif;
+}
+.smallheader
+{
+margin: 0;
+/*color: Green;*/
+}
+img{
+cursor:hand; cursor:pointer;
+}
+.cellpic{
+border:solid black 1px;
+}
+.clickme
+{
+cursor:hand;
+cursor:pointer;
+}
+.clickme2
+{
+cursor:hand;
+cursor:pointer;
+text-decoration: underline;
+}
+</style>
+</head>
+<body>
+<h2 class='smallheader'>Chain Reaction <a href="http://www.lukewallin.co.uk/games/chain_reaction">Back to Main Wesbite</a></h2>
+<span class='clickme2' onclick='helpwindow.OpenWindow();helpwindow.CentreWindow();'>How to Play</span>
+<br><br>
+
+<span id="windowspan"></span>
+<table>
+<tr>
+<td><span id="worldspan"></span></td>
+<td>
+<span id="playersspan"></span>
+<h3><span id="whosgospan"><font color='red'>Red's Go</font></span></h3>
+<input type='button' onclick="newgamewindow.OpenWindow();newgamewindow.CentreWindow();" value="New Game">
+<br>
+<span id="scoreboardspan"></span>
+<br>
+<br>
+<span id="deadplayersspan"></span>
+</td>
+</tr>
+
+<script language="JavaScript" type="text/javascript">
+<!--
+/*
+Chain Reaction - based on old, old game (I've never actually played or seen the original)
+
+How it works:
+
+makeworld() creates the HTML and the cells array.
+a player clicks and fires clickcell() which then places a bomb if it's a legal move
+clickcell starts loop() looping ever 0.5 seconds.
+This checks for cells which need exploding, and to see if the game needs to end.
+Once this loop ends - if all explosions finished or no explosions needed - the next player can click. 
+
+
+<input type='button' onClick="newgame(1)" value="2 Player Game">
+<br>
+<input type='button' onClick="newgame(2)" value="Against AI">
+
+*/
+//<option value=2>Hard</option>
+var helpwindow = new divwindow('helpwindow','Help!',1,'white','gray',400,320,300,300,3,'<center><h3 class="smallheader">How to Play</h3></center><br>Each go you can click on a cell to place a bomb. You can only place bombs in cells already of your colour, or empty cells. When a cell has too many bombs it will explode, throwing its bombs into the nearby cells and converting them to your colour. The aim of the game is to wipe out any other colours, leaving the board entirely populated by you.<br><br>Cells in corners can hold a maximum of 1 bomb before exploding; cells on the edge can hold a maximum of 2, and cells in the middle can hold a maximum of 3.<br><br><center><input type="button" onclick="helpwindow.CloseWindow();" value="Okay"></center>','')
+
+var newgamewindow = new divwindow('newgamewindow','New Game',1,'white','#a0a0a0',160,230,300,300,3,'<table><tr><td>Width:</td><td><input type="text" id="newgamecols2" value="5" size=5></td></tr><tr><td>Height:</td><td><input type="text" id="newgamerows2" value="5"  size=5></td></tr><tr><td>AI Skill</td><td><select id="newgameaiskill"><option value=1>Medium</option><option value=0>Easy</option></select></td></tr></table><br><center><input type="button" onClick="newgame(2);" value="Human v AI"><input type="button" onClick="newgame(1)" value="Human v Human"><br><input type="button" onClick="newgame(3);" value="AI v AI"><br><input type="button" onClick="newgamewindow.CloseWindow();newgamewindow2.OpenWindow();newgamewindow2.CentreWindow();" value="Custom Setup"></center>','')
+
+var newgamewindow2 = new divwindow('newgamewindow2','New Game',1,'white','#a0a0a0',150,120,300,300,3,'<form action="javascript:newgame(0);"><table><tr><td>Total Players</td><td><select id="newgameplayers"><option value=2>2</option><option value=3>3</option><option value=4>4</option></select></td></tr><tr><td>AI Controlled</td><td><select id="newgameai"><option value=0>0</option><option value=1>1</option><option value=2>2</option><option value=3>3</option><option value=4>4</option></select></td></tr><tr><td colspan=2><center><input type="submit" value="New Game"></center></td></tr><\/form>','')
+
+
+
+var whosgo=0;
+var turnnum=0;
+var aiskill=1;//0=easy, 1=medium, 2=hard (not done yet).
+
+var cells=new Array();
+var players=new Array();
+var worldplayers;
+var worldaiplayers;
+var worldrows;
+var worldcols;
+var cellsize=50;
+var loopme;
+var canclick=true;
+
+function cell(col,row)
+{this.row=row;
+this.col=col;
+this.bombs=0;
+this.colour=-1;//-1=unused,
+this.image="row"+row+"col"+col+"img";
+this.updateimage=updateimage
+cells.push(this)//[col+row*worldcols]top left to top right, then down a row and across the cells to the right
+}
+
+var colours=['red','blue','green','yellow'];
+
+function updateimage()
+{
+if(this.bombs==0)
+{document.getElementById(this.image).src='bombs/blank.png';this.colour=-1;}
+else
+{document.getElementById(this.image).src="bombs/"+this.bombs+colours[this.colour]+".png";}
+}
+
+function player(num,ai)
+{
+this.num=num
+this.ai=ai//true or false
+
+switch(num)
+{case 0:this.colour='red';this.name='Red';break;
+case 1:this.colour='blue';this.name='Blue';break;
+case 2:this.colour='green';this.name='Green';break;
+case 3:this.colour='#ffa500';this.name='Yellow';break;}
+
+this.alive=true;
+
+players.push(this)
+
+}
+
+function makeworld(cols,rows,plays,aiplays)
+{
+players=new Array();
+var tempplays=new Array();
+
+//can't have more AI players than exist
+if(aiplays>plays){aiplays=plays;}
+
+worldplayers=plays;
+worldaiplayers=aiplays;
+
+
+var humans=plays-aiplays;
+
+for(var p=0;p<plays;p++)
+{
+//put the AI plays as the last plays.
+if(p<humans){tempplays[p]=new player(p,false);}
+else{tempplays[p]=new player(p,true);}
+
+}
+
+
+document.getElementById('worldspan').innerHTML='';
+worldrows=rows;
+worldcols=cols;
+cells=new Array();
+var tempcells=new Array(rows*cols);
+var tempHTML='<div style="width:'+(52*cols)+'";height:'+(52*rows)+'";>';
+
+for(var r=0;r<rows;r++)
+{
+
+for(var c=0;c<cols;c++)
+{
+//alert("col="+c+" row="+r)
+tempcells.push(new cell(c,r));
+
+tempHTML+="<img src='bombs/blank.png' id='row"+r+"col"+c+"img' class='cellpic' onClick='clickcell("+c+","+r+",false)'>";
+
+//end of cols loop
+}
+tempHTML+="<br>"
+//end of rows loop
+}
+//alert(tempHTML)
+tempHTML+="</div>";
+
+document.getElementById('worldspan').innerHTML=tempHTML;
+
+document.getElementById('deadplayersspan').innerHTML='';
+
+whosgo=0;
+var extratext='';
+if(players[whosgo].ai){setTimeout(aiclickcell,500);extratext=" (AI)"}
+document.getElementById('whosgospan').innerHTML="<font color='red'>Red's Go"+extratext+"</font>";
+if(humans==1){var s1='';}else{var s1='s';}
+if(aiplays==1){var s2='';}else{var s2='s';}
+document.getElementById('playersspan').innerHTML=humans+" Human Player"+s1+"<br>"+aiplays+" AI Player"+s2;
+
+//end of makeworld
+}
+
+makeworld(5,5,2,1)
+
+function changego()
+{
+if(!gameover)
+{
+whosgo++;
+whosgo=whosgo%worldplayers;
+
+while(!players[whosgo].alive)
+{//if player is dead, skip to next
+whosgo++;
+whosgo=whosgo%worldplayers;
+}
+/*
+if(players[whosgo].colour=='red'){aiskill=0;}
+if(players[whosgo].colour=='blue'){aiskill=1;}
+*/
+var extratext='';
+if(players[whosgo].ai){setTimeout(aiclickcell,500);extratext=" (AI)"}
+document.getElementById('whosgospan').innerHTML="<font color='"+players[whosgo].colour+"'>"+players[whosgo].name+"'s Go"+extratext+"</font>";
+}
+}
+
+function clickcell(col,row,byai)
+{
+if(canclick && !gameover && ((byai && players[whosgo].ai) || (!byai && !players[whosgo].ai)) && (cells[col+row*worldcols].colour==whosgo || cells[col+row*worldcols].colour==-1))
+{
+turnnum++;
+cells[col+row*worldcols].bombs++;
+if(cells[col+row*worldcols].bombs>=7)cells[col+row*worldcols].bombs=1;
+cells[col+row*worldcols].colour=whosgo;
+cells[col+row*worldcols].updateimage();
+//document.getElementById(cells[col+row*worldcols].image).src="bombs/"+cells[col+row*worldcols].bombs+cells[col+row*worldcols].colour+".png"
+
+if(checkallcells()===false)//if no bombs to explode
+{
+changego()
+}else{//if bombs to explode
+
+canclick=false;
+loopme=setInterval(loop,500)
+}
+//end of ifcanclick
+}
+//clearInterval(loopme)
+}
+
+function aiclickcell()
+{
+if(!gameover)
+{
+switch(aiskill)
+{
+case 0://easy - random placement
+
+var aic=Math.floor(Math.random()*worldcols);
+var air=Math.floor(Math.random()*worldrows);
+
+while(cells[aic+air*worldcols].colour!==whosgo && cells[aic+air*worldcols].colour!==-1)
+{//alert(cells[aic+air*worldcols].colour)
+var aic=Math.floor(Math.random()*worldcols);
+var air=Math.floor(Math.random()*worldrows);
+}
+clickcell(aic,air,true)
+break;
+case 1://medium - place on best square based on a ranking of cell's current state
+
+var tempbest=-99
+var tempscore=0;
+var aic=false;
+var air=false;
+var bombshere=0;
+var critical=false;
+
+for(var r=0;r<worldrows;r++)
+{
+for(var c=0;c<worldcols;c++)
+{
+tempscore=0;
+if(cells[c+r*worldcols].colour==whosgo || cells[c+r*worldcols].colour==-1)
+{//our cell or empty cell.
+
+bombshere=cells[c+r*worldcols].bombs
+
+//if critical
+//critical=iscritical(c,r);
+
+//give score of 5 just for it being possible to place
+tempscore=5;
+
+//randomness :)
+tempscore+=Math.random()*8;
+
+//go through nearby cells:
+for(var i=0;i<4;i++)
+{
+var tempc=c;var tempr=r;
+switch(i)
+{//cell above
+case 0:tempr--;break;
+//cell to the right
+case 1:tempc++;break;
+//cell below
+case 2:tempr++;break;
+//cell to the left
+case 3:tempc--;break;}
+
+//is cell on the board?
+if(tempr>=0 && tempr<worldrows && tempc>=0 && tempc<worldcols)
+{
+
+if(cells[tempc+tempr*worldcols].colour!==whosgo && cells[tempc+tempr*worldcols].colour!==-1)
+{//if enemy cell
+
+//if we can reach explosion faster than them, add points, otherwise take points away
+if((maxbombs(tempc,tempr)-cells[tempc+tempr*worldcols].bombs)>=(maxbombs(c,r)-cells[c+r*worldcols].bombs))
+{tempscore+=5;
+//if theirs is critical give loads of points
+if(iscritical(tempc,tempr)){tempscore+=10;}
+//stay away if they can explode sooner or are already critical.
+}else{tempscore-=5;if(iscritical(tempc,tempr)){tempscore-=10;}}
+//end of if enemy cell
+}
+else{
+//if our cell nearby or empty cell
+//tempscore-=5;
+}
+
+//end of if on board.
+}
+//give preferance to cells in corner or on edge. (but only if not ALREADY THERE)
+else{
+if(cells[c+r*worldcols].colour==-1){tempscore+=3;}
+}
+
+//end of nearby cells loop
+}
+
+
+
+if(tempscore>tempbest){tempbest=tempscore;aic=c;air=r;}
+}
+
+}
+}
+
+
+
+if(aic!==false && air!==false)
+{
+clickcell(aic,air,true)
+}
+
+break;
+case 2://hard - place on best square based on a simulation of placement and a ranking of gamestate after simulation
+
+break;
+}
+//end of ifgameover
+}
+}
+
+function loop()
+{
+refreshimages()
+if(!(checkforwinner()===false) && !gameover)
+{
+clearInterval(loopme);
+endgame(checkforwinner());
+}
+
+//no cells need exploding - stop the loop
+if(checkallcells()===false){clearInterval(loopme);canclick=true;changego()}
+explodeallcells()
+
+}
+
+function checkforwinner()
+{
+var colours=new Array()
+for(var p=0;p<worldplayers;p++)
+{
+colours[p]=0;
+}
+
+for(var i=0;i<cells.length;i++)
+{
+if(cells[i].colour!==-1)
+{colours[cells[i].colour]++;}
+}
+
+var deadplayers=0;
+var winner;
+for(var p=0;p<worldplayers;p++)
+{
+if(colours[p]==0)
+{
+if(players[p].alive)//if currently still alive.
+{players[p].alive=false;announcekill(p,whosgo)}
+
+deadplayers++;
+}
+
+if(players[p].alive){winner=p;}
+}
+if(deadplayers>=worldplayers-1)
+{return winner;}
+
+return false;
+}
+
+function announcekill(dead,killedby)
+{
+document.getElementById('deadplayersspan').innerHTML+="<b><font color='"+players[killedby].colour+"'>"+players[killedby].name+"</font></b> wiped out <b><font color='"+players[dead].colour+"'>"+players[dead].name+"</font></b><br>";
+}
+
+var gameover=false;
+
+function endgame(whowon)
+{gameover=true;
+document.getElementById('whosgospan').innerHTML="<font color='"+players[whowon].colour+"'>"+players[whowon].name+"</font> won!";
+
+}
+
+//check for any cells with too many bombs, and return true if any are too full, and false if all's fine.
+function checkallcells()
+{
+for(var r=0;r<worldrows;r++)
+{
+for(var c=0;c<worldcols;c++)
+{
+if(cells[c+r*worldcols].bombs>maxbombs(c,r)){return true;}
+}
+}
+return false;
+}
+
+var lastexplodedc=0;
+var lastexplodedr=0;
+
+function explodeallcells()
+{
+var bestc=false;var bestr=false;
+var bestrating=-99;
+var temprating=0;
+
+//go through all cells and give a rating on how important it is to blow up.  Highest rated gets blown up.
+//this way the explosion goes in a better order than just top left down.  should also get rid of 6+ bombs on a cell.
+//This idea isn't actually mine - I got the technique from the source of Neil Fraser's version. (http://neil.fraser.name/software/chain/)
+//works very nicely because it means bombs seem to explode in order of the chain, and it should limit the number of bombs you can get on one cell.
+for(var r=0;r<worldrows;r++)
+{
+for(var c=0;c<worldcols;c++)
+{//this will deliberatly stop running once one cell is exploded so as to make it possible to watch what's happening
+if(cells[c+r*worldcols].bombs>maxbombs(c,r))
+{
+//the more bombs over the limit, the higher priority.  10 points per bomb over.
+temprating=(cells[c+r*worldcols].bombs-maxbombs(c,r))*10
+
+//if another players bombs or previous explosion in a nearby cell give 5 points per cell
+
+temprating+=Math.random()*10 //bit of randomness
+
+//cell above
+if(r-1>=0)
+{if(cells[c+(r-1)*worldcols].colour!==false && cells[c+(r-1)*worldcols].colour!==cells[c+r*worldcols].colour){temprating+=5;}
+if((r-1)==lastexplodedr && c==lastexplodedc){temprating+=5;}}
+//cell to the right
+if(c+1<worldcols)
+{if(cells[(c+1)+r*worldcols].colour!==false && cells[(c+1)+r*worldcols].colour!==cells[c+r*worldcols].colour){temprating+=5;}
+if(r==lastexplodedr && (c+1)==lastexplodedc){temprating+=5;}}
+//cell below
+if(r+1<worldrows)
+{if(cells[c+(r+1)*worldcols].colour!==false && cells[c+(r+1)*worldcols].colour!==cells[c+r*worldcols].colour){temprating+=5;}
+if((r+1)==lastexplodedr && c==lastexplodedc){temprating+=5;}}
+//cell to the left
+if(c-1>=0)
+{if(cells[(c-1)+r*worldcols].colour!==false && cells[(c-1)+r*worldcols].colour!==cells[c+r*worldcols].colour){temprating+=5;}
+if(r==lastexplodedr && (c-1)==lastexplodedc){temprating+=5;}}
+
+
+if(temprating>bestrating){bestrating=temprating;bestc=c;bestr=r;}
+//explodecell(c,r);return false;
+}
+//end of c
+}
+//end of r
+}
+
+if(bestc!==false && bestr!==false)
+{
+explodecell(bestc,bestr)
+lastexplodedc=bestc;
+lastexplodedr=bestr;
+}
+
+}
+
+function refreshimages()
+{
+for (var i=0;i<cells.length;i++)
+{
+cells[i].updateimage();
+}
+}
+
+// if a cell has more than the usual for blowing it up (eg normal inner cell ends up with 5, not 4)
+// then spread bombs outwards and leave one in the cell it exploded from.
+function explodecell(c,r)
+{
+//cell above
+if(r-1>=0){cells[c+(r-1)*worldcols].bombs++;cells[c+r*worldcols].bombs--;cells[c+(r-1)*worldcols].colour=cells[c+r*worldcols].colour;cells[c+(r-1)*worldcols].updateimage();}
+//cell to the right
+if(c+1<worldcols){cells[(c+1)+r*worldcols].bombs++;cells[c+r*worldcols].bombs--;cells[(c+1)+r*worldcols].colour=cells[c+r*worldcols].colour;cells[(c+1)+r*worldcols].updateimage();}
+//cell below
+if(r+1<worldrows){cells[c+(r+1)*worldcols].bombs++;cells[c+r*worldcols].bombs--;cells[c+(r+1)*worldcols].colour=cells[c+r*worldcols].colour;cells[c+(r+1)*worldcols].updateimage();}
+//cell to the left
+if(c-1>=0){cells[(c-1)+r*worldcols].bombs++;cells[c+r*worldcols].bombs--;cells[(c-1)+r*worldcols].colour=cells[c+r*worldcols].colour;cells[(c-1)+r*worldcols].updateimage();}
+
+document.getElementById(cells[c+r*worldcols].image).src='bombs/explode.png'
+//cells[c+r*worldcols].updateimage();
+}
+
+function iscritical(c,r)
+{
+if(cells[c+r*worldcols].bombs==maxbombs(c,r)){return true;}
+return false;
+}
+
+//return the max number of bombs a certain cell can hold without exploding.
+function maxbombs(c,r)
+{//if one of the corner cells
+if((c==0 && r==0) || (c==worldcols-1 && r==0) || (c==0 && r==worldrows-1) || (c==worldcols-1 && r==worldrows-1))
+{return 1;}
+//if one of the cells at the edge
+else if(c==0 || r==0 || c==worldcols-1 || r==worldrows-1)
+{return 2;}
+//and other cell
+else {return 3;}}
+
+function newgame(preset)//called by new game window
+{
+clearInterval(loopme);
+gameover=false;
+canclick=true;
+turnnum=0;
+aiskill=document.getElementById('newgameaiskill').value*1;
+
+if(!isNaN(parseInt(document.getElementById('newgamecols2').value))){var tempcols=parseInt(document.getElementById('newgamecols2').value);}else{var tempcols=5;}
+if(!isNaN(parseInt(document.getElementById('newgamerows2').value))){var temprows=parseInt(document.getElementById('newgamerows2').value);}else{var temprows=5;}
+if(tempcols<3){tempcols=3;}
+if(tempcols>10){tempcols=10;}
+if(temprows<3){temprows=3;}
+if(temprows>10){temprows=10;}
+
+switch(preset)
+{case 0://from options
+makeworld(tempcols,temprows,document.getElementById('newgameplayers').value*1,document.getElementById('newgameai').value*1)
+break;
+case 1://2 human player game
+makeworld(tempcols,temprows,2,0)
+break;
+case 2://1 human vs AI
+makeworld(tempcols,temprows,2,1)
+break;
+case 3://2 AI vs
+makeworld(tempcols,temprows,2,2)
+break;
+}
+newgamewindow2.CloseWindow();
+newgamewindow.CloseWindow();
+
+}
+
+//-->
+</script>
+
+</body>
+</html>

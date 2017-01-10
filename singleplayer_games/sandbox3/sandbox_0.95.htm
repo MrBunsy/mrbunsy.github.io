@@ -1,0 +1,1936 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html>
+<head>
+<title>Physics Sandbox 0.94 - Luke's 2D JavaScript Engine version 2.55</title>
+<style type="text/css">
+<!--
+body {
+background-color:#c7e6ff;
+font-family: Helvetica,Arial, "trebuchet MS",  sans-serif;
+
+}
+
+/*z-indexs: windows:2, menus:3, graph:1, about:5, new lines:4;*/
+//-->
+</style>
+<script src="2D_engine2.56.js" type="text/javascript"></script>
+<script src="sandbox_divwindows.js" type="text/javascript"></script>
+<script src="sandbox_worlds_2.1.js" type="text/javascript"></script>
+<script src="keys.js" type="text/javascript"></script>
+<!--[if IE]><script type="text/javascript" src="excanvas-compressed.js"></script><![endif]-->
+</head>
+<body onload="setupcanvas();" onkeydown="keydown(event)" onkeyup="keyup(event)">
+<div id="worldspan" style="position:absolute;top:6;left:8;display:none;border:solid black 1px;cursor:pointer;width:800;height:550" onmousedown="mousegonedown(event,false)"></div>
+<span id="linespan" style="position:absolute;top:6;left:8;display:block;"></span>
+<span id="windowspan"></span>
+<div style="position:absolute;left:830;top:20;">
+<h3><a href="../../index.php?go=sandbox">Back to Main Site</a> </h3>
+<b>World Options:</b><br>
+<br>
+<input type="button" id="pausebutton" value="Pause" onClick="togglepause();">
+<br>
+<input type="button" value="Save World" onClick="saveworld();">
+<br>
+<input type="button" value="Load World" onClick="greyout(true);if(!paused){togglepause()};document.getElementById('loaddiv').style.display='block';">
+<br>
+<input type="button" value="Clear World" onClick="clearworld();">
+<br>
+<input type="button" value="Reset Viewport" onClick="viewports[0].x=0;viewports[0].y=0;viewports[0].zoom=1;redrawworld();">
+<br>
+<span onclick="debug=true">debug</span><br>
+<!--
+<b>Draw:</b>
+<br>
+<input type="button" value="Fieldlines" onClick="plotfieldlines();">
+<br>
+<input type="button" value="Equipotential" onClick="plotallEP();">
+
+Draw Equiponential at: <span onclick="drawEP(10)" class="clickme">10</span> <span onclick="drawEP(15)" class="clickme">15</span> <span onclick="drawEP(20)" class="clickme">20</span> <span onclick="drawEP(30)" class="clickme">30</span>
+
+<br>
+<b>Change:</b>
+//-->
+<br>
+<form action="javascript:updateoptions();">
+Gravity: <input type="text" size="3" id="customgravity" value="200"><br>
+Friction: <input type="text" size="3" id="customfriction" value="5"><br>
+Small World <input type="checkbox" id="smallworld" onclick="updateworldsize();"><br>
+Mouse Precision:<br> <input type="text" size="1" id="mousesize" value="10">(Pixels)<br>
+<!--Render Using:<select id="customrender" onchange="extrarender();" onClick="extrarender();"><option value="canvas">Canvas</option><option value="divs">Divs</option></select><br>
+<span id="extrarenderspan">Show Springs<input type="checkbox" id="showspringsbox" onClick="redrawworld();"></span>//-->
+<input type="submit" value="Update">
+</form>
+<br>
+<b>Mouse Click Will:</b><br>
+<select id="mousedoes" onchange="extramouse();" onClick="extramouse();">
+<option value="drag">Drag Object</option>
+<option value="draw">Draw Shape</option>
+<option value="drawrectangle">Draw Rectangle</option>
+<option value="rotate">Rotate Polygon</option>
+<option value="dragworld">Move Viewport</option>
+<option value="delete">Delete Object</option>
+<option value="create">Create Object</option>
+<!--<option value="EP">Alert EP</option>//-->
+<option value="alertname">Alert name</option>//
+<option value="fix">Fix Object</option>
+<option value="free">Free Object</option>
+<option value="addballoon">Add Balloon</option>
+<option value="breakconnections">Break Springs</option>
+<option value="givecharge">Give Charge</option>
+<option value="nocharge">Make Neutral</option>
+<option value="springconnect">Connect with Spring</option>
+<option value="rodconnect">Connect with Rod</option>
+<option value="stringconnect">Connect with String</option>
+</select>
+<br><br>
+
+<span id="chargespan" style="display:none">
+Charge: <input type="button" id="chargebutton" value="+" onClick="togglecharge();"><input type="text" size="5" id="chargesize" value="0.2">
+<br>
+New Colour: <input type="checkbox" id="chargecolour" checked>
+</span>
+<span id="springspan" style="display:none">
+Stiffness: <input type="text" size="5" id="customk" value="1000"><br>
+Length: <input type="text" size="5" id="customspringlength" value="0"> (Use 0 for auto)<br>
+Line: <select id="customlinetype"><option value=1>Thin Black</option><option value=0>None</option></select><br>
+</span>
+
+<span id="stringspan" style="display:none">
+Density:<input type="text" size="5" id="stringdensity" value="40"><br>
+Dotsize:<input type="text" size="5" id="stringdotsize" value="6"><br>
+Stiffness:<input type="text" size="5" id="stringk" value="5000"><br>
+</span>
+<span id="balloonspan" style="display:none">
+Click on an object to tie a balloon to it.<br><br>
+Thrust:<input type="text" size="5" id="balloonthrust" value="200"><br>
+</span>
+<span id="rodspan" style="display:none">
+Rods are <b>highly experimental</b><br>
+Length:<input type="text" size="5" id="customrodlength" value="0"> (Use 0 for auto)<br>
+Looseness:<input type="text" size="5" id="customrodgive" value="10"><br>
+</span>
+
+<span id="drawrectanglespan" style="display:none">
+Collision Detection <input type="checkbox" id="drawrectanglecolision" checked>
+</span>
+<span id="createspan" style="display:none">
+Type: <select id="createtype"><option value=0>Movable</option><option value=1>Static</option></select><br>
+Colour: <select id="createcolour"><option value='green'>Green</option><option value='red'>Red</option><option value='rgb(255,165,0)'>Orange</option><option value='yellow'>Yellow</option><option value='lime'>Lime</option><option value='blue'>Blue</option><option value='purple'>Purple</option><option value='pink'>Pink</option></select><br>
+Shape: <select id="createshape" onchange="extracreate();" onClick="extracreate();"><option value=0>Circle</option><!--<option value=1>Rectangle</option>//--></select><br>
+<span style="display:none" id="createsquare">
+Width: <input type="text" size="5" id="createwidth" value="50"><br>
+Height: <input type="text" size="5" id="createheight" value="50"><br>
+</span>
+<span style="display:none" id="createcircle">
+Diameter:<input type="text" size="5" id="creatediameter" value="50"><br>
+</span>
+Elasticity:<input type="text" size="5" id="createelastic" value="0.95">(0 to 1)<br>
+Mass:<input type="text" size="5" id="createmass" value="50"><br>
+Collision Detection <input type="checkbox" id="createcolision" checked>
+</span>
+<span id="dragspan" style="display:none">
+Collision Detection <input type="checkbox" id="dragcollisions" checked><br>
+Can Drag View<input type="checkbox" id="dragworldpossible" checked><br>
+Keep Old Speed <input type="checkbox" id="dragmomentum">
+</span>
+<span id="rotatespan" style="display:none">
+<b>Only works for polygons<br>(Which can be created using Draw Shape).</b><br><br>
+Collision Detection <input type="checkbox" id="rotatecollisions" checked><br>
+</span>
+
+<span id="selectedspan" style="display:none"></span>
+</div>
+
+<div id="loadingdiv" style="position:absolute;display:none;left:300;top:250;border:solid black 2px;z-index:5;background-color:white; padding:20px;">
+<h3>Loading...</h3>
+</div>
+
+<div id="loaddiv" style="position:absolute;display:none;left:300;top:250;border:solid black 2px;z-index:5;background-color:white; padding:20px;">
+<h3>Choose world to load</h3>
+<form action="javascript:loadworld(document.getElementById('loadselect').value,false)">
+<select id="loadselect">
+<option value="custom">Saved World</option>
+<option value="lattice">Forming Lattice</option>
+<option value="cradle">Newton's Cradle</option>
+<option value="susbridge">Simple Suspension Bridge</option>
+<!--<option value="bettersusbridge">Better Suspension Bridge</option> having 5 objects always in the world has broken this, and it'll take ages to repair.//-->
+<option value="example">Example World</option>
+<option value="pentagon">Pentagon</option>
+<option value="orbit">Orbit Example</option>
+<option value="balloons">Balloons Example</option>
+<option value="squinkle">Squinkle</option>
+</select>
+<input type='submit' value="load">
+<br><br>
+<center>
+<input type='button' value="Cancel" onclick="greyout(false);document.getElementById('loaddiv').style.display='none';togglepause();">
+</center>
+</form>
+</div>
+<div id="greyoutdiv" style="display:none; z-index:4; width:801;height:551; top:6; left:8; position:absolute; background-color:gray; filter:alpha(opacity=75);-moz-opacity:.75;opacity:.75;" ></div>
+
+<canvas id="mainworldcanvas" width="800" height="550" style="border:solid black 1px;cursor:pointer;background-color:#8cd2ff;" onmousedown="mousegonedown(event,false)"></canvas>
+
+<br>
+<span id="openminimapspan" style="cursor:pointer;display:none;" onclick="document.getElementById('openminimapspan').style.display='none';minimapwindow.OpenWindow();viewports[1].enabled=true;">
+<u>Open Mini Map</u>
+</span>
+<!--<canvas id="canvastag2" width="400" height="275" style="border:solid black 1px;cursor:pointer;"></canvas>//-->
+
+
+<div id="testspan" style="position:relative; z-index:5;"></div>
+<div id="testspan2" style="position:relative; z-index:5;"></div>
+
+<script language="JavaScript" type="text/javascript">
+<!--
+var world=document.getElementById('worldspan');
+
+var worldcanvas;
+var ctx;
+var loopme;
+
+var debug=false;
+
+var wholeworld= new Array()
+
+//General variables used to define major things in the world
+
+//'canvas' or 'divs'.
+var rendermode="canvas";
+
+
+
+var world=document.getElementById('worldspan');
+var worldissmall=false;
+//gravity, and in which direction (could be used as a cheap wind, like Worms 1)  100 seems to be a nice value
+var gravityY=200;
+var gravityX=0;
+//F=-bV (drag), friction=b
+var friction=5
+//time/s per refresh
+var timeperloop=0.02
+//essentially fps
+var refreshrate;
+if (document.all){var IE=true}else{var IE = false}
+if(IE){refreshrate=timeperloop*796;}else{refreshrate=timeperloop*1000;}
+//velocity retained during collision (as fraction), set to 1 for inelastic collisions
+var dampen=1
+//most force the user can apply to 'us'
+var maxuserforce=20000
+var incriment=maxuserforce/10
+
+//the minimum speed anything can have before it's stopped (set to 0 for no min speed)
+var minspeed=10
+
+//gets variables from url, like GET in PHP
+function gup(name)
+{
+name = name.replace(/[\[]/,"\\\[").replace(/[\]]/,"\\\]");
+var regexS = "[\\?&]"+name+"=([^&#]*)";
+var regex = new RegExp( regexS );
+var results = regex.exec( window.location.href );
+if( results == null )
+return "";
+else
+return results[1];
+}
+
+
+function setupcanvas()
+{
+//viewport(rendermode,htmlname,x,y,zoom,sync,enabled)
+var tempbg="rgb(212,212,255)";
+if(IE){tempbg=false}
+tempbg=false;//added bg colour to the canvas as an html element. I think it's faster like that.
+var mainview=new viewport('canvas','mainworld',0,0,800,550,1,1,tempbg,true);
+document.getElementById('linespan').style.display='none';
+//-2475
+var miniview=new viewport('canvas','minimap',-1600,-2200,400,275,0.1,10,false,true);
+//var miniview2=new viewport('canvas','canvastag3',0,0,200,138,0.25,1,false);
+
+if(gup('preload')!=='')
+{
+loadworld(gup('preload'),true);
+}
+
+loopme=setInterval('loop()',refreshrate)
+
+}
+
+var extras=new Array();
+extras.push("selectedspan");
+extras.push("chargespan");
+extras.push("springspan");
+extras.push("dragspan");
+extras.push("rotatespan");
+extras.push("stringspan");
+extras.push("createspan");
+extras.push("rodspan");
+extras.push("balloonspan");
+extras.push("drawrectanglespan");
+
+function closeextras(except)
+{//closes all the extra options except the exception
+for(var k=0;k<extras.length;k++)
+{
+if(extras[k]!==except){document.getElementById(extras[k]).style.display="none";}
+}
+}
+
+function extramouse()
+{//run when a mouse option is selected, and opens up/closes the extra options
+closeextras(document.getElementById('mousedoes').value)
+switch(document.getElementById('mousedoes').value)
+{
+case 'givecharge':
+document.getElementById("chargespan").style.display="block";
+break;
+case 'springconnect':
+document.getElementById("springspan").style.display="block";
+break;
+case 'rodconnect':
+document.getElementById("rodspan").style.display="block";
+break;
+case 'drag':
+document.getElementById("dragspan").style.display="block";
+break;
+case 'rotate':
+document.getElementById("rotatespan").style.display="block";
+break;
+case 'stringconnect':
+document.getElementById("stringspan").style.display="block";
+break;
+case 'create':
+document.getElementById("createspan").style.display="block";
+break;
+case 'addballoon':
+document.getElementById("balloonspan").style.display="block";
+break;
+case 'drawrectangle':
+document.getElementById("drawrectanglespan").style.display="block";
+break
+}
+
+}
+
+extramouse()
+
+function extracreate()
+{//opens/closes options for circles and squares in the create menu
+if(document.getElementById('createshape').value=='0')
+{
+document.getElementById('createsquare').style.display='none';
+document.getElementById('createcircle').style.display='block';
+}
+else
+{document.getElementById('createsquare').style.display='block';
+document.getElementById('createcircle').style.display='none';}
+}
+extracreate()
+
+function extrarender()
+{
+if(document.getElementById('customrender').value=="divs")
+{document.getElementById('extrarenderspan').style.display="block";}
+else
+{document.getElementById('extrarenderspan').style.display="none";}
+}
+
+//document.getElementById('customrender').value=rendermode
+//extrarender()
+
+var negposcharge=1;
+
+function togglecharge()
+{//changes the button in the charge options from + to - and vice versa
+if(negposcharge>0){negposcharge=-1;document.getElementById('chargebutton').value="-";}
+else
+{negposcharge=1;document.getElementById('chargebutton').value="+";}
+}
+
+function updategravity()
+{//updates the world's gravity to what's in the text box
+if(!isNaN(parseFloat(document.getElementById('customgravity').value))){gravityY=document.getElementById('customgravity').value}else{document.getElementById('customgravity').value=100;gravityY=100;}
+}
+updategravity()
+//polytest 1.65 - collision detection with polys works by interesctions of circles and straight lines.  Works reliably, but is in-efficient.
+
+function updatefriction()
+{
+if(!isNaN(parseFloat(document.getElementById('customfriction').value)))
+{
+//friction=1-document.getElementById('customfriction').value/1000
+friction=document.getElementById('customfriction').value
+//alert(friction)
+}
+
+
+}
+
+function updateoptions()
+{
+updategravity();
+updatefriction();
+/*
+if(document.getElementById('customrender').value!==rendermode)
+{
+rendermode=document.getElementById('customrender').value
+clearInterval(loopme);
+setupcanvas()
+redrawworld();
+}
+*/
+}
+
+//greys out the play area
+function greyout(dowhat)
+{switch (dowhat)
+{
+case true:
+
+switch(rendermode)
+{case 'canvas':
+viewports[0].canvas.fillStyle = "rgba(0, 0, 200, 0.5)";
+viewports[0].canvas.fillRect(0,0,800,600);
+viewports[0].canvas.fillStyle = "rgb(0,0,0)";
+break;
+case 'divs':
+document.getElementById('greyoutdiv').style.display='block';
+break;}
+break;
+case false:
+switch(rendermode)
+{case 'canvas':
+redrawworld();
+break;
+case 'divs':
+document.getElementById('greyoutdiv').style.display='none';
+break;}
+break;
+}
+}
+
+var worldwaspreloaded=false
+
+function loadworld(thisworld,preload)
+{
+worldwaspreloaded=preload
+clearworld();
+greyout(true);
+
+//reset grav and friction to defaults
+gravityY=200;
+document.getElementById('customgravity').value=200;
+friction=5;
+document.getElementById('customfriction').value=5;
+
+switch(thisworld)
+{
+case 'custom':
+loadwindow.OpenWindow();
+loadwindow.CentreWindow();
+document.getElementById('customgravity').value=gravityY;
+document.getElementById('customfriction').value=friction
+finishloading()
+break;
+default:
+var newScr = document.createElement("SCRIPT");
+newScr.src = "worlds/"+thisworld+".js";
+newScr.type="text/javascript";
+document.getElementsByTagName("head")[0].appendChild(newScr); 
+document.getElementById('loaddiv').style.display='none';
+document.getElementById('loadingdiv').style.display='block';
+//in case a non-existing world is loaded, kill loading window after 2 seconds.
+//setTimeout("worldwaspreloaded=true;finishloading();",2000);
+break;
+}
+
+}
+
+function finishloading()
+{
+if(!worldwaspreloaded)
+{
+//greyout(false);
+document.getElementById('loaddiv').style.display='none';
+togglepause();
+}
+greyout(false);
+document.getElementById('loadingdiv').style.display='none';
+updateworldsize();
+document.getElementById('customgravity').value=gravityY;
+document.getElementById('customfriction').value=friction
+}
+
+var minimapwindow = new divwindow('minimapwindow','Mini Map',1,'#8cd2ff','#64aaff',405,300,10,570,3,'<canvas id="minimapcanvas" width="400" height="275"></canvas><div id="minimapdivs"></div>','document.getElementById("openminimapspan").style.display="block";viewports[1].enabled=false;')
+minimapwindow.OpenWindow();
+var loadwindow = new divwindow('loadwindow','load World',1,'white','yellow',500,300,300,300,3,'<form action="javascript:inportworld();"><textarea id="loadtextarea" cols="55" rows="10"><\/textarea><br>Copy the text from Save World into this box.<br><br><input type="submit" value="Load"><\/form>','')
+
+var savewindow = new divwindow('savewindow','Save World',1,'white','yellow',500,300,300,300,3,'<textarea id="savetextarea" cols="55" rows="13"><\/textarea><br>Use Load -> Saved World and copy this text in to load this world.','')
+
+function inportworld()
+{//alert(document.getElementById('loadtextarea').value)
+eval(document.getElementById('loadtextarea').value)
+
+updateworldsize()
+loadwindow.CloseWindow();
+}
+var save='';
+function saveworld()
+{
+//entity(state,name,x,y,width,height,mass,colour,type,vx,vy,fx,fy,hard,sticky,shape,visible,gametype,elastic,divoptions,divimage)
+save='';
+for(var k=0;k<wholeworld.length;k++)
+{
+if(wholeworld[k].gametype!==0 && wholeworld[k].shape!==3)//&& wholeworld[k].state==1)
+{
+save+="new entity("+wholeworld[k].state+",'saved"+wholeworld[k].name+"',"+wholeworld[k].x+","+wholeworld[k].y+","+wholeworld[k].width+","+wholeworld[k].height+","+wholeworld[k].mass+",'"+wholeworld[k].colour+"',"+wholeworld[k].type+","+wholeworld[k].vx+","+wholeworld[k].vy+","+wholeworld[k].fx+","+wholeworld[k].fy+","+wholeworld[k].hard+","+wholeworld[k].sticky+","+wholeworld[k].shape+","+wholeworld[k].visible+","+wholeworld[k].gametype+","+wholeworld[k].elastic+",'"+wholeworld[k].divoptions+"','"+wholeworld[k].divimage+"'); \n"
+}
+else if(wholeworld[k].gametype!==0 && wholeworld[k].shape==3)//saving a polygon
+{
+var tempXs="[";
+for(var c=0;c<wholeworld[k].Xs.length;c++)
+{tempXs+=wholeworld[k].Xs[c];
+if(c<wholeworld[k].Xs.length-1){tempXs+=",";}}
+tempXs+="]";
+
+var tempYs="[";
+for(var c=0;c<wholeworld[k].Ys.length;c++)
+{tempYs+=wholeworld[k].Ys[c];
+if(c<wholeworld[k].Ys.length-1){tempYs+=",";}}
+tempYs+="]";
+
+save+="new polygon("+wholeworld[k].state+",'saved"+wholeworld[k].name+"',"+wholeworld[k].x+","+wholeworld[k].y+","+tempXs+","+tempYs+","+wholeworld[k].mass+",'"+wholeworld[k].colour+"',"+wholeworld[k].type+","+wholeworld[k].vx+","+wholeworld[k].vy+","+wholeworld[k].vw+","+wholeworld[k].fx+","+wholeworld[k].fy+","+wholeworld[k].fw+","+wholeworld[k].hard+","+wholeworld[k].filled+","+wholeworld[k].visible+","+wholeworld[k].gametype+","+wholeworld[k].elastic+"); \n";
+}
+}//end of wholeworld loop
+//connect(one,two,strength,howfar,linetype)
+for(var k=0;k<connections.length;k++)
+{
+if(connections[k].state!==0)
+{
+save+="connect("+connections[k].from+","+connections[k].to+","+connections[k].connectionstrength+","+connections[k].connectionlength+","+connections[k].graphics+","+connections[k].type+","+connections[k].hard+"); \n";
+}
+}
+
+for(var k=0;k<chargedobjects.length;k++)
+{//alert(chargedobjects[k])
+save+="wholeworld["+chargedobjects[k].arraypos+"].charged=true;wholeworld["+chargedobjects[k].arraypos+"].charge="+chargedobjects[k].charge+";chargedobjects.push(wholeworld["+chargedobjects[k].arraypos+"]); \n"
+}
+
+save+="gravityY="+gravityY+";friction="+friction+";viewports[0].x="+viewports[0].x+";viewports[0].y="+viewports[0].y+";viewports[0].zoom="+viewports[0].zoom+";";
+
+save+="document.getElementById('smallworld').checked="+document.getElementById('smallworld').checked;
+
+savewindow.OpenWindow();
+savewindow.CentreWindow();
+//document.getElementById('savetextarea').innerHTML=''
+//alert(save)
+document.getElementById('savetextarea').value=save;
+
+}
+
+function clearworld()
+{
+document.getElementById('loadingdiv').style.display="none";
+connections=new Array();
+var wholeworld2=wholeworld.slice(0,5);
+wholeworld=new Array();
+chargedobjects=new Array();
+wholeworld=wholeworld2;
+viewports[0].x=0;
+viewports[0].y=0;
+viewports[0].zoom=1;
+redrawworld();
+}
+
+//here are where objects are created
+//NAMES MUST BE UNIQUE
+
+//entity(state,name,x,y,width,height,mass,COLOUR,type,vx,vy,fx,fy,hard,sticky,shape,VISIBLE,gametype,elastic,onclick)
+
+//x,y co-ords are for the top left hand corner, div options are standard HTML bits and bobs for the style of the div
+//these are for the borders, you'll always want some kind of border (even if invisible) to stop anything being able to leave the screen
+
+//gametypes: 0=border, etc, not deletable, 1=otherwise
+//mouseclick()
+//var bg=new entity(1,'bg',00,00,850,600,0,false,1,0,0,0,0,false,false,1,'background-color:white;',0,1,'');
+
+//var borderpoly=new polygon(1,'borderpoly',0,1,[-1600,2400,2400,-1600],[-2200,-2200,550,550],100,'black',1,0,0,0,0,0,0,false,false,true,0,1)
+var borderline=new entity(1,'borderline',400,-825,4000,2750,10,'black',1,0,0,0,0,false,false,4,true,0,0,'',false);
+
+//playing area:
+//top= -2200
+//bottom=550
+//left=-1600
+//right=2400
+
+var lowerborder=new entity(1,'lowerborder',0,25550,200000,50000,10,'rgb(121,158,41)',1,0,0,0,0,true,false,1,true,0,0,'',false);
+var upperborder=new entity(1,'upperborder',0,-51100,200000,100000-2200,10,false,1,0,0,0,0,true,false,1,false,0,0,'',false);
+var leftborder=new entity(1,'leftborder',-50800,90000,100000-1600,200000,10,false,1,0,0,0,0,true,false,1,false,0,0,'',false);
+var rightborder=new entity(1,'rightborder',52400,90000,100000,200000,10,false,1,0,0,0,0,true,false,1,false,0,0,'',false);
+
+
+
+
+var ball=new entity(1,'ball',200,100,50,50,50,'red',0,0,0,0,0,true,false,0,true,1,0.95,'','balls/red.gif');
+
+var ball2=new entity(1,'ball2',600,100,50,50,50,'green',0,0,0,0,0,true,false,0,true,1,0.95,'','balls/green.gif');
+var fixedpoint3=new entity(1,'fixedpoint3',400,200,50,50,100,'black',1,0,0,0,0,true,false,0,true,2,1,'','balls/black.gif');
+stringbetween(ball.arraypos,ball2.arraypos,30,1,5000,true)
+
+
+
+//var testpolygon=new polygon(1,'testpolygon',500,300,[-100,50,200,-50],[-50,-50,50,50],100,'green',1,0,0,0,0,0,0,true,true,true,1,1)
+var testpolygon=new polygon(1,'testpolygon',500,300,[-50,50,50,-50],[-50,-50,50,50],100,'green',1,0,0,0,0,0,0,true,true,true,1,0.8)
+testpolygon.angle=Math.PI/6;
+testpolygon.vw=2
+testpolygon.type=0;
+
+//for polygons entity(state,name,x array,y array,thickness,z-index,mass,colour,type,vx,vy,fx,fy,hard,sticky,shape,ignore,gametype,elastic,hollow)
+//polygon(state,name,x,y,Xs,Ys,mass,colour,type,vx,vy,vw,fx,fy,fw,hard,filled,visible,gametype,elastic)
+//var borderpoly=new entity(1,'borderpoly',0,0,[200,600,600,200],[100,100,500,500],1,'black',1,0,0,0,0,0,0,true,true,true,1,1);
+
+//var borderpoly=new polygon(1,'borderpoly',0,0,[0,800,800,0],[0,0,550,550],100,'black',1,0,0,0,0,0,0,true,false,true,1,1)
+
+//alert(borderpoly.visible)
+var smallball1=new entity(1,'smallball1',150,300,9,9,50,'red',0,0,0,0,0,true,false,0,true,2,1,'','tinyballs/red.gif');
+var smallball2=new entity(1,'smallball2',200,300,9,9,50,'red',0,0,0,0,0,true,false,0,true,2,1,'','tinyballs/red.gif');
+var smallball3=new entity(1,'smallball3',150,350,9,9,50,'red',0,0,0,0,0,true,false,0,true,2,1,'','tinyballs/red.gif');
+var smallball4=new entity(1,'smallball4',200,350,9,9,50,'red',0,0,0,0,0,true,false,0,true,2,1,'','tinyballs/red.gif');
+
+
+connect(smallball1.arraypos,smallball2.arraypos,10000,false,1,0,true)
+connect(smallball1.arraypos,smallball3.arraypos,10000,false,1,0,true)
+connect(smallball2.arraypos,smallball3.arraypos,10000,false,1,0,true)
+connect(smallball4.arraypos,smallball1.arraypos,10000,false,1,0,true)
+connect(smallball4.arraypos,smallball2.arraypos,10000,false,1,0,true)
+connect(smallball4.arraypos,smallball3.arraypos,10000,false,1,0,true)
+
+function EPatpoint(epx,epy)
+{
+var ep=0;
+for(var e2=0;e2<chargedobjects.length;e2++)
+{var r=distance(epx,epy,chargedobjects[e2].x,chargedobjects[e2].y)
+if(r>0)
+{ep+=chargedobjects[e2].charge/(4*Math.PI*Ezero*r)}}
+return ep;
+}
+//var Ezero=0.000000000009
+var Ezero=0.00009
+
+var maxEP=0;
+var minEP=0;
+var EPpoints=new Array();
+
+function EPpoint(x,y)
+{
+this.x=x;
+this.y=y;
+this.EP=EPatpoint(x,y);
+
+if(this.EP>0){this.EP=Math.sqrt(Math.sqrt(this.EP))}
+if(this.EP<0){this.EP=-Math.sqrt(Math.sqrt(Math.abs(this.EP)))}
+
+this.plotEP=plotEP;
+
+this.colour="rgb(0,0,0)";
+
+if(this.EP>maxEP){maxEP=this.EP;}
+if(this.EP<minEP){minEP=this.EP;}
+
+EPpoints.push(this)
+}
+
+//plot equipotential
+function plotallEP()
+{
+if(!paused){togglepause();}
+maxEP=0;
+minEP=0;
+EPpoints=new Array();
+
+//create objects for lots of points
+for(var tempx=4;tempx<800;tempx+=8)
+{
+for(var tempy=4;tempy<550;tempy+=8)
+{
+var tempthing=new EPpoint(tempx,tempy)
+}
+}
+
+var diffEP=Math.round(maxEP-minEP);
+var diffEP=maxEP-minEP;
+for(var p=0;p<EPpoints.length;p++)
+{
+//EPpoints[p].colour="rgb("+Math.round((EPpoints[p].EP-minEP)/diffEP*254)+",0,0)";
+if(EPpoints[p].EP>0){EPpoints[p].colour="rgba("+Math.round((EPpoints[p].EP)/maxEP*255)+",0,0,0.75)";}
+
+if(EPpoints[p].EP<0){EPpoints[p].colour="rgba(0,0,"+Math.round(((-1)*EPpoints[p].EP)/((-1)*minEP)*255)+",0.75)";}
+
+EPpoints[p].plotEP();
+}
+
+
+
+}
+
+function plotEP()
+{//plot a single EP point.
+ctx.beginPath();
+ctx.moveTo(this.x,this.y);
+ctx.fillStyle=this.colour;
+//ctx.arc(this.x,this.y,5,0,Math.PI*2,true);  // draw circle
+ctx.fillRect(this.x-4,this.y-4,8,8);
+ctx.fill();
+}
+
+function plotfieldlines()
+{
+if(!paused){togglepause();}
+for(var tempx=4;tempx<800;tempx+=8)
+{
+for(var tempy=4;tempy<550;tempy+=8)
+{
+var fy=0;
+var fx=0;
+
+
+for(var k=0;k<chargedobjects.length;k++)
+{
+var rsqrd=Math.pow(tempx-chargedobjects[k].x,2)+Math.pow(tempy-chargedobjects[k].y,2)
+
+var coulombforce=8990000000*chargedobjects[k].charge*(0.0001)/rsqrd
+var coulombangle=getangle(tempx-chargedobjects[k].x,tempy-chargedobjects[k].y)
+fy+=Math.sin(coulombangle)*coulombforce
+fx+=Math.cos(coulombangle)*coulombforce
+}
+
+var maxsize=6;
+
+if(fy>maxsize){fy=maxsize;}
+if(fy<-maxsize){fy=-maxsize;}
+
+if(fx>maxsize){fx=maxsize;}
+if(fx<-maxsize){fx=-maxsize;}
+
+ctx.beginPath();
+ctx.moveTo(tempx,tempy);
+ctx.lineTo(tempx+fx,tempy+fy);
+ctx.arc(tempx,tempy,1,0,Math.PI*2,true);  // draw circle
+ctx.stroke();
+
+
+
+
+//end of y loop
+}
+
+
+//end of x loop
+}
+
+
+}
+
+
+//new entity(1,'circle0',189,290,50,50,50,'green',1,0,0,0,0,true,false,0,true,1,0.95,'','balls/green.gif');new entity(1,'circle1',625,291,50,50,50,'green',1,0,0,0,0,true,false,0,true,1,0.95,'','balls/green.gif');new entity(1,'circle2',401,123,50,50,50,'green',0,0,0,0,0,true,false,0,true,1,0.95,'','balls/green.gif');connect(4,5,1000,436,1,0,true);gravityY=200;friction=0.995;
+
+//loop stuff
+var counter=0;
+
+//how often, in loops, do we we-draw the canvas?
+var drawsync=1;
+
+//timer variable, used for dragging stuff.
+var timer=0
+
+var dragoldx=0;
+var dragoldy=0;
+
+var oldloopmouseX=0;
+var oldloopmouseY=0;
+
+//var thingschanged=true;
+
+//this is the function which gets looped when the sandbox isn't paused
+function loop()
+{
+//timer+=timeperloop;
+//finds new position of everything which can move
+replotentities()
+
+sortoutrods()
+
+if(counter%drawsync==0 && !paused){
+switch(rendermode)
+{
+case 'canvas':
+//displays it on the canvas
+redrawworld()
+
+//draw outline of main viewport on minimap
+if((drawcounter-1)%viewports[1].sync==0 && viewports[1].enabled)
+{viewports[1].canvas.lineWidth=1;
+viewports[1].canvas.strokeStyle='black';
+viewports[1].canvas.strokeRect(Math.ceil((viewports[0].x-viewports[1].x)*viewports[1].zoom)-0.5,Math.ceil((viewports[0].y-viewports[1].y)*viewports[1].zoom)-0.5,Math.floor(viewports[0].width*viewports[1].zoom/viewports[0].zoom),Math.floor(viewports[0].height*viewports[1].zoom/viewports[0].zoom));
+}
+break;
+case 'divs':
+//divsredrawworld();
+//linehtml=''
+if(document.getElementById('showspringsbox').checked)
+{
+for(var k=0;k<connections.length;k++)
+{connections[k].updateline();}
+}
+break;}
+
+}
+
+//if the mouse is dragging something, move it:
+if(followmouse!==false)
+{
+if(wholeworld[followmouse].type==1 && wholeworld[followmouse].gametype!==0)
+{//if we're not colliding or don't want collision detection
+
+if(document.getElementById('dragcollisions').checked==false || checkforanycollide2(wholeworld[followmouse],mouseX/viewports[0].zoom+viewports[0].x+mousedragdifference[0],mouseY/viewports[0].zoom+viewports[0].y+mousedragdifference[1])===false)
+{
+//dragoldx=wholeworld[followmouse].x;
+//dragoldy=wholeworld[followmouse].y;
+
+wholeworld[followmouse].x=mouseX/viewports[0].zoom+viewports[0].x+mousedragdifference[0];
+wholeworld[followmouse].y=mouseY/viewports[0].zoom+viewports[0].y+mousedragdifference[1];
+
+
+
+if(rendermode=='divs'){wholeworld[followmouse].updatediv2()}
+}
+}
+}
+
+rotatestuff()
+oldloopmouseX=mouseX
+oldloopmouseY=mouseY
+counter++
+}
+
+
+function pauseloop()
+{
+//if the mouse is dragging something, move it:
+if(followmouse!==false)
+{//wholeworld[followmouse].type==1 && 
+if(wholeworld[followmouse].gametype!==0)
+{//if we're not colliding or don't want collision detection
+if(document.getElementById('dragcollisions').checked==false || checkforanycollide2(wholeworld[followmouse],mouseX/viewports[0].zoom+viewports[0].x+mousedragdifference[0],mouseY/viewports[0].zoom+viewports[0].y+mousedragdifference[1])===false)
+{
+wholeworld[followmouse].x=mouseX/viewports[0].zoom+viewports[0].x+mousedragdifference[0];
+wholeworld[followmouse].y=mouseY/viewports[0].zoom+viewports[0].y+mousedragdifference[1];
+
+switch(rendermode)
+{case 'canvas':
+//ctx.clearRect(0,0,800,600); // clear canvas
+redrawworld();
+break;
+case 'divs':
+wholeworld[followmouse].updatediv2();
+break;}
+
+
+}}}
+
+if(drawingshape)
+{
+switch(newshape)
+{
+case 1://rectangle
+redrawworld();
+
+var tempheight=Math.abs(newshapecoords[1]*viewports[0].zoom+viewports[0].y-mouseY)/viewports[0].zoom//*2
+var tempwidth=Math.abs(newshapecoords[0]*viewports[0].zoom+viewports[0].x-mouseX)/viewports[0].zoom//*2
+
+if(checkforanycollide3(newshapecoords[0]/viewports[0].zoom+viewports[0].x+tempwidth/2,newshapecoords[1]/viewports[0].zoom+viewports[0].y+tempheight/2,tempwidth*1,tempheight*1,1)===false || document.getElementById('drawrectanglecolision').checked==false)
+{
+viewports[0].canvas.strokeStyle = 'black'
+viewports[0].canvas.strokeRect((newshapecoords[0]-viewports[0].x)*viewports[0].zoom,(newshapecoords[1]-viewports[0].y)*viewports[0].zoom,tempwidth*viewports[0].zoom,tempheight*viewports[0].zoom);
+}else{//colliding with something
+viewports[0].canvas.strokeStyle = 'red'
+viewports[0].canvas.strokeRect((newshapecoords[0]-viewports[0].x)*viewports[0].zoom,(newshapecoords[1]-viewports[0].y)*viewports[0].zoom,tempwidth*viewports[0].zoom,tempheight*viewports[0].zoom);
+}
+break;
+case 3://polygon
+//if drawing a new shape
+newshapeXs.push(mouseX);
+newshapeYs.push(mouseY);
+if (newshapeXs.length>2)
+{
+viewports[0].canvas.beginPath();
+viewports[0].canvas.strokeStyle='black';
+viewports[0].canvas.lineWidth=2;
+viewports[0].canvas.moveTo(newshapeXs[newshapeXs.length-2],newshapeYs[newshapeYs.length-2]);
+viewports[0].canvas.lineTo(mouseX,mouseY)
+viewports[0].canvas.stroke();
+}//end of length>2
+break;
+}//end of newshape switch
+
+}//end of drawingshape
+
+rotatestuff()
+}
+
+function rotatestuff()
+{
+if(mouserotate!==false)
+{
+var oldrotateangle=Math.atan2(wholeworld[mouserotate].y-prerotatey,wholeworld[mouserotate].x-prerotatex)
+var newrotateangle=Math.atan2(wholeworld[mouserotate].y-mouseY,wholeworld[mouserotate].x-mouseX)
+
+var testangle=wholeworld[mouserotate].angle+(newrotateangle-oldrotateangle);
+if(document.getElementById('rotatecollisions').checked==false || checkforanycollide2b(wholeworld[mouserotate],testangle)===false)
+{
+wholeworld[mouserotate].angle=testangle;
+prerotatex=mouseX;
+prerotatey=mouseY;
+if(paused){redrawworld();}
+}
+//end of mouserotate
+}
+}
+
+//var player=ball.arraypos;
+//function currently not used, but applies a force to the 'player' in responce to arrow keys being pressed
+function moveus()
+{
+if (moveright){wholeworld[player].fx+=incriment; if (wholeworld[player].fx>maxuserforce){wholeworld[player].fx=maxuserforce};}
+if (moveleft){wholeworld[player].fx-=incriment; if (wholeworld[player].fx<-maxuserforce){wholeworld[player].fx=-maxuserforce}}
+if(!moveright && !moveleft){if (wholeworld[player].fx>0){wholeworld[player].fx-=incriment};if (wholeworld[player].fx<0){wholeworld[player].fx+=incriment}}
+if (moveup){wholeworld[player].fy-=incriment; if (wholeworld[player].fy < -maxuserforce){wholeworld[player].fy=-maxuserforce}}
+if (movedown){wholeworld[player].fy+=incriment; if (wholeworld[player].fy > maxuserforce){wholeworld[player].fy=maxuserforce}}
+if (!moveup && !movedown){wholeworld[player].fy+=incriment*2; if (wholeworld[player].fy > 0){wholeworld[player].fy=0}}
+}
+
+
+function sortoutrods()
+{
+for(var c=0;c<3;c++)
+{
+for(var i=0;i<connections.length;i++)
+{
+if(connections[i].type==1 && connections[i].state==1)//alive rod
+{
+var farapart=dsqrd(wholeworld[connections[i].from].x,wholeworld[connections[i].from].y,wholeworld[connections[i].to].x,wholeworld[connections[i].to].y);
+if(farapart>connections[i].lengthsqrd+connections[i].strengthsqrd || farapart<connections[i].lengthsqrd-connections[i].strengthsqrd)
+{//if the two particles are too far apart or too close
+farapart=Math.sqrt(farapart);
+var moveme=(connections[i].connectionlength-farapart)/2
+//angle from 'from' to 'to'
+var angle=Math.atan2(wholeworld[connections[i].to].y-wholeworld[connections[i].from].y,wholeworld[connections[i].to].x-wholeworld[connections[i].from].x)
+
+var testnewtox=wholeworld[connections[i].to].x+Math.cos(angle)*moveme;
+var testnewtoy=wholeworld[connections[i].to].y+Math.sin(angle)*moveme;
+
+var testnewfromx=wholeworld[connections[i].from].x+Math.cos(angle+Math.PI)*moveme;
+var testnewfromy=wholeworld[connections[i].from].y+Math.sin(angle+Math.PI)*moveme;
+
+if(checkforanycollide2(wholeworld[connections[i].from],testnewfromx,testnewfromy)===false && wholeworld[connections[i].from].type==0)//if can move to new position, and not static
+{wholeworld[connections[i].from].x=testnewfromx
+wholeworld[connections[i].from].vx+=Math.cos(angle+Math.PI)*moveme/timeperloop
+wholeworld[connections[i].from].vy+=Math.sin(angle+Math.PI)*moveme/timeperloop
+wholeworld[connections[i].from].y=testnewfromy}
+
+if(checkforanycollide2(wholeworld[connections[i].to],testnewtox,testnewtoy)===false && wholeworld[connections[i].to].type==0)
+{wholeworld[connections[i].to].x=testnewtox
+wholeworld[connections[i].to].vx+=Math.cos(angle)*moveme/timeperloop
+wholeworld[connections[i].to].vy+=Math.sin(angle)*moveme/timeperloop
+wholeworld[connections[i].to].y=testnewtoy}
+
+}
+
+//end of if rod
+}
+//end of connections loop
+}
+//end of iterations loop
+}
+}
+
+function springforce(x1,x2,y1,y2,sprstr,sprlng)
+{
+var farapart=Math.sqrt( Math.pow(x2-x1,2) + Math.pow(y2-y1,2)  )
+var springforce=-sprstr*(farapart-sprlng);
+var springangle=getangle(x1-x2,y1-y2);
+return [farapart,springforce,springangle];
+}
+
+
+function posfromforce(vx,vy,testfx,testfy,ourangle,ourspeedfriction,times)
+{
+var testax=testfx/wholeworld[i].mass
+var testay=testfy/wholeworld[i].mass
+//var testnewvy=Math.sin(ourangle)*ourspeedfriction+(testfx/wholeworld[i].mass)*times
+//var testnewvx=Math.cos(ourangle)*ourspeedfriction+(testfy/wholeworld[i].mass)*times
+
+var testnewvy=vy+(testfx/wholeworld[i].mass)*times
+var testnewvx=vx+(testfy/wholeworld[i].mass)*times
+
+var testnewx=(testnewvx*times+1/2*testax*timeperloop*timeperloop)+wholeworld[i].x
+var testnewy=(testnewvy*times+1/2*testay*timeperloop*timeperloop)+wholeworld[i].y
+return[testnewx,testnewy];
+}
+
+
+
+//IDEA FOR FRICITON, ADD FRICTION TO SPEED, THEN RESLOVE FOR X AND Y VELOCITIES
+
+var newx;
+var newy;
+var newangle;
+var newvw;
+
+var theirnewvx;
+var theirnewvy;
+var theirnewvw;
+
+function replotentities()
+{
+for (i=0;i<wholeworld.length;i++)
+{
+if(wholeworld[i].type == 0 && wholeworld[i].state==1)
+{
+//if type=0 then we're a entity and thus need to be replotted, and we're not dead
+ourspeed=Math.sqrt(wholeworld[i].vx*wholeworld[i].vx+wholeworld[i].vy*wholeworld[i].vy)
+
+var ourangle
+
+if(wholeworld[i].vx<0){ourangle=(Math.PI)+(Math.atan(wholeworld[i].vy/wholeworld[i].vx))}
+else if(wholeworld[i].vx>0 && wholeworld[i].vy>=0){ourangle=Math.atan(wholeworld[i].vy/wholeworld[i].vx)}
+else if(wholeworld[i].vx>0 && wholeworld[i].vy < 0){ourangle=2*(Math.PI)+Math.atan(wholeworld[i].vy/wholeworld[i].vx)}
+else if(wholeworld[i].vx==0 && wholeworld[i].vy == 0){ourangle=0}
+else if(wholeworld[i].vx==0 && wholeworld[i].vy>=0){ourangle=(Math.PI)/2}
+else{ourangle=3*(Math.PI)/2}
+
+//F=-bV
+//a=F/m
+//v=u+at
+
+var ourspeedfriction=ourspeed-friction*ourspeed*timeperloop/wholeworld[i].mass
+
+//if(wholeworld[i].connected.length>0){ourspeedfriction/=2;}
+
+//acceleration of object to be updated; f=ma therefore a=f/m
+var fx=wholeworld[i].fx+gravityX*wholeworld[i].mass//-wholeworld[i].vx
+var fy=wholeworld[i].fy+gravityY*wholeworld[i].mass//-wholeworld[i].vy
+
+if(wholeworld[i].charged)
+{for(var k=0;k<chargedobjects.length;k++)
+{if(chargedobjects[k].name!==wholeworld[i].name)
+{var rsqrd=Math.pow(wholeworld[i].x-chargedobjects[k].x,2)+Math.pow(wholeworld[i].y-chargedobjects[k].y,2)
+//coloumbs law:
+//f=k.q1.q2/r^2
+var coulombforce=8990000000*chargedobjects[k].charge*wholeworld[i].charge/rsqrd
+var coulombangle=getangle(wholeworld[i].x-chargedobjects[k].x,wholeworld[i].y-chargedobjects[k].y)
+fy+=Math.sin(coulombangle)*coulombforce
+fx+=Math.cos(coulombangle)*coulombforce}}}
+
+var tempvx=Math.cos(ourangle)*ourspeedfriction
+var tempvy=Math.sin(ourangle)*ourspeedfriction
+
+
+//for(var k=wholeworld[i].connected.length-1;k>=0;k--)
+
+for(var k=0;k<wholeworld[i].connected.length;k++)
+{
+switch(connections[wholeworld[i].connected[k]].type)
+{
+case 0://if this connection is a spring
+if(connections[wholeworld[i].connected[k]].to!==i)
+{var them=connections[wholeworld[i].connected[k]].to;}
+else{
+var them=connections[wholeworld[i].connected[k]].from;}
+
+//var them=wholeworld[i].connected[k];
+
+var tempspringstrength=connections[wholeworld[i].connected[k]].connectionstrength;
+var tempspringlength=connections[wholeworld[i].connected[k]].connectionlength;
+
+var themx=wholeworld[them].x;
+var themy=wholeworld[them].y;
+
+//alert(themx)
+//Hooke's Law:
+//F=-kx
+var springvar = springforce(wholeworld[i].x,themx,wholeworld[i].y,themy,tempspringstrength,tempspringlength)
+//(wholeworld[us].x+wholeworld[us].width/2)-themx,(wholeworld[us].y+wholeworld[us].height/2)-themy
+
+//force from current position
+var testfy=Math.sin(springvar[2])*springvar[1]//+wholeworld[i].vx
+var testfx=Math.cos(springvar[2])*springvar[1]//+wholeworld[i].vy
+
+//force from one loop's time if the above force were applied
+var testpositions=posfromforce(tempvx,tempvy,testfx,testfy,ourangle,ourspeedfriction,timeperloop/2);
+springvar = springforce(testpositions[0],themx,testpositions[1],themy,tempspringstrength,tempspringlength)
+var testfy2=Math.sin(springvar[2])*springvar[1]
+var testfx2=Math.cos(springvar[2])*springvar[1]
+
+//force on thingy if it moved using average of above two forces
+testpositions=posfromforce(tempvx,tempvy,(testfx+testfx2)/2,(testfy+testfy2)/2,ourangle,ourspeedfriction,timeperloop);
+springvar = springforce(testpositions[0],themx,testpositions[1],themy,tempspringstrength,tempspringlength)
+var testfy3=Math.sin(springvar[2])*springvar[1]
+var testfx3=Math.cos(springvar[2])*springvar[1]
+/*
+testpositions=posfromforce((testfx+testfx2+testfx3)/3,(testfy+testfy2+testfy3)/3,ourangle,ourspeedfriction,timeperloop);
+springvar = springforce((testpositions[0]+wholeworld[i].width/2),(wholeworld[them].x+wholeworld[them].width/2),(testpositions[1]+wholeworld[i].height/2),(wholeworld[them].y+wholeworld[them].height/2),wholeworld[i].springstrength[k],wholeworld[i].springlength[k])
+var testfy4=Math.sin(springvar[2])*springvar[1]
+var testfx4=Math.cos(springvar[2])*springvar[1]
+*/
+//fy+=(testfy+testfy3+testfy2+testfy4)/4
+//fx+=(testfx+testfx3+testfx2+testfx4)/4
+
+fy+=(testfy+testfy2+testfy3)/3 + wholeworld[them].fy//this seems to help with balloons, though I'm not too sure how realistic it is.
+fx+=(testfx+testfx2+testfx3)/3 + wholeworld[them].fx
+
+//fy+=testfy4
+//fx+=testfx4
+//end of if connection is a spring
+break;
+//case 1://this connection is a rod
+
+
+//break;
+}
+//end of connections loop
+}
+
+var ax=fx/wholeworld[i].mass
+var ay=fy/wholeworld[i].mass
+
+
+
+//v=u+at
+newvy=Math.sin(ourangle)*ourspeedfriction+ay*timeperloop
+newvx=Math.cos(ourangle)*ourspeedfriction+ax*timeperloop
+
+
+//wholeworld[i].vy=newvy
+//wholeworld[i].vx=newvx
+//optimisation, if we're not moving, don't faff about re-plotting our position - broken with polygons, need a resting contact system really.
+if(true){//newvy!==0 || newvx!==0 || !(followmouse===false || newvw!==0)
+// if we're moving really slowly, and there's no force on us, then stop moving.
+if(ourspeedfriction <=minspeed && wholeworld[i].fx==0 && wholeworld[i].fy==0 && ax==0 && ay==0){newvx=0;newvy=0;}
+//s=ut + 0.5at^2 therefore, new position = old position + ut+1/2at^2
+newx=(wholeworld[i].vx*timeperloop+1/2*ax*timeperloop*timeperloop)+wholeworld[i].x
+newy=(wholeworld[i].vy*timeperloop+1/2*ay*timeperloop*timeperloop)+wholeworld[i].y
+
+//if can rotate (currently only polys)
+if(wholeworld[i].shape==3)
+{newvw=wholeworld[i].vw;
+newangle=wholeworld[i].angle+wholeworld[i].vw*timeperloop;}
+
+
+if(followmouse==i){
+newx=mouseX/viewports[0].zoom+viewports[0].x+mousedragdifference[0];newy=mouseY/viewports[0].zoom+viewports[0].y+mousedragdifference[1];
+dragoldx=wholeworld[i].x;
+dragoldy=wholeworld[i].y;}
+
+
+if(wholeworld[i].hard)
+{
+for (var i2=0;i2<wholeworld.length;i2++)
+{
+if(wholeworld[i2].hard==true && i!==i2 && wholeworld[i2].state==1)
+{
+/*
+if(wholeworld[i2].shape==3){
+var collided=checkcollide(newx,newy,wholeworld[i].width,wholeworld[i].height,wholeworld[i].shape,wholeworld[i2].x,wholeworld[i2].y,wholeworld[i2].width,wholeworld[i2].height,wholeworld[i2].shape,0,wholeworld[i2].bigR,0,wholeworld[i2].angle,false,wholeworld[i2].filled)}
+else if(wholeworld[i].shape==3){
+var collided=checkcollide(newx,newy,wholeworld[i].width,wholeworld[i].height,wholeworld[i].shape,wholeworld[i2].x,wholeworld[i2].y,wholeworld[i2].width,wholeworld[i2].height,wholeworld[i2].shape,wholeworld[i].bigR,0,newangle,0,wholeworld[i].filled,false)}
+else{
+var collided=checkcollide(newx,newy,wholeworld[i].width,wholeworld[i].height,wholeworld[i].shape,wholeworld[i2].x,wholeworld[i2].y,wholeworld[i2].width,wholeworld[i2].height,wholeworld[i2].shape,0,0,0,0,false,false)}
+*/
+if(checkcollide(newx,newy,wholeworld[i].width,wholeworld[i].height,wholeworld[i].shape,wholeworld[i2].x,wholeworld[i2].y,wholeworld[i2].width,wholeworld[i2].height,wholeworld[i2].shape,wholeworld[i].bigR,wholeworld[i2].bigR,newangle,wholeworld[i2].angle,wholeworld[i].filled,wholeworld[i2].filled))
+{//if there is a collision
+
+//switch(wholeworld[i].gametype){
+//case 1: if(wholeworld[i2].gametype==2){if(wholeworld[i].name=='us'){wholeworld[i].state=4;}else{wholeworld[i].state=3}};break;
+//use this to detect stuff
+//}
+
+
+//if(wholeworld[i2].sticky==false){
+if(wholeworld[i].shape==0 && wholeworld[i2].shape==0)
+{//two circles
+wholeworld[i].vx=newvx
+wholeworld[i].vy=newvy
+collideascircles(wholeworld[i],wholeworld[i2])
+
+}else if(wholeworld[i].shape==3 || wholeworld[i2].shape==3)
+{//polygon involved
+collidewithpoly(i,i2);
+}
+else//just treat as old-style squares.
+{
+//if(wholeworld[i].shape==3 && wholeworld[i2].shape==3){alert('twopolys')}
+collideassquares(wholeworld[i],wholeworld[i2])
+}
+
+if(wholeworld[i2].type==0 && wholeworld[i].type==0){wholeworld[i2].vx=theirnewvx;wholeworld[i2].vy=theirnewvy;wholeworld[i2].vw=theirnewvw}
+//newx=wholeworld[i].x;newy=wholeworld[i].y;
+
+
+//this bit is new (v1.48), the idea is to solve problems when a ball is stuck between two plates, or similar.
+//as of 2.54 it also helps with polygons getting stuck, but I can't seem to get rotation handled correctly
+var dx=newx-wholeworld[i].x
+var dy=newy-wholeworld[i].y
+//var da=newangle-wholeworld[i].angle;
+//checkcollide(x1,y1,w1,h1,s1,x2,y2,w2,h2,s2,r1,r2,a1,a2,f1,f2)//,us,them) //(wholeworld[i].angle-da/4)
+if(checkcollide((newx-dx/4),(newy-dy/4),wholeworld[i].width,wholeworld[i].height,wholeworld[i].shape,wholeworld[i2].x,wholeworld[i2].y,wholeworld[i2].width,wholeworld[i2].height,wholeworld[i2].shape,wholeworld[i].bigR,wholeworld[i2].bigR,wholeworld[i].angle,wholeworld[i2].angle,wholeworld[i].filled,wholeworld[i2].filled)!==true){newx-=dx/4;newy-=dy/4;}//newangle-=da/4;}
+else if(checkcollide((newx-dx/2),(newy-dy/2),wholeworld[i].width,wholeworld[i].height,wholeworld[i].shape,wholeworld[i2].x,wholeworld[i2].y,wholeworld[i2].width,wholeworld[i2].height,wholeworld[i2].shape,wholeworld[i].bigR,wholeworld[i2].bigR,wholeworld[i].angle,wholeworld[i2].angle,wholeworld[i].filled,wholeworld[i2].filled)!==true){newx-=dx/2;newy-=dy/2;}//newangle-=da/2;}
+else if(checkcollide((newx-dx*3/4),(newy-dy*3/4),wholeworld[i].width,wholeworld[i].height,wholeworld[i].shape,wholeworld[i2].x,wholeworld[i2].y,wholeworld[i2].width,wholeworld[i2].height,wholeworld[i2].shape,wholeworld[i].bigR,wholeworld[i2].bigR,wholeworld[i].angle,wholeworld[i2].angle,wholeworld[i].filled,wholeworld[i2].filled)!==true){newx-=(dx/4)*3;newy-=(dy/4)*3;}//newangle-=da*3/4;}
+else{
+newx=wholeworld[i].x;newy=wholeworld[i].y;
+
+//if(wholeworld[i].shape==3){newangle=wholeworld[i].angle;}
+
+}
+
+
+//newx=wholeworld[i].x;newy=wholeworld[i].y;newangle=wholeworld[i].angle;
+
+wholeworld[i].vx=newvx
+wholeworld[i].vy=newvy
+
+if(wholeworld[i].shape==3){wholeworld[i].vw=newvw;newangle=wholeworld[i].angle;}
+
+//end of if sticky
+//}
+
+newvx*=wholeworld[i].elastic
+newvy*=wholeworld[i].elastic
+
+//end of there is a collision
+}
+//end of collidable if statement
+}
+//end of i2 (collision) loop
+}
+//end of if i is hard
+}
+/*
+for (var i2=0;i2<connections.length;i2++)
+{
+if(connections[i2].hard==true && connections[i2].state==1 && connections[i2].to!==i && connections[i2].from!==i)
+{//using second set of co-ords of line in place of width and height of line
+if(checkcollide(newx,newy,wholeworld[i].width,wholeworld[i].height,wholeworld[i].shape,wholeworld[connections[i2].to].x+wholeworld[connections[i2].to].width/2,wholeworld[connections[i2].to].y+wholeworld[connections[i2].to].height/2,wholeworld[connections[i2].from].x+wholeworld[connections[i2].from].width/2,wholeworld[connections[i2].from].y+wholeworld[connections[i2].from].height/2,4,wholeworld[i],false))
+{//if there is a collision between an object TO BE MOVED and an existing connection
+
+//alert('now what?')
+
+newvx*=-1
+newvy*=-1
+newx=wholeworld[i].x;newy=wholeworld[i].y;
+
+wholeworld[connections[i2].to].vx*=-1
+wholeworld[connections[i2].to].vy*=-1
+
+wholeworld[connections[i2].from].vx*=-1
+wholeworld[connections[i2].from].vy*=-1
+
+
+//end of if connection collision
+}
+//end of connection hard if
+}
+//end of connection collision loop
+}
+
+
+//if the thing which is being moved has things connected to it, those connections might collide
+for(var i2=0;i2<wholeworld[i].connected.length;i2++)
+{
+var checkcollidestuff=checkforanycollide4(wholeworld[connections[wholeworld[i].connected[i2]].to].x+wholeworld[connections[wholeworld[i].connected[i2]].to].width/2,wholeworld[connections[wholeworld[i].connected[i2]].to].y+wholeworld[connections[wholeworld[i].connected[i2]].to].height/2,wholeworld[connections[wholeworld[i].connected[i2]].from].x+wholeworld[connections[wholeworld[i].connected[i2]].from].width/2,wholeworld[connections[wholeworld[i].connected[i2]].from].y+wholeworld[connections[wholeworld[i].connected[i2]].from].height/2,4,connections[wholeworld[i].connected[i2]].from,connections[wholeworld[i].connected[i2]].to)
+if(checkcollidestuff!==false)
+{
+//one of the connections attacthed to this object has collided with something else
+
+wholeworld[connections[wholeworld[i].connected[i2]].to].vx*=-1
+wholeworld[connections[wholeworld[i].connected[i2]].to].vy*=-1
+
+wholeworld[connections[wholeworld[i].connected[i2]].from].vx*=-1
+wholeworld[connections[wholeworld[i].connected[i2]].from].vy*=-1
+
+wholeworld[checkcollidestuff].vx*=-1
+wholeworld[checkcollidestuff].vy*=-1
+
+newvx*=-1
+newvy*=-1
+newx=wholeworld[i].x;newy=wholeworld[i].y;
+
+}
+
+}
+*/
+wholeworld[i].vx=newvx
+wholeworld[i].vy=newvy
+
+wholeworld[i].x=newx
+wholeworld[i].y=newy
+
+if(wholeworld[i].shape==3)
+{
+wholeworld[i].vw=newvw;
+wholeworld[i].angle=newangle;
+}
+
+switch(rendermode)
+{case 'divs':
+//wholeworld[i].updatediv2()
+whichdiv=document.getElementById(wholeworld[i].div);
+whichdiv.style.left=Math.round(newx);
+whichdiv.style.top=Math.round(newy);
+
+break;}
+/*
+whichdiv=document.getElementById(wholeworld[i].div);
+whichdiv.style.left=Math.round(newx);
+whichdiv.style.top=Math.round(newy);
+*/
+
+//end of if we're moving statement
+}
+
+//end of if entity statement
+}
+//this will attempt to bring back to life anything which couldn't come back because somehting was in the way 
+else if(wholeworld[i].state==2){wholeworld[i].unkill()}
+else if(wholeworld[i].state==3){wholeworld[i].destroy();}
+else if(wholeworld[i].state==4){wholeworld[i].kill();wholeworld[i].x=100;wholeworld[i].y=275;wholeworld[i].fx=0;wholeworld[i].fy=0;wholeworld[i].vx=0;wholeworld[i].vy=0;wholeworld[i].unkill();}
+//end of wholeworld loop 
+}
+//end of replotentities()
+}
+
+function update(updateme)
+{}
+
+var paused=false;
+function togglepause()
+{
+if(paused){
+clearInterval(loopme);
+paused=false;loopme=setInterval('loop()',refreshrate);document.getElementById("pausebutton").value="Pause";
+
+
+}
+else{
+paused=true;clearInterval(loopme);document.getElementById("pausebutton").value="Play";
+loopme=setInterval('pauseloop()',refreshrate)
+
+}
+}
+
+function minimiseminimap()
+{
+document.getElementById('minimapwindowdiv').style.position='absolute';
+document.getElementById('minimapwindowdiv').style.top=570;
+document.getElementById('minimapwindowdiv').style.left=10;
+}
+
+function updateworldsize()
+{
+//borders of world - oldstyle/small or big. 
+
+switch(document.getElementById('smallworld').checked)
+{case true:
+worldissmall=true;
+
+//var borderline=new entity(1,'borderline',400,-825,4000,2750,10,'black',1,0,0,0,0,false,false,4,true,0,0,'',false);
+wholeworld[0].visible=false
+//alert('pop')
+
+wholeworld[2].x=0;wholeworld[2].y=-48900;
+wholeworld[3].x=-49200;wholeworld[3].y=90000;
+
+wholeworld[4].x=50800;wholeworld[4].y=90000;
+
+minimapwindow.CloseWindow();
+viewports[0].x=0;viewports[0].y=0;viewports[0].zoom=1;
+viewports[1].enabled=false;
+
+break;
+case false:
+worldissmall=false;
+/*
+var lowerborder=new entity(1,'lowerborder',0,25550,200000,50000,10,'rgb(121,158,41)',1,0,0,0,0,true,false,1,true,0,0,'',false);
+var upperborder=new entity(1,'upperborder',0,-51100,200000,100000-2200,10,false,1,0,0,0,0,true,false,1,false,0,0,'',false);
+var leftborder=new entity(1,'leftborder',-50800,90000,100000-1600,200000,10,false,1,0,0,0,0,true,false,1,false,0,0,'',false);
+var rightborder=new entity(1,'rightborder',52400,90000,100000,200000,10,false,1,0,0,0,0,true,false,1,false,0,0,'',false);
+*/
+//wholeworld[0].x=400;wholeworld[0].y=-825;wholeworld[0].width=
+
+wholeworld[0].visible=true
+
+
+wholeworld[2].x=0;wholeworld[2].y=-51100;
+wholeworld[3].x=-50800;wholeworld[3].y=90000;
+
+wholeworld[4].x=52400;wholeworld[4].y=90000;
+
+minimapwindow.OpenWindow();
+viewports[1].enabled=true;
+
+break;}
+}
+
+function finishshape()
+{
+var totalXs=0;
+for(var i=0;i<newshapeXs.length;i++)
+{
+newshapeXs[i]=newshapeXs[i]/viewports[0].zoom+viewports[0].x;
+totalXs+=newshapeXs[i];
+}
+//alert(newshapeXs)
+var midx=totalXs/newshapeXs.length;
+//alert(midx)
+var totalYs=0;
+for(var i=0;i<newshapeYs.length;i++)
+{
+newshapeYs[i]=newshapeYs[i]/viewports[0].zoom+viewports[0].y;
+totalYs+=newshapeYs[i];
+}
+var midy=totalYs/newshapeYs.length;
+
+//Math.atan2(y,x)
+var finalXs=new Array();
+var finalYs=new Array();
+
+finalXs[0]=newshapeXs[0];
+finalYs[0]=newshapeYs[0];
+
+var lastpoint=0;
+
+for(var i=0;i<newshapeXs.length;i++)
+{var i2=(i+1)%newshapeXs.length;
+var i3=(i+2)%newshapeXs.length;
+/*
+if(Math.abs(Math.atan2(newshapeYs[i3]-newshapeYs[i2],newshapeXs[i3]-newshapeXs[i2])-Math.atan2(newshapeYs[i2]-newshapeYs[i],newshapeXs[i2]-newshapeXs[i]))>Math.PI/4)
+{//if a big angle between (this point and previous point) and (previous point and point before that)
+finalXs.push(newshapeXs[i2]);
+finalYs.push(newshapeYs[i2]);
+lastpoint=i;
+}else{//not a big enough angle just at that point - look for a gentle curve
+*/
+var totalangle=0;
+for(var j=lastpoint;j<i2;j++)
+{//go through all the points since the last 'final point'
+var j2=(j+1)%newshapeXs.length;
+var lp2=(lastpoint+1)%newshapeXs.length;
+//var j3=(j+2)%newshapeXs.length;
+//totalangle+=Math.atan2(newshapeYs[j3]-newshapeYs[j2],newshapeXs[j3]-newshapeXs[j2])-Math.atan2(newshapeYs[j2]-newshapeYs[j],newshapeXs[j2]-newshapeXs[j]);
+totalangle+=Math.atan2(newshapeYs[j2]-newshapeYs[j],newshapeXs[j2]-newshapeXs[j])-Math.atan2(newshapeYs[lp2]-newshapeYs[lastpoint],newshapeXs[lp2]-newshapeXs[lastpoint]);
+}
+if(Math.abs(totalangle)>Math.PI/8)
+{
+finalXs.push(newshapeXs[i2]);
+finalYs.push(newshapeYs[i2]);
+lastpoint=i;
+}
+
+//}//end of bigangle if
+
+}//end of points loop
+
+for(var i=0;i<finalXs.length;i++)
+{
+finalXs[i]=finalXs[i]-midx;
+finalYs[i]=finalYs[i]-midy;
+}
+//alert(midy)
+//alert(finalXs)
+var testpolygon=new polygon(1,'poly'+created,midx,midy,finalXs,finalYs,100,'blue',1,0,0,0,0,0,0,true,true,true,1,1)
+created++
+}
+
+function finishrectangle()
+{
+var tempheight=Math.abs(newshapecoords[1]*viewports[0].zoom+viewports[0].y-mouseY)/viewports[0].zoom//*2
+var tempwidth=Math.abs(newshapecoords[0]*viewports[0].zoom+viewports[0].x-mouseX)/viewports[0].zoom//*2
+
+if(checkforanycollide3(newshapecoords[0]/viewports[0].zoom+viewports[0].x+tempwidth/2,newshapecoords[1]/viewports[0].zoom+viewports[0].y+tempheight/2,tempwidth*1,tempheight*1,1)===false || document.getElementById('drawrectanglecolision').checked==false)
+{
+
+
+var testpolygon=new polygon(1,'poly'+created,newshapecoords[0]+tempwidth/2,newshapecoords[1]+tempheight/2,[-tempwidth/2,tempwidth/2,tempwidth/2,-tempwidth/2],[-tempheight/2,-tempheight/2,tempheight/2,tempheight/2],100,'red',0,0,0,0,0,0,0,true,true,true,1,1)
+created++
+
+}
+}
+
+// variables to hold mouse x-y position
+var mouseX = 0
+var mouseY = 0
+var realmouseX = 0
+var realmouseY = 0
+var oldmouseX = 0
+var oldmouseY = 0
+var changeinX=0;
+var changeinY=0;
+var oldtop
+var oldleft
+var mousediffinx
+var mousediffiny
+
+
+var mousein=false;
+
+//this is called anytime the mouse button is released on the page. Stops windows 'sticking' to the mouse
+function finalmouseup()
+{//stop an object being dragged
+if(followmouse!==false && !document.getElementById('dragmomentum').checked)
+{
+
+//var movedx=wholeworld[followmouse].x-predragx;
+//var movedy=wholeworld[followmouse].y-predragy;
+
+var movedx=wholeworld[followmouse].x-dragoldx;
+var movedy=wholeworld[followmouse].y-dragoldy;
+//without this check things go screwy when paused
+//if(timer!==0)
+if(!paused)
+{
+//wholeworld[followmouse].vx=movedx*0.5/timer;
+//wholeworld[followmouse].vy=movedy*0.5/timer;
+wholeworld[followmouse].vx=movedx*0.4/timeperloop;
+wholeworld[followmouse].vy=movedy*0.4/timeperloop;
+}
+else{wholeworld[followmouse].vx=0;
+wholeworld[followmouse].vy=0;}
+
+}
+dragworld=false;
+followmouse=false;
+mouserotate=false;
+if(drawingshape)
+{
+switch(newshape)
+{
+case 1:
+finishrectangle();
+break;
+case 3:
+finishshape();
+break;
+}
+drawingshape=false;
+if(!pausedbeforedrawingshape){togglepause();}else{redrawworld();}
+
+}
+
+if(worldissmall!==document.getElementById('smallworld').checked)
+{
+updateworldsize()
+}
+
+
+//stop windows being dragged
+for(var i=0;i<windows.length;i++){windows[i].moveme=false;}}
+
+//detect IE or not for mouse capture
+//if (document.all){var IE=true}else{var IE = false}
+if (IE==false) {document.captureEvents(Event.MOUSEMOVE)}
+
+function getMouseXY(e)
+{if(IE){
+//grab the x-y pos.s if browser is IE
+mouseX = event.clientX + document.body.scrollLeft-13
+mouseY = event.clientY + document.body.scrollTop-18
+realmouseX = event.clientX + document.body.scrollLeft//-13
+realmouseY = event.clientY + document.body.scrollTop//-18
+}else{
+//grab the x-y pos.s if browser is NS
+mouseX = e.pageX-8
+mouseY = e.pageY-8
+realmouseX = e.pageX//-8
+realmouseY = e.pageY//-8
+}
+//catch possible negative values in NS4
+if (mouseX < 0){mouseX = 0}
+if (mouseY < 0){mouseY = 0}
+//this will do things with the mouse movement
+checkmice();
+oldmouseX=mouseX;
+oldmouseY=mouseY;}
+
+//see where the mouse is, and if a window needs to be moved
+function checkmice()
+{for(var i=0;i<windows.length;i++)
+{if (windows[i].moveme == true)//moveing a window
+{var oldwidth=tonumber(document.getElementById(windows[i].title).style.width)
+var oldheight=tonumber(document.getElementById(windows[i].divname).style.height)
+var offset=getScrollXY();
+var screenwidth = document.body.clientWidth*1+offset[0];
+var screenheight = document.body.clientHeight*1+offset[1];
+var newleft =	realmouseX-mousediffinx;
+var newtop = realmouseY-mousediffiny;
+//find out if you're trying to drag the window off the bottom and right edges of the screen
+var newright =	realmouseX+oldwidth-mousediffinx+20
+var newbottom = realmouseY+oldheight+20
+if (newright > screenwidth){newleft=screenwidth-oldwidth-20}
+if (newbottom > screenheight){newtop=screenheight-oldheight-32}
+if (newleft < 10){newleft = 10}
+if (newtop < 10){newtop = 10}  
+document.getElementById(windows[i].divname).style.left=newleft
+document.getElementById(windows[i].divname).style.top=newtop}}
+if(dragworld && !worldissmall)
+{
+//alert('dragworld')
+viewports[0].x-=(mouseX-oldmouseX)/viewports[0].zoom
+viewports[0].y-=(mouseY-oldmouseY)/viewports[0].zoom
+if(paused){redrawworld();}
+}
+}
+
+var selected=false;
+var followmouse=false;
+var mouserotate=false;
+
+var drawingshape=false;
+var newshape=3;//the new shape being drawn, 0=circle, 1=rectangle, 3=poly
+var newshapecoords=new Array;
+var pausedbeforedrawingshape=false;
+var newshapeXs=new Array();
+var newshapeYs=new Array();
+
+var created=0;
+
+var predragx;
+var predragy;
+
+var dragworld=false;
+
+//distance from mouse to centre of object being dragged:
+var mousedragdifference;
+
+function mousegonedown(event,divstuff)
+{
+//switch(divstuff)
+//{case false:
+//if(IE){var tempmouseX=mouseX-13;var tempmouseY=mouseY-18;}
+//else{var tempmouseX=mouseX-8;var tempmouseY=mouseY-8;}
+if(!isNaN(parseFloat(document.getElementById('mousesize').value)))
+{var mousesize=Math.round(document.getElementById('mousesize').value*1);}
+else
+{var mousesize=1;}
+
+here=checkforanycollide3(mouseX/viewports[0].zoom+viewports[0].x,mouseY/viewports[0].zoom+viewports[0].y,mousesize,mousesize,0)//see what mouse cursor is colliding with
+/*break;
+default:
+here=divstuff
+break}
+*/
+if(!(here===false))
+{
+//if you've clicked a border or something un-clickable
+if(wholeworld[here].gametype==0){here=false}
+}
+
+if(here!==false || document.getElementById('mousedoes').value=='create' || document.getElementById('mousedoes').value=='EP'  || document.getElementById('mousedoes').value=='drag'   || document.getElementById('mousedoes').value=='dragworld'    || document.getElementById('mousedoes').value=='draw' || document.getElementById('mousedoes').value=='drawrectangle')
+{
+switch(document.getElementById('mousedoes').value)
+{
+case 'EP':
+alert(EPatpoint(mouseX,mouseY))
+break;
+case 'alertname':
+alert(wholeworld[here].name)
+break;
+case 'dragworld':
+dragworld=true;
+break;
+case 'drag':
+if(!here && document.getElementById('dragworldpossible').checked)
+{
+dragworld=true;
+}else
+{
+timer=0;
+mousein=here
+followmouse=here
+mousedragdifference=[wholeworld[followmouse].x-mouseX/viewports[0].zoom-viewports[0].x,wholeworld[followmouse].y-mouseY/viewports[0].zoom-viewports[0].y];
+predragx=wholeworld[followmouse].x;
+predragy=wholeworld[followmouse].y;
+}
+break;
+case 'rotate':
+if(wholeworld[here].shape==3)
+{
+prerotatex=mouseX;
+prerotatey=mouseY;
+mousein=here;
+mouserotate=here;
+}
+break;
+case 'drawrectangle':
+drawingshape=true;
+newshapecoords=[mouseX/viewports[0].zoom-viewports[0].x,mouseY/viewports[0].zoom-viewports[0].y];
+newshape=1;
+pausedbeforedrawingshape=paused;
+if(!paused){togglepause();}
+break;
+case 'draw':
+drawingshape=true;
+newshape=3;
+pausedbeforedrawingshape=paused;
+if(!paused){togglepause();}
+newshapeXs=new Array();
+newshapeYs=new Array();
+break;
+case 'breakconnections': 
+wholeworld[here].cutfree();
+redrawworld();
+break;
+case 'givecharge':
+if(!isNaN(parseFloat(document.getElementById('chargesize').value)))
+{wholeworld[here].makecharged(document.getElementById('chargesize').value*negposcharge)
+}else{wholeworld[here].makecharged(negposcharge*0.2);document.getElementById('chargesize').value=0.2;}
+//if set, give the charged object a new colour
+if(document.getElementById('chargecolour').checked)
+{
+if(negposcharge>0){wholeworld[here].colour="red";wholeworld[here].divimage="balls/red.gif";}
+else{wholeworld[here].colour="blue";wholeworld[here].divimage="balls/blue.gif";}
+redrawworld();
+}
+
+break;
+case 'nocharge':
+wholeworld[here].makecharged(0)
+break;
+case 'addballoon':
+if(wholeworld[here].name!=='bg')//not clicking on bg
+{
+if(!isNaN(parseFloat(document.getElementById('balloonthrust').value)))
+{var tempthrust=document.getElementById('balloonthrust').value;}
+else{var tempthrust=200;}
+//upwards force of gravity + thrust*mass
+var balloonnum=wholeworld.length;
+//var temp=
+new entity(1,'balloon'+created,mouseX/viewports[0].zoom+viewports[0].x,mouseY/viewports[0].zoom+viewports[0].y-125,50,50,5,'rgb(255,165,0)',0,0,0,0,-1000-tempthrust*5,false,false,0,true,1,0.95,'','balls/orange.gif');
+
+connect(here,balloonnum,1000,100,1,0,true)
+if(paused){redrawworld();}
+created++;
+}
+break;
+case 'springconnect':
+if(selected===false && wholeworld[here].name!=='bg')//if we haven't already clicked on something
+{selected=here;
+document.getElementById('selectedspan').innerHTML="Connect "+wholeworld[here].name;
+document.getElementById('selectedspan').style.display="block";
+}else if(selected!==here && wholeworld[here].name!=='bg')//if we have
+{
+
+document.getElementById('selectedspan').innerHTML='';
+document.getElementById('selectedspan').style.display="none";
+
+if(!isNaN(parseFloat(document.getElementById('customk').value))){var customk=document.getElementById('customk').value;}else{var customk=5000;}
+if(document.getElementById('customspringlength').value==0){var customlength=false;}
+else if(!isNaN(parseFloat(document.getElementById('customspringlength').value))){var customlength=document.getElementById('customspringlength').value;}else{var customlength=false;}
+
+connect(selected,here,customk,customlength,document.getElementById('customlinetype').value,0,true)
+selected=false;}
+else if(selected==here)//we've clicked an object we've already selected
+{selected=false;
+document.getElementById('selectedspan').innerHTML='';
+document.getElementById('selectedspan').style.display="none";
+}
+
+
+redrawworld();
+break;
+//connect(one,two,strength,howfar,graphics,type,hard)
+
+case 'rodconnect':
+if(selected===false && wholeworld[here].name!=='bg')//if we haven't already clicked on something
+{selected=here;
+document.getElementById('selectedspan').innerHTML="Connect "+wholeworld[here].name;
+document.getElementById('selectedspan').style.display="block";
+}else if(selected!==here && wholeworld[here].name!=='bg')//if we have
+{
+
+document.getElementById('selectedspan').innerHTML='';
+document.getElementById('selectedspan').style.display="none";
+
+if(document.getElementById('customrodlength').value==0){var customlength=false;}
+else if(!isNaN(parseFloat(document.getElementById('customrodlength').value))){var customlength=document.getElementById('customrodlength').value;}else{var customlength=false;}
+
+if(!isNaN(parseFloat(document.getElementById('customrodgive').value))){var customgive=document.getElementById('customrodlength').value;}else{var customgive=10;}
+
+//what was k was is now used for give
+connect(selected,here,customgive,customlength,2,1,true)
+selected=false;}
+else if(selected==here)//we've clicked an object we've already selected
+{selected=false;
+document.getElementById('selectedspan').innerHTML='';
+document.getElementById('selectedspan').style.display="none";
+}
+
+
+redrawworld();
+break;
+
+
+case 'stringconnect':
+if(selected===false)
+{selected=here;
+document.getElementById('selectedspan').innerHTML="Connect "+wholeworld[here].name;
+document.getElementById('selectedspan').style.display="block";
+}else{document.getElementById('selectedspan').innerHTML='';
+document.getElementById('selectedspan').style.display="none";
+
+var tempdensity=30
+var tempdotsize=6
+var tempk=5000
+
+if(!isNaN(parseFloat(document.getElementById('stringdensity').value))){tempdensity=document.getElementById('stringdensity').value}else{document.getElementById('stringdensity').value=30}
+if(!isNaN(parseFloat(document.getElementById('stringdotsize').value))){tempdotsize=document.getElementById('stringdotsize').value}else{document.getElementById('stringdotsize').value=6}
+if(!isNaN(parseFloat(document.getElementById('stringk').value))){tempk=document.getElementById('stringk').value}else{document.getElementById('stringk').value=5000}
+
+//stringbetween(one,two,density,dotsize,stringstrength,hard)
+stringbetween(selected,here,tempdensity,tempdotsize,tempk,true)
+selected=false;}
+redrawworld();
+break;
+
+case 'delete':
+//wholeworld[here].destroy();
+//wholeworld[here].cutfree();
+if(wholeworld[here].gametype!==0){wholeworld[here].kill();}
+break;
+
+case 'fix':
+//make object static
+wholeworld[here].type=1;
+break;
+case 'free':
+//make object movable
+if(wholeworld[here].gametype!==0)
+{
+wholeworld[here].type=0;
+}
+break;
+
+case 'create':
+
+var tempshape=document.getElementById('createshape').value;
+var temptype=document.getElementById('createtype').value;
+var tempcolour=document.getElementById('createcolour').value;
+var tempwidth
+var tempheight
+var tempelastic
+var tempmass
+
+switch(tempshape)
+{
+case '1'://rectangle
+case 1:
+if(!isNaN(parseFloat(document.getElementById('createheight').value))){tempheight=document.getElementById('createheight').value}else{tempheight=document.getElementById('createheight').value=50}
+if(!isNaN(parseFloat(document.getElementById('createwidth').value))){tempwidth=document.getElementById('createwidth').value}else{tempwidth=document.getElementById('createwidth').value=50}
+break;
+case '0'://circle
+case 0:
+if(!isNaN(parseFloat(document.getElementById('creatediameter').value))){tempwidth=document.getElementById('creatediameter').value;tempheight=document.getElementById('creatediameter').value;}else{document.getElementById('createwidth').value=50}
+break;
+}
+
+if(!isNaN(parseFloat(document.getElementById('createmass').value))){tempmass=document.getElementById('createmass').value}else{document.getElementById('createmass').value=50}
+if(!isNaN(parseFloat(document.getElementById('createelastic').value))){tempelastic=document.getElementById('createelastic').value}else{document.getElementById('createelastic').value=1}
+
+if(checkforanycollide3(mouseX/viewports[0].zoom+viewports[0].x,mouseY/viewports[0].zoom+viewports[0].y,tempwidth*1,tempheight*1,tempshape*1)===false || document.getElementById('createcolision').checked==false)
+{//only create shape if it's not colliding or collision detection isn't wanted
+
+switch(tempshape)
+{case '0':
+case 0:
+new entity(1,'circle'+created,mouseX/viewports[0].zoom+viewports[0].x,mouseY/viewports[0].zoom+viewports[0].y,tempwidth*1,tempheight*1,tempmass*1,tempcolour,temptype*1,0,0,0,0,true,false,0,true,1,tempelastic*1,'','balls/green.gif');
+break;
+case '1':
+case 1:
+var temp=new entity(1,'square'+created,mouseX/viewports[0].zoom+viewports[0].x,mouseY/viewports[0].zoom+viewports[0].y,tempwidth*1,tempheight*1,tempmass*1,'green',temptype*1,0,0,0,0,true,false,1,true,1,tempelastic*1,'background-color:green;');
+break;}
+}
+if(rendermode=="canvas"){redrawworld();}
+created++;
+break;}
+
+//end of if here!==false
+}
+if (event.preventDefault){event.preventDefault();}
+
+event.returnValue = false;
+
+return false;
+//alert(here)
+}
+
+function zoomfunc(howmuch)
+{
+if(viewports[0].zoom+howmuch/5 > 0.05  && !drawingshape && !worldissmall)
+{
+
+var oldzoom=viewports[0].zoom;
+viewports[0].zoom+=howmuch/5;
+
+//find the difference between the edge of the old viewport and the mouse in 'virtual pixels' (engine unit of measurement) 
+//works for zooming towards mouse.
+viewports[0].x-=(mouseX/viewports[0].zoom - mouseX/oldzoom)
+viewports[0].y-=(mouseY/viewports[0].zoom - mouseY/oldzoom)
+redrawworld();
+}
+
+}
+
+//mouse wheel scroll stuff  from http://adomas.org/javascript-mouse-wheel/
+function handle(delta) 
+{
+if (delta < 0)
+zoomfunc(delta)
+else
+zoomfunc(delta)
+}
+function wheel(event)
+{
+var delta = 0;
+if (!event) event = window.event;
+if (event.wheelDelta) {
+delta = event.wheelDelta/120; 
+if (window.opera) delta = -delta;
+}else if (event.detail) {
+delta = -event.detail/3;
+}
+if (delta)
+handle(delta);
+if (event.preventDefault)
+event.preventDefault();
+event.returnValue = false;
+}
+
+document.onmouseup   = finalmouseup;
+document.onmousemove = getMouseXY;
+
+//set up the graphdiv to collect the scrollwheel info
+if (window.addEventListener)
+document.getElementById("mainworldcanvas").addEventListener('DOMMouseScroll', wheel, false);
+if(IE){window.onmousewheel = document.onmousewheel = wheel;}
+document.getElementById("mainworldcanvas").onmousewheel = wheel;
+
+
+
+//-->
+</script>
+
+</body>
+</html>
+
+

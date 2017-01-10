@@ -1,0 +1,176 @@
+/* 
+    Document   : index
+    Created on : May 28, 2012, 5:32:45 PM
+    Author     : Luke
+    Description:
+        Purpose of the stylesheet follows.
+*/
+
+html, body {
+ margin: 0px;
+ padding: 0px;
+ border: 0px;
+ padding-bottom: 1em;
+ 
+
+       /* font-family: Verdana, Arial, Helvetica, sans-serif;
+       font-size: 13px;
+        line-height: 17px;
+        margin: 0;
+        padding: 0;*/
+       font-family: Verdana, Arial, Helvetica, sans-serif;
+ }
+
+ img{
+     border:0;
+ }
+ 
+#header_cell{
+    height:120px;
+    background-color: #ddffcc;
+    text-align: center;
+}
+
+.main_header{
+    font-size: 3em;
+    
+}
+
+.main_header a{
+    color:#000;
+    text-decoration:none;
+}
+
+.mini_header{
+    margin-top: 1em;
+}
+
+#layout_table {
+    margin:0;
+    border:0;
+    padding:0;
+    width:100%;
+    border-spacing:0;
+}
+
+.news_table{
+    margin:0;
+    border:0;
+    padding:0;
+    border-spacing:0;
+}
+
+#left_cell{
+    width:150px;
+    min-width: 150px;
+    background-color: #ddffcc;
+    vertical-align:top;
+    padding:0.5em;
+    border-right: solid #aadd99 1px;
+    border-bottom: solid #aadd99 1px;
+}
+
+#centre_cell{
+    vertical-align:top;
+    min-width: 500px;
+    border-top: solid #aadd99 1px;
+    padding-left:1em;
+    padding-right:1em;
+}
+
+#right_cell{
+    width:190px;
+    background-color: #ddffcc;
+    vertical-align:top;
+    border-left: solid #aadd99 1px;
+    border-bottom: solid #aadd99 1px;
+    max-width: 200px;
+    overflow:auto;
+    padding-left:0.5em;
+}
+
+#shoutboxDialogue{
+    margin-top:1em;
+}
+
+.news_cell{
+    vertical-align:top;
+}
+
+.shoutbox_cell{
+    vertical-align:top;
+    width:190px;
+    background-color: #ddffcc;
+    vertical-align:top;
+    border-left: solid #aadd99 1px;
+    border-bottom: solid #aadd99 1px;
+    max-width: 200px;
+    overflow:auto;
+    padding-left:0.5em;
+}
+
+
+.shoutbox_div{
+    float:right;
+    width:190px;
+    margin-left:1em;
+    background-color: #ddffcc;
+    border: solid #aadd99 1px;
+    overflow:auto;
+    padding-left:0.5em;
+    /*top:-3em;
+    position:relative;*/
+}
+
+.footnote{
+    font-size: 9px;
+}
+
+.shoutbox_footnote{
+    font-size: 9px;
+    margin-bottom: 1em;
+    margin-top:0.5em;
+}
+
+.links_tree ul{
+
+    list-style: none;
+    padding:0.4em;
+    padding-right: 0;
+    margin: 0;
+
+}
+
+a{
+    color:#225511;
+    /*text-decoration:none;*/
+}
+
+.links_tree a{
+    color:#225511;
+    text-decoration:none;
+}
+
+.links_tree a:hover{
+    text-decoration: underline;
+}
+
+.content a{
+    color:#225511;
+    /*text-decoration:none;*/
+}
+
+.section_title{
+    font-weight: bold;
+    margin-top: 0.6em;
+}
+
+.counter_link{
+    text-align: center;
+    margin-top: 1em;
+}
+
+.under_title_links{
+    list-style: none;
+    padding:0;
+}

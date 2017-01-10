@@ -1,0 +1,42 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+		<title>Physics Sandbox 4</title>
+		<script type="text/javascript" src="commonFunctions.js"></script> 
+		<script type="text/javascript" src="RenderClass.js"></script>
+		<script type="text/javascript" src="DetectClass.js"></script>
+		<script type="text/javascript" src="ResponseClass.js"></script>
+		<script type="text/javascript" src="PhysicsClass.js"></script>
+		<script type="text/javascript" src="SandboxClass.js"></script>
+		<script type="text/javascript" src="json2.js"></script> 
+		<script type="text/javascript" src="sandbox.js"></script> 
+		<!--[if IE]>
+			<script type="text/javascript" src="excanvas3.compiled.js"></script>
+			<script type="text/javascript" src="IEsucks.js"></script>
+		<![endif]--> 
+		<style>
+			ul {
+				margin-left: 40px;
+			}
+			li {
+				list-style: none;
+				margin-left: 4px;
+			}
+			.marginedList{
+				/*list-style: disc;*/
+				left:20px;
+				position:relative;
+			}
+		</style>
+	</head>
+	<body bgcolor="#99DDFF">
+		<div id="sandboxDiv" style="width:800px;height:600px;float:left;border: solid black 1px;">
+			<canvas id="sandboxCanvas" width="800" height="600"></canvas>
+		</div>
+		<div id="sandboxControlDiv"></div>
+		<br>
+		<br>
+		<canvas id="sandboxMiniMapCanvas" width="200" height="150" style="border: solid black 1px"></canvas>
+	</body>
+</html>

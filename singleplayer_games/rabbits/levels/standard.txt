@@ -1,0 +1,12 @@
+function loadlevel()
+{
+
+/*
+
+Level Editor output here.
+
+*/
+
+}
+loadlevel();
+finishloading();

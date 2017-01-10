@@ -1,0 +1,76 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html>
+<head>
+<title>Tree System</title>
+<link rel="stylesheet" href="style.css" type="text/css">
+<!--[if IE]><script type="text/javascript" src="excanvas-compressed.js"></script><![endif]-->
+</head>
+<body onload="TreeObject.load();">
+<script type="text/javascript" src="tree0.5b.js"></script>
+
+<canvas style="background-color:#aaf0ff;border:solid black 1px;" id="canvastagid" width=500 height=500></canvas>
+
+<div style="background-color:#aaf0ff;padding:5px;border:solid black 1px;position:absolute;left:550;top:50;">
+<b>New Tree</b>
+<br>
+<br>
+<form action="javascript:newTree()">
+Iterations: 
+<select id="iterations"><option value=1>1</option><option value=2>2</option><option value=3>3</option><option value=4>4</option><option value=5>5</option><option value=6>6</option><option value=7>7</option><option value=8>8</option><option value=9>9</option><option value=10>10</option></select>
+<br>
+Branchlings: 
+<select id="branchings"><option value=1>1</option><option value=2>2</option><option value=3>3</option><option value=4>4</option><option value=5>5</option><option value=6>6</option><option value=7>7</option><option value=8>8</option><option value=9>9</option><option value=10>10</option></select>
+<br>
+Size: 
+<input id="size" type="text" value="100" size=5>
+<br>
+Animation Steps: 
+<select id="steps"><option value=1>1</option><option value=2>2</option><option value=3>3</option><option value=4>4</option><option value=5>5</option><option value=6>6</option><option value=7>7</option><option value=8>8</option><option value=9>9</option><option value=10>10</option></select>
+<br>
+Start Thickness: 
+<select id="thick0"><option value=1>1</option><option value=2>2</option><option value=3>3</option><option value=4>4</option><option value=5>5</option><option value=6>6</option><option value=7>7</option><option value=8>8</option><option value=9>9</option><option value=10>10</option></select>
+<br>
+Finish Thickness:
+<select id="thick1"><option value=1>1</option><option value=2>2</option><option value=3>3</option><option value=4>4</option><option value=5>5</option><option value=6>6</option><option value=7>7</option><option value=8>8</option><option value=9>9</option><option value=10>10</option></select>
+<br>
+New Size Ratio: 
+<input id="ratio" type="text" value="0.8" size=5>
+<br>
+Spread: 
+<input id="angle" type="text" value="0.8" size=5>
+<br>
+Start Colour:<br>
+R:<input id="r0" type="text" value="204" size=2>, 
+G:<input id="g0" type="text" value="153" size=2>, 
+B:<input id="b0" type="text" value="0" size=2> <br>
+End Colour:<br>
+R:<input id="r1" type="text" value="50" size=2>, 
+G:<input id="g1" type="text" value="200" size=2>, 
+B:<input id="b1" type="text" value="0" size=2> <br>
+Leaves: <select id="leaves"><option value='false'>None</option><option value=0>Green Circles</option></select>
+<br>
+<input type="submit" value="Draw Tree">
+</form>
+</div>
+
+<script language="JavaScript" type="text/javascript">
+<!--
+//[ [204,153,0] , [50,200,0] ]
+
+function newTree()
+  {
+	TreeObject.clear();
+	
+	//(x,y,iterations,branchings,size,steps,thick,ratio,colour,angle)
+	colour=[[parseFloat(document.getElementById('r0').value),parseFloat(document.getElementById('g0').value),parseFloat(document.getElementById('b0').value)] , [parseFloat(document.getElementById('r1').value),parseFloat(document.getElementById('g1').value),parseFloat(document.getElementById('b1').value)]]
+	new TreeObject.tree(250,450,parseFloat(document.getElementById('iterations').value) , parseFloat(document.getElementById('branchings').value),parseFloat(document.getElementById('size').value) , parseFloat(document.getElementById('steps').value) , [parseFloat(document.getElementById('thick0').value),parseFloat(document.getElementById('thick1').value)] , parseFloat(document.getElementById('ratio').value) , colour , parseFloat(document.getElementById('angle').value) , document.getElementById('leaves').value=='false'?false:parseFloat(document.getElementById('leaves').value))
+	TreeObject.loopme=setInterval(TreeObject.loop,200)
+	}
+
+//-->
+</script>
+
+
+</body>
+</html>

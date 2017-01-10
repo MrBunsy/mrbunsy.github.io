@@ -1,0 +1,6 @@
+rabbits inspired:
+-fills and draws arrays
+-seperate objects for different shapes, polygon, circle, square, etc.
+-re-do API for collision detection?  Making it easier to encompas different shapes?
+-draw regular polygon tools
+-better tool panel

@@ -1,0 +1,546 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html>
+<head>
+<title>Luke's 2D Javascript Engine 0.85 - 'Helicopter'</title>
+<script src="keys.js" type="text/javascript"></script>
+</head>
+<body onkeydown="keydown(event)" onkeyup="keyup(event)">
+<span id="worldspan"></span>
+<span id="testspan"></span>
+<div style="position:absolute; left:800; border: solid black 1px;" id="fpsdiv"><form name="gameform" onclick="updatefps()">FPS:<select name="fpsselect"><option value=60>60</option><option value=50>50</option><option value=40>40</option><option value=30>30</option><option value=20>20</option><option value=10>10</option><option value=5>5</option><option value=2>2</option></select></form></div>
+<script language="JavaScript" type="text/javascript">
+<!--
+//objects can't move
+var worldobjects=new Array()
+//entities can move
+var worldentities=new Array()
+//collidables can be collided with, these can be both objects and entities
+var worldcollideables=new Array()
+worldcollideableslength=0
+var world=document.getElementById('worldspan');
+var gravity=100;
+//gravity=0
+
+var friction=20
+
+//time/s per refresh
+var time= 0.02
+//refresh every x miliseconds
+var refresh=time*1000
+//refresh=20
+
+//velocity retained during collision (as fraction)
+var dampen=1
+var maxuserforce=20000
+
+
+function list(name)
+{
+
+}
+
+//vx, vy = velocity (pixels per refresh);  fx,fy = forces
+function entity(name,x,y,width,height,mass,div,image,type,vx,vy,fx,fy,hard,sticky,shape,border)
+{
+this.name=name;
+this.x=x;
+this.y=y;
+this.width=width;
+this.height=height;
+this.mass=mass;
+//div= name+'div'
+this.div=div;
+this.image=image;
+//types 0 =moveable entitiy, 1= still object
+this.type=type;
+//v=veloctity,f=force
+this.vx=vx;
+this.vy=vy;
+this.fx=fx;
+this.fy=fy;
+//not currently used
+//this.state=state
+//sticky types: false means elastic collision, true means all momentum is lost
+this.sticky=sticky;
+//shapes, 1= rectangle, 0=circle
+this.shape=shape
+//object or entity?
+switch (type)
+{case 0:
+worldentities.push(this);
+break;
+case 1:
+worldobjects.push(this);
+break;}
+//can it collide?
+this.hard=hard
+this.UpDateMe=UpDateMe
+
+if(hard){worldcollideables.push(this);worldcollideableslength++;}
+this.border=border
+if(border){var bordervar="border:solid black 1px;"}else{var bordervar=''}
+
+if(!testfordiv(div)){world.innerHTML+="<div id=\'"+div+"' style='position:absolute;  width:"+width+";"+bordervar+" height:"+height+";  top:"+y+"; left:"+x+"'><img src='"+image+"'></div>"}
+}
+function testfordiv(id)
+{var testme=document.getElementById(id);
+if(testme){return true;}else{return false;}}
+
+
+
+
+
+//entity            (name,x,y,width,height,mass,div,image,type,vx,vy,fx,fy,hard,sticky,shape,border)
+var lowerborder=new entity('lowerborder',-100,700,1000,100,10,'lowerborderdiv','blank.gif',1,0,0,0,0,true,false,1,true);
+var upperborder=new entity('upperborder',-100,-100,1000,100,10,'upperborderdiv','nlank.gif',1,0,0,0,0,true,false,1,true);
+var leftborder=new entity('leftborder',-100,-100,100,900,10,'leftborderdiv','blank.gif',1,0,0,0,0,true,false,1,true);
+var rightborder=new entity('rightborder',800,-100,100,900,10,'rightborderdiv','blank.gif',1,0,0,0,0,true,false,1,true);
+
+//var us=new entity('us',100,350,50,50,100,'usdiv','balls/black.gif',0,0,0,0,0,true,false,0,false);
+
+//var us=new entity('us',100,350,150,50,100,'usdiv','balls/black.gif',0,0,0,0,0,true,false,1,true);
+
+
+var aproxmass=100
+var giveortake=5
+//row 1 (left to right)
+var ball2=new entity('ball2',370,610,50,50,50,'ball2div','balls/blue.gif',1,0,0,0,0,false,false,1,false);
+
+
+//entity            (name,x,y,width,height,mass,div,image,type,vx,vy,fx,fy,hard,sticky,shape,border)
+var us=new entity('us',50,50,47,44,100,'usdiv','helismall.gif',0,0,0,0,0,true,false,1,false);
+
+var tree=new entity('tree',500,500,50,75,100,'treediv','tree.gif',1,0,0,0,0,true,false,1,true);
+
+
+
+var testing=new entity('testing',400,0,50,75,100,'testingdiv','testing.gif',0,60,1,0,0,true,false,1,true);
+var green=new entity('green',700,0,50,75,100,'greendiv','green.gif',0,-60,1,0,0,true,false,1,true);
+var orange=new entity('orange',700,600,50,75,10,'orangediv','orange.gif',0,-20,1,0,-2000,true,false,1,true);
+
+
+function randommass(aprox,leeway)
+{var upordown=Math.random()
+if (upordown>0.5){var themass=aprox+Math.random()*leeway}else{var themass=aprox-Math.random()*leeway}
+return Math.round(themass)}
+
+
+
+//var ball7=new entity('ball7',405,510,50,50,90,'ball7div','balls/blue.gif',1,0,0,0,0,true,false,0);
+
+//loop stuff
+var loopme=setInterval('loop()',refresh)
+function loop()
+{
+moveus()
+updateentities()
+
+}
+function updatefps()
+{
+if (time!==(1/document.gameform.fpsselect.value)){time=1/document.gameform.fpsselect.value;refresh=1000/document.gameform.fpsselect.value;clearInterval(loopme);loopme=setInterval('loop()',refresh)}
+//alert('new time='+time+' new refresh='+refresh)
+}
+//displacement
+var currentleft;
+var currenttop;
+//velocity
+var currentvx;
+var currentvy;
+var newvx
+var newvy
+//force
+var currentfx;
+var currentfy;
+//acceleration
+var ax
+var ay
+
+//seconds per loop
+
+var collide;
+var collide2;
+var ourvx;
+var theirvx;
+var ourvy;
+var theirvy;
+
+var whichdiv;
+var ournewvx;
+var ournewvy;
+var theirnewvx;
+var theirnewvy;
+
+var ourleft
+var ourright
+var ourtop
+var ourbottom
+var theirleft
+var theirright
+var theirtop
+var theirbottom
+var dontcontinue
+
+var diffinx
+var diffiny
+var collisionangle
+var theirspeed
+var ourspeed
+
+var ourperpendicularv;
+var ourparellelv;
+var theirperpendicularv;
+var theirparellelv;
+
+var ournewperpendicularv;
+var ournewparellelv;
+var theirnewperpendicularv;
+var theirnewparellelv;
+
+var ouranglebelowx
+var theiranglebelowx
+
+var currentlycolliding
+
+//var frictionx
+//var frictiony
+
+function UpDateMe()
+{
+
+//this
+//f=ma therefore a=f/m
+ax=(this.fx-this.vx*friction)/this.mass
+ay=(this.fy+gravity*this.mass-this.vy*friction)/this.mass
+//v=u+at
+this.vy=this.vy+ay*time
+this.vx=this.vx+ax*time
+
+//optimisation, if we're not moving, don't faff about re-plotting our position
+if(this.vx!==0 || this.vy!==0)
+{
+
+if(Math.abs(this.vy) <2 && Math.abs(this.vx) <2 && this.fx==0 && this.fy==0){this.vy=0;this.vx=0}
+
+
+//s=ut + 0.5at^2
+newleft=(this.vx*time+1/2*ax*time*time)+this.x
+newtop=(this.vy*time+1/2*ay*time*time)+this.y
+
+
+collide=checkpotentialcollide(this,newleft,newtop,this.width,this.height,this.shape)
+//document.getElementById('testspan').innerHTML=collide
+if (collide !== false){
+//----------------------------------there has been a collision----------------------------------
+
+for(i3=0;i3<collide;i3++)
+{
+typeofthing=collidewith[i3].type
+
+switch(typeofthing){
+case 0:
+//collision with another particle
+newleft=this.x;
+newtop=this.y;
+ourcentrex=this.x+this.width/2
+ourcentrey=this.y+this.height/2
+theircentrex=collidewith[i3].x+collidewith[i3].width/2
+theircentrey=collidewith[i3].y+collidewith[i3].height/2
+diffinx=theircentrex-ourcentrex
+diffiny=theircentrey-ourcentrey
+if(diffinx == 0){collisionangle=0}else{collisionangle=Math.atan(diffiny/diffinx)}
+//alert(collisionangle/Math.PI*180)
+ourvx=this.vx
+ourvy=this.vy
+//pythagoras strikes again.  It likes doing that.
+ourspeed=Math.sqrt(this.vx*this.vx+this.vy*this.vy)
+ourmass=this.mass
+theirvy=collidewith[i3].vy
+theirvx=collidewith[i3].vx
+theirspeed=Math.sqrt(theirvx*theirvx+theirvy*theirvy)
+theirmass=collidewith[i3].mass
+//I'm unsure what to do if a square hits a circle, so currently they collide as per two circles
+//alert(worldentities[i])
+//the 5==2 is a cheap way of getting everything to collide as circles, as I'm unsure wether I want to keep it like that or not
+if(this.shape==1 && collidewith[i3].shape==1)
+{
+//these equations are correct for 1D collisions, and probably not so correct for 2D, however, it feels good enough for collisons between squares in a game
+//momentum=mass*velocity
+//Kinetic Energy = 0.5*mass*velocity^2
+//both are conserved
+//from an equation I found on the internet (elastic collisons, re-arrengement of the above two equations)
+ournewvx=( (ourmass-theirmass)/(ourmass+theirmass))*ourvx+( (2*theirmass)/(ourmass+theirmass) )*theirvx
+ournewvy=( (ourmass-theirmass)/(ourmass+theirmass))*ourvy+( (2*theirmass)/(ourmass+theirmass) )*theirvy
+theirnewvx=( (theirmass-ourmass)/(theirmass+ourmass))*theirvx+( (2*ourmass)/(theirmass+ourmass) )*ourvx
+theirnewvy=( (theirmass-ourmass)/(theirmass+ourmass))*theirvy+( (2*ourmass)/(theirmass+ourmass) )*ourvy
+
+}else{
+//this should be correct for circles now
+//essentially, momentum is conserved parrellel and perpendicular to the angle of collision
+//direction of motion - not really sure how these work, beyond overcoming the limited range of inverse trig 
+//http://director-online.com/buildArticle.php?id=532 proved immensly useful, and in actual fact, rendered most of 
+//my previous work at collisions wasted as I re-wrote a lot of it
+if(this.vx<0){ouranglebelowx=(Math.PI)+(Math.atan(this.vy/this.vx))}
+else if(this.vx>0 && this.vy>=0){ouranglebelowx=Math.atan(this.vy/this.vx)}
+else if(this.vx>0 && this.vy < 0){ouranglebelowx=2*(Math.PI)+(Math.atan(this.vy/this.vx))}
+else if(this.vx==0 && this.vy == 0){ouranglebelowx=0}
+else if(this.vx==0 && this.vy>=0){ouranglebelowx=(Math.PI)/2}
+else{ouranglebelowx=3*(Math.PI)/2}
+
+if(theirvx<0){theiranglebelowx=(Math.PI)+(Math.atan(theirvy/theirvx))}
+else if(theirvx>0 && theirvy>=0){theiranglebelowx=Math.atan(theirvy/theirvx)}
+else if(theirvx>0 && theirvy < 0){theiranglebelowx=2*(Math.PI)+(Math.atan(theirvy/theirvx))}
+else if(theirvx==0 && theirvy == 0){theiranglebelowx=0}
+else if(theirvx==0 && theirvy>=0){theiranglebelowx=(Math.PI)/2}
+else{theiranglebelowx=3*(Math.PI)/2}
+ourparellelv=ourspeed*(Math.cos(ouranglebelowx-collisionangle))
+ourperpendicularv=ourspeed*(Math.sin(ouranglebelowx-collisionangle))
+theirparellelv=theirspeed*(Math.cos(theiranglebelowx-collisionangle))
+theirperpendicularv=theirspeed*(Math.sin(theiranglebelowx-collisionangle))
+ournewparellelv=( (this.mass-theirmass)/(this.mass+theirmass))*ourparellelv+( (2*theirmass)/(this.mass+theirmass) )*theirparellelv
+theirnewparellelv=( (theirmass-this.mass)/(theirmass+this.mass))*theirparellelv+( (2*this.mass)/(theirmass+this.mass) )*ourparellelv
+ournewvx=ournewparellelv*(Math.cos(collisionangle))+ourperpendicularv*(Math.cos(collisionangle+(Math.PI/2)))
+ournewvy=ournewparellelv*(Math.sin(collisionangle))+ourperpendicularv*(Math.sin(collisionangle+(Math.PI/2)))
+theirnewvx=theirnewparellelv*(Math.cos(collisionangle))+theirperpendicularv*(Math.cos(collisionangle+(Math.PI/2)))
+theirnewvy=theirnewparellelv*(Math.sin(collisionangle))+theirperpendicularv*(Math.sin(collisionangle+(Math.PI/2)))
+
+}
+this.vx=ournewvx*dampen
+this.vy=ournewvy*dampen
+collidewith[i3].vx=theirnewvx*dampen
+collidewith[i3].vy=theirnewvy*dampen
+break;
+case 1:
+//colliding with an object
+switch(collidewith[i3].sticky)
+{
+case false:
+//colliding with a non-sticky object
+theirleft=collidewith[i3].x
+theirright=collidewith[i3].x+collidewith[i3].width
+theirtop=collidewith[i3].y
+theirbottom=collidewith[i3].y+collidewith[i3].height
+
+//if(this.x+this.width<theirleft){ournewvx=this.vx*(-1)}
+
+//if(this.y+this.height>theirtop || this.y < theirbottom){ournewvy=this.vy*(-1)}
+
+
+if(this.shape==0 && collidewith[i3].shape==0)
+{
+//we're both circles, so collide as circles
+ourcentrex=this.x+this.width/2
+ourcentrey=this.y+this.height/2
+theircentrex=collidewith[i3].x+collidewith[i3].width/2
+theircentrey=collidewith[i3].y+collidewith[i3].height/2
+diffinx=theircentrex-ourcentrex
+diffiny=theircentrey-ourcentrey
+if(diffinx == 0){collisionangle=0}else{collisionangle=Math.atan(diffiny/diffinx)}
+if(this.vx<0){ouranglebelowx=(Math.PI)+(Math.atan(this.vy/this.vx))}
+else if(this.vx>0 && this.vy>=0){ouranglebelowx=Math.atan(this.vy/this.vx)}
+else if(this.vx>0 && this.vy < 0){ouranglebelowx=2*(Math.PI)+(Math.atan(this.vy/this.vx))}
+else if(this.vx==0 && this.vy == 0){ouranglebelowx=0}
+else if(this.vx==0 && this.vy>=0){ouranglebelowx=(Math.PI)/2}
+else{ouranglebelowx=3*(Math.PI)/2}
+ourspeed=Math.sqrt(this.vx*this.vx+this.vy*this.vy)
+ourparellelv=ourspeed*(Math.cos(ouranglebelowx-collisionangle))
+ourperpendicularv=ourspeed*(Math.sin(ouranglebelowx-collisionangle))
+ournewparellelv=ourparellelv*(-1)
+ournewvx=ournewparellelv*(Math.cos(collisionangle))+ourperpendicularv*(Math.cos(collisionangle+(Math.PI/2)))
+ournewvy=ournewparellelv*(Math.sin(collisionangle))+ourperpendicularv*(Math.sin(collisionangle+(Math.PI/2)))
+this.vx=ournewvx*dampen
+this.vy=ournewvy*dampen
+}
+else
+{
+//try and collide as squares, and if my detection system fails, it falls back to colliding as circles (so we'll still collide, even if a bit skew-if)
+dontcontinue=0
+//these two work for tiny things colliding with big things, provided you're not at the edges of the big things:
+if(this.y > theirtop && this.y+this.height < theirbottom){this.vx=this.vx*(-1)*dampen;this.vy=this.vy*dampen;dontcontinue++;}
+if(this.x+this.width < theirright && this.x > theirleft){this.vy=this.vy*(-1)*dampen;this.vx=this.vx*dampen;dontcontinue++}
+
+if(this.y>theirtop && this.y<theirbottom && dontcontinue==0){this.vx=this.vx*(-1)*dampen;this.vy=this.vy*dampen;dontcontinue++;}
+if(this.x>theirleft &&this.x<theirright && dontcontinue==0){this.vy=this.vy*(-1)*dampen;this.vx=this.vx*dampen;dontcontinue++}
+
+if(this.y+this.height>theirtop && this.y+this.height<theirbottom && dontcontinue==0){this.vx=this.vx*(-1)*dampen;this.vy=this.vy*dampen;dontcontinue++;}
+if(this.x+this.width>theirleft && this.x+this.width<theirright && dontcontinue==0){this.vy=this.vy*(-1)*dampen;this.vx=this.vx*dampen;dontcontinue++}
+
+if(dontcontinue==0){
+//if(this.shape == 0 && collidewith[i3].shape == 0){
+//collide as per two cirles
+ourcentrex=this.x+this.width/2
+ourcentrey=this.y+this.height/2
+theircentrex=collidewith[i3].x+collidewith[i3].width/2
+theircentrey=collidewith[i3].y+collidewith[i3].height/2
+diffinx=theircentrex-ourcentrex
+diffiny=theircentrey-ourcentrey
+if(diffinx == 0){collisionangle=0}else{collisionangle=Math.atan(diffiny/diffinx)}
+if(this.vx<0){ouranglebelowx=(Math.PI)+(Math.atan(this.vy/this.vx))}
+else if(this.vx>0 && this.vy>=0){ouranglebelowx=Math.atan(this.vy/this.vx)}
+else if(this.vx>0 && this.vy < 0){ouranglebelowx=2*(Math.PI)+(Math.atan(this.vy/this.vx))}
+else if(this.vx==0 && this.vy == 0){ouranglebelowx=0}
+else if(this.vx==0 && this.vy>=0){ouranglebelowx=(Math.PI)/2}
+else{ouranglebelowx=3*(Math.PI)/2}
+ourspeed=Math.sqrt(this.vx*this.vx+this.vy*this.vy)
+ourparellelv=ourspeed*(Math.cos(ouranglebelowx-collisionangle))
+ourperpendicularv=ourspeed*(Math.sin(ouranglebelowx-collisionangle))
+ournewparellelv=ourparellelv*(-1)
+ournewvx=ournewparellelv*(Math.cos(collisionangle))+ourperpendicularv*(Math.cos(collisionangle+(Math.PI/2)))
+ournewvy=ournewparellelv*(Math.sin(collisionangle))+ourperpendicularv*(Math.sin(collisionangle+(Math.PI/2)))
+//alert('yo')
+//document.getElementById('testspan').innerHTML='collison with object not working'
+
+//}
+this.vx=ournewvx*dampen
+this.vy=ournewvy*dampen
+//end of don'tcontinue
+}
+//endof not cicles
+}
+
+
+break;
+case true:
+//colliding with a sticky object
+
+this.vx=0;
+this.vy=0;
+break;}
+newleft=this.x
+newtop=this.y
+
+break;}
+//end of collidewith loop
+}
+collidewith=new Array;
+
+//end of if collision if statement
+}
+//----------------------------------end of collisions----------------------------------
+
+this.x=newleft
+this.y=newtop
+whichdiv=document.getElementById(this.div);
+whichdiv.style.left=Math.round(newleft);
+whichdiv.style.top=Math.round(newtop);
+
+//end of if we have a velocity
+}
+//end of updateme()
+}
+
+function updateentities()
+{for (i=0;i<worldentities.length;i++){worldentities[i].UpDateMe()}}
+
+var incriment=maxuserforce/10
+
+function moveus()
+{
+if (moveright){us.fx+=incriment; if (us.fx>maxuserforce){us.fx=maxuserforce}}
+if (moveleft){us.fx-=incriment; if (us.fx<-maxuserforce){us.fx=-maxuserforce}}
+if(!moveright && !moveleft){if (us.fx>0){us.fx-=incriment};if (us.fx<0){us.fx+=incriment}}
+if (moveup){us.fy-=incriment; if (us.fy < -maxuserforce){us.fy=-maxuserforce}}
+if (movedown){us.fy+=incriment; if (us.fy > maxuserforce/2){us.fy=maxuserforce/2}}
+if (!moveup && !movedown){us.fy+=incriment*2; if (us.fy > 0){us.fy=0}}
+//document.getElementById('testspan').innerHTML="ourfx ="+us.fx+" ourfx ="+us.fy+" ourvx ="+us.vx+" ourvy ="+us.vy
+
+}
+
+var rightx;
+var leftx;
+var topy;
+var bottomy;
+
+var collidewith=new Array()
+var ourradius
+
+var theirradius
+var circledistance
+var ourshape;
+
+var radii
+var typeofthing
+var colliding
+var collidewithlength
+
+function checkcollide(whichentity)
+{
+leftx=whichentity.x
+rightx=whichentity.x+whichentity.width
+topy=whichentity.y
+bottomy=whichentity.y+whichentity.height
+for (i2=0;i2<worldcollideables.length;i2++)
+{
+if (worldcollideables[i2].name !== whichentity.name)
+{if(rightx > worldcollideables[i2].x && leftx < (worldcollideables[i2].x+worldcollideables[i2].width) && topy < (worldcollideables[i2].y+worldcollideables[i2].height) && bottomy > worldcollideables[i2].y){return worldcollideables[i2];}}
+}
+return false;
+}
+
+function checkpotentialcollide(whichentity,testthisx,testthisy,ourwidth,ourheight,ourshape)
+{
+//collide=checkpotentialcollide(this.name,newleft,newtop,this.width,this.height,this.shape)
+
+leftx=testthisx
+rightx=leftx+ourwidth
+topy=testthisy
+bottomy=topy+ourheight
+ourcentrex=leftx+ourwidth/2
+ourcentrey=topy+ourheight/2
+ourradius=ourheight/2
+
+collidewithlength=0
+
+for (i2=0;i2<worldcollideableslength;i2++)
+{
+if(ourshape==0 && worldcollideables[i2].shape==0)
+{
+//both entities are circles
+if (worldcollideables[i2].name !== whichentity.name)
+{
+theircentrex=worldcollideables[i2].x+worldcollideables[i2].width/2
+theircentrey=worldcollideables[i2].y+worldcollideables[i2].height/2
+theirradius=worldcollideables[i2].height/2
+radii=theirradius+ourradius
+//optimisation
+if(Math.abs(ourcentrex-theircentrex) < radii && Math.abs(ourcentrey-theircentrey) <radii){
+//pythagoras
+circledistance=Math.sqrt( (ourcentrex-theircentrex)*(ourcentrex-theircentrex)+(ourcentrey-theircentrey)*(ourcentrey-theircentrey) ) 
+
+//if the distance between the two circles is less than or equal to the sum of their two radii then they'll collide
+
+
+if(circledistance<=(theirradius+ourradius)){;collidewith.push(worldcollideables[i2]);collidewithlength++}
+//end of optimisation if
+}
+//end of are we the same particle
+}
+}else{
+//one of us isn't a circle
+if (worldcollideables[i2].name !== whichentity.name)
+{
+if(rightx > worldcollideables[i2].x && leftx < (worldcollideables[i2].x+worldcollideables[i2].width) && topy < (worldcollideables[i2].y+worldcollideables[i2].height) && bottomy > worldcollideables[i2].y){collidewith.push(worldcollideables[i2]); collidewithlength++ }
+}
+}
+}
+
+
+if (collidewithlength!==0){return collidewithlength;}
+collidewithlength=0
+return false;
+}
+
+//var testme="us"
+
+
+function whatsinworld()
+{for (i=0;i<worldobjects.length;i++)
+{if(testfordiv(worldobjects[i])){alert(worldobjects[i]+" exists")}else{alert(worldobjects[i]+" doesn't exist")}}}
+//script and artwork copyright Luke Wallin 2007 
+//-->
+</script>
+
+</body>
+</html>
+

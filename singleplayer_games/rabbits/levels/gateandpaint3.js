@@ -1,0 +1,44 @@
+function loadlevel()
+{
+new hutch(4,0,[1,1,2,2],[2,2,1,1,2],[0,3,2,3,1],6,2,20); 
+new hutch(5,0,[2,2,1,1],[1,1,2,1,2],[3,2,1,0,2],6,2,20); 
+new warren(6,1,1,0); 
+new warren(3,1,1,0); 
+new repaint(7,1,1,0); 
+new repaint(7,0,1,0); 
+new repaint(2,0,1,0); 
+new repaint(2,1,1,0); 
+new gate(5,3,1,2,1); 
+new gate(4,3,1,1,1); 
+new gate(2,4,2,1,1); 
+new gate(7,4,2,1,1); 
+new gate(7,5,2,2,1); 
+new gate(2,5,2,2,1); 
+new gate(8,2,3,0,1); 
+new gate(1,2,3,0,1); 
+new gate(9,2,3,1,1); 
+new gate(0,2,3,1,1); 
+new block(9,4,0); 
+new block(9,5,0); 
+new block(4,5,0); 
+new block(5,5,0); 
+new block(6,3,0); 
+new block(0,4,0); 
+new block(0,5,0); 
+new block(2,3,0); 
+new block(3,3,0); 
+new block(3,2,0); 
+new block(2,2,0); 
+new block(6,2,0); 
+new block(7,2,0); 
+new block(7,3,0); 
+gridcols=10;gridrows=6;gridsize=70;gridsides=4;
+new tool(0,0,18); 
+new tool(1,2,1); 
+new tool(1,1,1); 
+new tool(2,1,2); 
+new tool(3,0,2); 
+rabbitsWillWait=true;
+}
+loadlevel();
+finishloading();

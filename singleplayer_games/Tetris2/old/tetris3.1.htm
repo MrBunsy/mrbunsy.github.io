@@ -1,0 +1,865 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<title>Tetris</title>
+<script src="script.js" type="text/javascript"></script>
+</head>
+<body onkeydown="javascript:keyDown()" onload="javascript:s=setInterval('main()',30);">
+<span id="scoresenderbox">
+
+<table summary="">
+<tr><td>
+<center>
+<h1>Tetris</h1>
+<img src="blank.gif" name='blank.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="blank.gif" name='blank.gif' width="24" height="24" alt=""><br>
+<img src="blank.gif" name='blank.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="blank.gif" name='blank.gif' width="24" height="24" alt=""><br>
+<img src="blank.gif" name='blank.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="blank.gif" name='blank.gif' width="24" height="24" alt=""><br>
+<img src="blank.gif" name='blank.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="blank.gif" name='blank.gif' width="24" height="24" alt=""><br>
+<img src="blank.gif" name='blank.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="blank.gif" name='blank.gif' width="24" height="24" alt=""><br>
+<img src="blank.gif" name='blank.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="blank.gif" name='blank.gif' width="24" height="24" alt=""><br>
+<img src="blank.gif" name='blank.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="blank.gif" name='blank.gif' width="24" height="24" alt=""><br>
+<img src="blank.gif" name='blank.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="blank.gif" name='blank.gif' width="24" height="24" alt=""><br>
+<img src="blank.gif" name='blank.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="blank.gif" name='blank.gif' width="24" height="24" alt=""><br>
+<img src="blank.gif" name='blank.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="blank.gif" name='blank.gif' width="24" height="24" alt=""><br>
+<img src="blank.gif" name='blank.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="blank.gif" name='blank.gif' width="24" height="24" alt=""><br>
+<img src="blank.gif" name='blank.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="blank.gif" name='blank.gif' width="24" height="24" alt=""><br>
+<img src="blank.gif" name='blank.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="blank.gif" name='blank.gif' width="24" height="24" alt=""><br>
+<img src="blank.gif" name='blank.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="blank.gif" name='blank.gif' width="24" height="24" alt=""><br>
+<img src="blank.gif" name='blank.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="blank.gif" name='blank.gif' width="24" height="24" alt=""><br>
+<img src="blank.gif" name='blank.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="blank.gif" name='blank.gif' width="24" height="24" alt=""><br>
+<img src="blank.gif" name='blank.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="blank.gif" name='blank.gif' width="24" height="24" alt=""><br>
+<img src="blank.gif" name='blank.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="blank.gif" name='blank.gif' width="24" height="24" alt=""><br>
+<img src="blank.gif" name='blank.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="blank.gif" name='blank.gif' width="24" height="24" alt=""><br>
+<img src="blank.gif" name='blank.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="blank.gif" name='blank.gif' width="24" height="24" alt=""><br>
+<img src="blank.gif" name='blank.gif' width="24" height="24" alt=""><img src="blank.gif" name='blank.gif' width="24" height="24" alt=""><img src="blank.gif" name='blank.gif' width="24" height="24" alt=""><img src="blank.gif" name='blank.gif' width="24" height="24" alt=""><img src="blank.gif" name='blank.gif' width="24" height="24" alt=""><img src="blank.gif" name='blank.gif' width="24" height="24" alt=""><img src="blank.gif" name='blank.gif' width="24" height="24" alt=""><img src="blank.gif" name='blank.gif' width="24" height="24" alt=""><img src="blank.gif" name='blank.gif' width="24" height="24" alt=""><img src="blank.gif" name='blank.gif' width="24" height="24" alt=""><img src="blank.gif" name='blank.gif' width="24" height="24" alt=""><img src="blank.gif" name='blank.gif' width="24" height="24" alt=""><br>
+</td><td>
+Next Piece =<br>
+<img src="white.gif" name="previewimage" border="1" width="96" height="96" ><br><br>
+<div id="scorebox"></div><br>
+<u>Options</u><br><br>
+Piece Preview:<br>
+<form name="previewoptions">
+<input type="radio" name ="onbutton" onClick="previewfeatureon();" checked>On 
+<input type="radio" name ="offbutton" onClick="previewfeatureoff();">Off
+</form><br>
+<a href="#" onClick="window.open('scoreboard.php','hungry_bunny','height=500, width=300');return false;">View Scoreboard</a>
+</td></tr>
+</table>
+</center>
+</span>
+
+
+<div id="pauseddiv" style="position:absolute; display:none; border:solid black 1px; top:00; left:00; width:600; height:800; z-index:2; background-color:white;">
+</div>
+
+<div id="gameoverdiv" style="position:absolute; display:none; border:solid black 1px; top:300; left:200; width:420; height:100; z-index:4; background-color:white;">
+<div id="gameoverdivtop" class="darkcolour" onmousedown="endgamebox.HoldsMouse(); endgamebox.moveme=true;" onmouseup="endgamebox.moveme=false;" style="position:relative; width:420; z-index:3; height:20; cursor: move;"><span style="float:left;"><u>Game Over.</u></span><span style="float:right; cursor:hand; cursor:pointer;" onclick="endgamebox.CloseBox();">X </span> </div>
+<p>
+Submit Score?
+<p>
+<span onClick="savescore();" style="cursor:hand; cursor:pointer;">[Yes] </span> <span onClick="closegameover();" style="cursor:hand; cursor:pointer;"> [No] </span> <span onClick="playagain();" style="cursor:hand; cursor:pointer;"> [Play Again]</span>
+</div>
+
+<div id="enternamediv" style="position:absolute; display:none; border:solid black 1px; top:300; left:200; width:420; height:70; z-index:4; background-color:white;">
+<div id="enternamedivtop" class="darkcolour" onmousedown="scorebox.HoldsMouse(); scorebox.moveme=true;" onmouseup="scorebox.moveme=false;" style="position:relative; width:420; z-index:3; height:20; cursor: move;"><span style="float:left;"><u>Submitting Score.</u></span><span style="float:right; cursor:hand; cursor:pointer;" onclick="scorebox.CloseBox();">X </span> </div>
+What is your name?
+<form name="scoreform" action="javascript:submitscore()">
+<table>
+<input type="text" size="20" name="name">
+<input type="submit" value="Add Score">
+</form>
+</div>
+
+<form  name='hiddenform' action='endgame.php' method='POST'>
+<input type='hidden' name='name' value=''>
+<input type='hidden' name='score' value=''>
+</form>
+
+<script language="JavaScript" type="text/javascript">
+<!--
+
+
+var boxes=new Array();
+
+function windowbox(divname)
+{
+this.divname=divname;
+this.moveme=false;
+this.resizeme=false;
+this.HoldsMouse=HoldsMouse;
+this.CloseBox=CloseBox;
+this.OpenBox=OpenBox;
+boxes.push(this);
+}
+
+
+var diffinx;
+var diffiny;
+var oldtop;
+var oldleft;
+
+function CloseBox()
+{document.getElementById(this.divname).style.display='none';}
+function OpenBox()
+{document.getElementById(this.divname).style.display='block';}
+
+function HoldsMouse()
+{
+oldtop=tonumber(document.getElementById(this.divname).style.top)
+oldleft=tonumber(document.getElementById(this.divname).style.left)
+diffinx=mouseX-oldleft;
+diffiny=mouseY-oldtop;
+}
+
+document.onmouseup=finalmouseup;
+
+
+var endgamebox = new windowbox('gameoverdiv');
+var scorebox = new windowbox('enternamediv');
+var pausebox = new windowbox('pausediv');
+
+function finalmouseup()
+{//this is called anytime the mouse button is released on the page.  Very useful for stopping the windows 'sticking' to the mouse, if the mouse was released elsewhere to ontop of the window.
+for(var i=0;i<boxes.length;i++)
+{boxes[i].moveme=false;
+boxes[i].resizeme=false;}
+}
+
+var oldoccupy1;
+var oldoccupy2;
+var oldoccupy3;
+var oldoccupy4;
+var evalthis;
+var evalthis2;
+var evalthis3;
+var evalthis4;
+var activeshape;
+var gamespeed = 10
+var numbers = 0
+var totalshapes = 1
+var randomnumber;
+var level = 1
+
+var ended = 0
+var loop;
+var testforline;
+// 229 = left hand square of bottom line
+var wheretostart1 = 229
+var wheretostart2 = 229
+var linesmade = 0
+var score = 0
+var linehadbeenscanned;
+var continues =0
+var occupy1rotate
+var occupy2rotate
+var occupy3rotate
+var occupy4rotate
+var hitground = 0
+var oldoccupy1;
+var oldoccupy2;
+var oldoccupy3;
+var oldoccupy4;
+var paused = true
+var endofscript = '</script>'
+var fforie;
+var peicepreview = 0
+var nextpeice;
+var startyet = 1
+
+document.previewoptions.offbutton.checked = false;
+document.previewoptions.onbutton.checked = true;
+
+document.getElementById('scorebox').innerHTML="<br><b>Press Enter to start</b><br><br>"
+
+function previewfeatureon()
+{
+document.previewoptions.offbutton.checked = false;
+peicepreview = 0
+}
+
+function previewfeatureoff()
+{
+document.previewimage.src="white.gif"
+document.previewoptions.onbutton.checked = false;
+peicepreview = 10
+}
+
+
+//randomnumber = Math.floor(Math.random()*7+1)
+//randomnumber=1
+
+var redshape    = "activeshape = new Shape(totalshapes,'red.gif',0,4,5,6,7)"
+var greenshape  = "activeshape = new Shape(totalshapes,'green.gif',0,4,5,17,18)"
+var greyshape   = "activeshape = new Shape(totalshapes,'grey.gif',0,4,5,6,17)"
+var blueshape   = "activeshape = new Shape(totalshapes,'blue.gif',0,5,6,17,18)"
+var yellowshape = "activeshape = new Shape(totalshapes,'yellow.gif',0,5,17,29,30)"
+var purpleshape = "activeshape = new Shape(totalshapes,'purple.gif',0,6,18,29,30)"
+var indigoshape = "activeshape = new Shape(totalshapes,'indigo.gif',0,5,6,16,17)"
+/*
+randomnumber = Math.floor(Math.random()*7+1)
+while (randomnumber == 2 || randomnumber == 7)
+{randomnumber = Math.floor(Math.random()*7+1)}
+
+if (randomnumber == 1){activeshape = new Shape(totalshapes,'red.gif',0,4,5,6,7); document.previewimage.src="preview_red.gif"}
+//if (randomnumber == 2){eval (greenshape)} document.previewimage.src="preview_green.gif"
+if (randomnumber == 3){activeshape = new Shape(totalshapes,'grey.gif',0,4,5,6,17);document.previewimage.src="preview_grey.gif"}
+if (randomnumber == 4){activeshape = new Shape(totalshapes,'blue.gif',0,5,6,17,18);document.previewimage.src="preview_blue.gif"}
+if (randomnumber == 5){activeshape = new Shape(totalshapes,'yellow.gif',0,5,17,29,30);document.previewimage.src="preview_yellow.gif"}
+if (randomnumber == 6){activeshape = new Shape(totalshapes,'purple.gif',0,6,18,29,30);document.previewimage.src="preview_purple.gif"}
+//if (randomnumber == 7){eval (indigoshape)}document.previewimage.src="preview_indigo.gif"
+*/
+
+
+randomnumber = Math.floor(Math.random()*7+1)
+while (randomnumber == 2 || randomnumber == 7)
+{
+randomnumber = Math.floor(Math.random()*7+1)
+}
+//randomnumber=1
+if (randomnumber == 1){nextpeice='red'; document.previewimage.src="preview_red.gif"}
+if (randomnumber == 2){nextpeice='green';document.previewimage.src="preview_green.gif"}
+if (randomnumber == 3){nextpeice='grey';document.previewimage.src="preview_grey.gif"}
+if (randomnumber == 4){nextpeice='blue';document.previewimage.src="preview_blue.gif"}
+if (randomnumber == 5){nextpeice='yellow';document.previewimage.src="preview_yellow.gif"}
+if (randomnumber == 6){nextpeice='purple';document.previewimage.src="preview_purple.gif"}
+if (randomnumber == 7){nextpeice='indigo';document.previewimage.src="preview_indigo.gif"}
+
+
+
+function savescore()
+{
+endgamebox.CloseBox();
+scorebox.OpenBox();
+document.scoreform.name.focus();
+}
+
+function submitscore()
+{
+document.hiddenform.name.value = document.scoreform.name.value;
+document.hiddenform.score.value = score;
+document.hiddenform.submit();
+
+}
+
+function closegameover()
+{
+endgamebox.CloseBox();
+}
+
+function playagain()
+{
+location.href='tetris3.htm';
+}
+
+function closenamediv()
+{
+scorebox.CloseBox();
+}
+
+function gameover()
+{
+clearInterval(s)
+// paused = true stops anything from being able to happen once the game's over.  hopefully.
+paused = true
+ended = 1
+startyet=1
+
+endgamebox.OpenBox();
+/*
+alert("Game Over!")
+var newgame = confirm("Submit Score?")
+if (newgame == true){
+//history.go(0)
+var location1="submitscore.php?score="
+
+var name = prompt ("What's your name?","your name");
+
+
+var	marks = ".,;!#$/:?'()@[]_-\\\\";
+var	str = name;
+	
+	for (i = 0; i < marks.length; i++) {
+	
+		mark = marks.charAt(i);
+	
+		while (str.indexOf(mark) != -1) {
+			point = str.indexOf(mark);
+			first_part = str.substring(0, point);
+			second_part = str.substring(point + 1, str.length);
+			str = first_part + second_part;
+		}
+	}
+var namestuff = "&name="+str
+var newlocation=location1+score+namestuff
+//alert (newlocation)
+//location.href=newlocation
+//updatestuff()
+//nifty trick (combine with javascript inserted in head) to execute a php script, hence giving javascript the abilty to do nearly anything! 
+loadFragmentInToElement(newlocation, 'scoresenderbox')
+
+
+}
+*/
+
+
+}
+
+//function updatestuff() {loadFragmentInToElement('submitscore.php?score='+score, 'scoresenderbox');}
+
+
+function main()
+{
+if (startyet == 0 && paused!==true){
+if (ended == 0){
+if (numbers > gamespeed){
+activeshape.movedown(), numbers = 0}else{numbers++}}
+countscore()
+document.getElementById('scorebox').innerHTML="Score: "+score+"<br>"+"Lines: "+linesmade+"<br>"+"Level: "+level}
+}
+
+function countscore()
+{if (linesmade > 3 && level == 1){document.bgColor='#ffff00'     , level++, gamespeed=9 , score=score+10}
+if (linesmade > 7 && level == 2){document.bgColor='#ff00ff'  , level++, gamespeed=8 , score=score+20}
+if (linesmade > 11 && level == 3){document.bgColor='#ff0000'  , level++, gamespeed=7 , score=score+30}
+if (linesmade > 15 && level == 4){document.bgColor='#c0c0c0'  , level++, gamespeed=6 , score=score+40}
+if (linesmade > 19 && level == 5){document.bgColor='#808080'  , level++, gamespeed=5 , score=score+50}
+if (linesmade > 23 && level == 6){document.bgColor='#808000' , level++, gamespeed=4 , score=score+60}
+if (linesmade > 27 && level == 7){document.bgColor='#00ff00' , level++, gamespeed=3 , score=score+70}
+if (linesmade > 31 && level == 8){document.bgColor='#800080' , level++, gamespeed=3 , score=score+70}
+if (linesmade > 35 && level == 9){document.bgColor='#800000' , level++, gamespeed=3 , score=score+70}}
+
+var scoretoadd;
+
+function checkforline()
+{testforline1 = 0
+wheretostart1 = 229
+wheretostart2 = 229
+linehadbeenscanned=0
+scoretoadd=0
+
+//whole lot runs 18 times (scans every line)
+for(var loop4=0; loop4<18; loop4++)
+{testforline1 = 0
+
+//scans a line
+for (loop=0; loop < 10; loop++)
+{linehadbeenscanned=0
+evalthis2 = (wheretostart2+loop)*1
+//evalthis = eval ("document.images["+evalthis2+"]")
+if (document.images[evalthis2].name == "white.gif"){testforline1++}}
+
+//acts on results of scan
+if (testforline1 == 0)
+{linesmade++
+scoretoadd++
+linehadbeenscanned=1
+wheretostart1=wheretostart2
+howmany = Math.floor(wheretostart1/12)
+howmany=howmany-2
+// wipes out line, and brings down 'howmany' lines above the one wiped
+for (var loop3=0; loop3< howmany; loop3++)
+{for (var loop2=0; loop2 < 10; loop2++)
+{evalthis2 = (wheretostart1+loop2)*1
+//evalthis = eval ("document.images["+evalthis2+"]")
+document.images[evalthis2].src="blank.gif";
+document.images[evalthis2].name="white.gif";
+evalthis3 = (evalthis2-12)*1
+//evalthis4 = eval ("document.images["+evalthis3+"]")
+document.images[evalthis2].src = document.images[evalthis3].src
+document.images[evalthis2].name = document.images[evalthis3].name}
+wheretostart1=wheretostart1-12}}
+//prevents problems when more than one line has been completed at once, the line scanner scans the same line until it is no longer complete
+if (linehadbeenscanned !== 1){
+wheretostart2=wheretostart2-12}}
+
+
+// Test for if more than one line has been completed at once.  Don't know why it works (this was added much much later than when I first wrote this), despite my commented code, but it does!
+if(scoretoadd == 1){score=score+20}
+
+if(scoretoadd > 1)
+{
+score=score+(scoretoadd*50)
+}
+
+}
+
+/*
+
+if (randomnumber == 1){nextpeice='red' , document.previewimage.src="preview_red.gif"}
+if (randomnumber == 2){nextpeice='green' , document.previewimage.src="preview_green.gif"}
+if (randomnumber == 3){nextpeice='grey' , document.previewimage.src="preview_grey.gif"}
+if (randomnumber == 4){nextpeice='blue' , document.previewimage.src="preview_blue.gif"}
+if (randomnumber == 5){nextpeice='yellow' , document.previewimage.src="preview_yellow.gif"}
+if (randomnumber == 6){nextpeice='purple' , document.previewimage.src="preview_purple.gif"}
+if (randomnumber == 7){nextpeice='indigo' , document.previewimage.src="preview_indigo.gif"}
+
+var redshape    = "activeshape = new Shape(totalshapes,'red.gif',0,4,5,6,7)"
+var greenshape  = "activeshape = new Shape(totalshapes,'green.gif',0,4,5,17,18)"
+var greyshape   = "activeshape = new Shape(totalshapes,'grey.gif',0,4,5,6,17)"
+var blueshape   = "activeshape = new Shape(totalshapes,'blue.gif',0,5,6,17,18)"
+var yellowshape = "activeshape = new Shape(totalshapes,'yellow.gif',0,5,17,29,30)"
+var purpleshape = "activeshape = new Shape(totalshapes,'purple.gif',0,6,18,29,30)"
+var indigoshape = "activeshape = new Shape(totalshapes,'indigo.gif',0,5,6,16,17)"
+
+*/
+
+function nextshape()
+{
+switch(nextpeice)
+{
+case 'red':
+activeshape = new Shape(totalshapes,'red.gif',0,4,5,6,7)
+break;
+case 'green':
+activeshape = new Shape(totalshapes,'green.gif',0,4,5,17,18)
+break;
+case 'grey':
+activeshape = new Shape(totalshapes,'grey.gif',0,4,5,6,17)
+break;
+case 'blue':
+activeshape = new Shape(totalshapes,'blue.gif',0,5,6,17,18)
+break;
+case 'yellow':
+activeshape = new Shape(totalshapes,'yellow.gif',0,5,17,29,30)
+break;
+case 'purple':
+activeshape = new Shape(totalshapes,'purple.gif',0,6,18,29,30)
+break;
+case 'indigo':
+activeshape = new Shape(totalshapes,'indigo.gif',0,5,6,16,17)
+break;
+}
+randomnumber = Math.floor(Math.random()*7+1)
+//randomnumber=1
+if (randomnumber == 1){nextpeice='red'
+if(peicepreview == 0){document.previewimage.src="preview_red.gif"}}
+if (randomnumber == 2){nextpeice='green'
+if(peicepreview == 0){document.previewimage.src="preview_green.gif"}}
+if (randomnumber == 3){nextpeice='grey'
+if(peicepreview == 0){document.previewimage.src="preview_grey.gif"}}
+if (randomnumber == 4){nextpeice='blue'
+if(peicepreview == 0){document.previewimage.src="preview_blue.gif"}}
+if (randomnumber == 5){nextpeice='yellow'
+if(peicepreview == 0){document.previewimage.src="preview_yellow.gif"}}
+if (randomnumber == 6){nextpeice='purple'
+if(peicepreview == 0){document.previewimage.src="preview_purple.gif"}}
+if (randomnumber == 7){nextpeice='indigo'
+if(peicepreview == 0){document.previewimage.src="preview_indigo.gif"}}
+
+if (level == 1){score=score+1+peicepreview}
+if (level == 2){score=score+2+peicepreview}
+if (level == 3){score=score+3+peicepreview}
+if (level == 4){score=score+4+peicepreview}
+if (level == 5){score=score+5+peicepreview}
+if (level == 6){score=score+6+peicepreview}
+if (level == 7){score=score+7+peicepreview}
+checkforline()
+totalshapes++
+}
+
+function movedown()
+{continues=0
+//check for other shapes
+evalthis = (this.occupy1+12)*1
+//evalthis2 = eval ("document.images["+evalthis+"]")
+if (document.images[evalthis].name !== "white.gif"){continues++}
+evalthis = (this.occupy2+12)*1
+//evalthis2 = eval ("document.images["+evalthis+"]")
+if (document.images[evalthis].name !== "white.gif"){continues++}
+evalthis = (this.occupy3+12)*1
+//evalthis2 = eval ("document.images["+evalthis+"]")
+if (document.images[evalthis].name !== "white.gif"){continues++}
+evalthis = (this.occupy4+12)*1
+//evalthis2 = eval ("document.images["+evalthis+"]")
+if (document.images[evalthis].name !== "white.gif"){continues++}
+//if no other shapes in the way, shape will set image names to its colour
+if (continues !== 0)
+{continues=0, 
+//evalthis2 = eval ("document.images["+this.occupy1+"]")
+document.images[this.occupy1].name = this.colour
+//evalthis2 = eval ("document.images["+this.occupy2+"]")
+document.images[this.occupy2].name = this.colour
+//evalthis2 = eval ("document.images["+this.occupy3+"]")
+document.images[this.occupy3].name = this.colour
+//evalthis2 = eval ("document.images["+this.occupy4+"]")
+document.images[this.occupy4].name = this.colour
+//if shape didn't stop at the top of the screen, another shape is created
+if (this.occupy4 < 20){gameover()}
+nextshape()
+hitground = 1
+}else{
+//shape moves down the screen
+oldoccupy1=this.occupy1
+oldoccupy2=this.occupy2
+oldoccupy3=this.occupy3
+oldoccupy4=this.occupy4
+this.occupy1=this.occupy1+12
+this.occupy2=this.occupy2+12
+this.occupy3=this.occupy3+12
+this.occupy4=this.occupy4+12
+//evalthis= eval ("document.images["+oldoccupy1+"]")
+document.images[oldoccupy1].src="white.gif"
+//evalthis= eval ("document.images["+oldoccupy2+"]")
+document.images[oldoccupy2].src="white.gif"
+//evalthis= eval ("document.images["+oldoccupy3+"]")
+document.images[oldoccupy3].src="white.gif"
+//evalthis= eval ("document.images["+oldoccupy4+"]")
+document.images[oldoccupy4].src="white.gif"
+//evalthis= eval ("document.images["+this.occupy1+"]")
+document.images[this.occupy1].src=this.colour
+//evalthis= eval ("document.images["+this.occupy2+"]")
+document.images[this.occupy2].src=this.colour
+//evalthis= eval ("document.images["+this.occupy3+"]")
+document.images[this.occupy3].src=this.colour
+//evalthis= eval ("document.images["+this.occupy4+"]")
+document.images[this.occupy4].src=this.colour}}
+// red    = |
+// grey   = T
+// blue   = []
+// yellow = L
+// purple = _|
+// blue   = __--
+// green  = --__
+
+// rotations:
+
+// 0 = normal:           _|
+
+// 2 = 90 clockwise:     |_
+
+// 3 = upside down   	   |-
+
+// 4 = 90 anticlockwise  -|
+
+function rotate()
+{
+//blue
+if (this.colour == "blue.gif"){occupy1rotate=0 , occupy2rotate=0 , occupy3rotate=0 , occupy4rotate=0}
+//red
+if (this.colour == "red.gif")
+{if (this.rotation == 0 || this.rotation == 2){occupy1rotate=-11 , occupy2rotate=0 , occupy3rotate=11 , occupy4rotate=22}
+if (this.rotation == 1 || this.rotation == 3){occupy1rotate=11 , occupy2rotate=0 , occupy3rotate=-11 , occupy4rotate=-22}}
+//green
+if (this.colour == "green.gif")
+{if (this.rotation == 0 || this.rotation == 2){occupy1rotate=1 , occupy2rotate=11 , occupy3rotate=0 , occupy4rotate=10}
+if (this.rotation == 1 || this.rotation == 3){occupy1rotate=-1 , occupy2rotate=-11 , occupy3rotate=0 , occupy4rotate=-10}}
+//indigo (dark blue)
+if (this.colour == "indigo.gif")
+{if (this.rotation == 0 || this.rotation == 2){occupy1rotate=0 , occupy2rotate=11 , occupy3rotate=2 , occupy4rotate=13}
+if (this.rotation == 1 || this.rotation == 3){occupy1rotate=0 , occupy2rotate=-11 , occupy3rotate=-2 , occupy4rotate=-13}}
+//yellow
+if (this.colour == "yellow.gif")
+{if (this.rotation == 0){occupy1rotate=11 , occupy2rotate=0 , occupy3rotate=-11 , occupy4rotate=-2}
+if (this.rotation == 1){occupy1rotate=-12 , occupy2rotate=-12 , occupy3rotate=-1 , occupy4rotate=1}
+if (this.rotation == 2){occupy1rotate=2 , occupy2rotate=11 , occupy3rotate=0 , occupy4rotate=-11}
+if (this.rotation == 3){occupy1rotate=-1 , occupy2rotate=1 , occupy3rotate=12 , occupy4rotate=12}}
+//purple
+if (this.colour == "purple.gif")
+{if (this.rotation == 0){occupy1rotate=-1 , occupy2rotate=-1 , occupy3rotate=-11 , occupy4rotate=-11}
+if (this.rotation == 1){occupy1rotate=1 , occupy2rotate=-10 , occupy3rotate=0 , occupy4rotate=11}
+if (this.rotation == 2){occupy1rotate=11 , occupy2rotate=11 , occupy3rotate=1 , occupy4rotate=1}
+if (this.rotation == 3){occupy1rotate=-11 , occupy2rotate=0 , occupy3rotate=10 , occupy4rotate=-1}}
+//grey
+if (this.colour == "grey.gif")
+{if (this.rotation == 0){occupy1rotate=-11 , occupy2rotate=-1 , occupy3rotate=-1 , occupy4rotate=0}
+if (this.rotation == 1){occupy1rotate=0 , occupy2rotate=0 , occupy3rotate=0 , occupy4rotate=-11}
+if (this.rotation == 2){occupy1rotate=0 , occupy2rotate=1 , occupy3rotate=1 , occupy4rotate=11}
+if (this.rotation == 3){occupy1rotate=11 , occupy2rotate=0 , occupy3rotate=0 , occupy4rotate=0}}
+// check if possible to rotate shape according to above set variables
+evalthis = (this.occupy1+occupy1rotate)*1
+//evalthis2 = eval ("document.images["+evalthis+"]")
+if (document.images[evalthis].name !== "white.gif"){continues++}
+evalthis = (this.occupy2+occupy2rotate)*1
+//evalthis2 = eval ("document.images["+evalthis+"]")
+if (document.images[evalthis].name !== "white.gif"){continues++}
+evalthis = (this.occupy3+occupy3rotate)*1
+//evalthis2 = eval ("document.images["+evalthis+"]")
+if (document.images[evalthis].name !== "white.gif"){continues++}
+evalthis = (this.occupy4+occupy4rotate)*1
+//evalthis2 = eval ("document.images["+evalthis+"]")
+if (document.images[evalthis].name !== "white.gif"){continues++}
+if (continues !== 0)
+{continues = 0}else{
+//rotates shape!
+this.rotation++
+oldoccupy1=this.occupy1
+oldoccupy2=this.occupy2
+oldoccupy3=this.occupy3
+oldoccupy4=this.occupy4
+this.occupy1=this.occupy1+occupy1rotate
+this.occupy2=this.occupy2+occupy2rotate
+this.occupy3=this.occupy3+occupy3rotate
+this.occupy4=this.occupy4+occupy4rotate
+//evalthis= eval ("document.images["+oldoccupy1+"]")
+document.images[oldoccupy1].src="white.gif"
+//evalthis= eval ("document.images["+oldoccupy2+"]")
+document.images[oldoccupy2].src="white.gif"
+//evalthis= eval ("document.images["+oldoccupy3+"]")
+document.images[oldoccupy3].src="white.gif"
+//evalthis= eval ("document.images["+oldoccupy4+"]")
+document.images[oldoccupy4].src="white.gif"
+//evalthis= eval ("document.images["+this.occupy1+"]")
+document.images[this.occupy1].src=this.colour
+//evalthis= eval ("document.images["+this.occupy2+"]")
+document.images[this.occupy2].src=this.colour
+//evalthis= eval ("document.images["+this.occupy3+"]")
+document.images[this.occupy3].src=this.colour
+//evalthis= eval ("document.images["+this.occupy4+"]")
+document.images[this.occupy4].src=this.colour}
+if (this.rotation == 4){this.rotation=0}
+occupy1rotate=0
+occupy2rotate=0
+occupy3rotate=0
+occupy4rotate=0}
+
+//The shape array itself!  Exciting stuff!
+function Shape(num,colour,rotation,occupy1,occupy2,occupy3,occupy4)
+{this.num = num
+this.colour = colour;
+this.rotation = rotation;
+this.occupy1 = occupy1;
+this.occupy2 = occupy2;
+this.occupy3 = occupy3;
+this.occupy4 = occupy4;
+this.movedown = movedown;
+this.moveleft = moveleft;
+this.moveright = moveright;
+this.rotate = rotate;}
+
+function moveright()
+{
+//check for other shapes (same code as move down, basically)
+evalthis = this.occupy1+1
+//evalthis2 = eval ("document.images["+evalthis+"]")
+if (document.images[evalthis].name !== "white.gif"){continues++}
+evalthis = this.occupy2+1
+//evalthis2 = eval ("document.images["+evalthis+"]")
+if (document.images[evalthis].name !== "white.gif"){continues++}
+evalthis = this.occupy3+1
+//evalthis2 = eval ("document.images["+evalthis+"]")
+if (document.images[evalthis].name !== "white.gif"){continues++}
+evalthis = this.occupy4+1
+//evalthis2 = eval ("document.images["+evalthis+"]")
+if (document.images[evalthis].name !== "white.gif"){continues++}
+if (continues !== 0)
+{continues = 0}else{
+oldoccupy1=this.occupy1
+oldoccupy2=this.occupy2
+oldoccupy3=this.occupy3
+oldoccupy4=this.occupy4
+this.occupy1=this.occupy1+1
+this.occupy2=this.occupy2+1
+this.occupy3=this.occupy3+1
+this.occupy4=this.occupy4+1
+//evalthis= eval ("document.images["+oldoccupy1+"]")
+document.images[oldoccupy1].src="white.gif"
+//evalthis= eval ("document.images["+oldoccupy2+"]")
+document.images[oldoccupy2].src="white.gif"
+//evalthis= eval ("document.images["+oldoccupy3+"]")
+document.images[oldoccupy3].src="white.gif"
+//evalthis= eval ("document.images["+oldoccupy4+"]")
+document.images[oldoccupy4].src="white.gif"
+//evalthis= eval ("document.images["+this.occupy1+"]")
+document.images[this.occupy1].src=this.colour
+//evalthis= eval ("document.images["+this.occupy2+"]")
+document.images[this.occupy2].src=this.colour
+//evalthis= eval ("document.images["+this.occupy3+"]")
+document.images[this.occupy3].src=this.colour
+//evalthis= eval ("document.images["+this.occupy4+"]")
+document.images[this.occupy4].src=this.colour}}
+
+function moveleft()
+{
+//check for other shapes
+evalthis = this.occupy1-1
+//evalthis2 = eval ("document.images["+evalthis+"]")
+if (document.images[evalthis].name !== "white.gif"){continues++}
+evalthis = this.occupy2-1
+//evalthis2 = eval ("document.images["+evalthis+"]")
+if (document.images[evalthis].name !== "white.gif"){continues++}
+evalthis = this.occupy3-1
+//evalthis2 = eval ("document.images["+evalthis+"]")
+if (document.images[evalthis].name !== "white.gif"){continues++}
+evalthis = this.occupy4-1
+//evalthis2 = eval ("document.images["+evalthis+"]")
+if (document.images[evalthis].name !== "white.gif"){continues++}
+if (continues !== 0)
+{continues = 0}else{
+oldoccupy1=this.occupy1
+oldoccupy2=this.occupy2
+oldoccupy3=this.occupy3
+oldoccupy4=this.occupy4
+this.occupy1=this.occupy1-1
+this.occupy2=this.occupy2-1
+this.occupy3=this.occupy3-1
+this.occupy4=this.occupy4-1
+//evalthis= eval ("document.images["+oldoccupy1+"]")
+document.images[oldoccupy1].src="white.gif"
+//evalthis= eval ("document.images["+oldoccupy2+"]")
+document.images[oldoccupy2].src="white.gif"
+//evalthis= eval ("document.images["+oldoccupy3+"]")
+document.images[oldoccupy3].src="white.gif"
+//evalthis= eval ("document.images["+oldoccupy4+"]")
+document.images[oldoccupy4].src="white.gif"
+//evalthis= eval ("document.images["+this.occupy1+"]")
+document.images[this.occupy1].src=this.colour
+//evalthis= eval ("document.images["+this.occupy2+"]")
+document.images[this.occupy2].src=this.colour
+//evalthis= eval ("document.images["+this.occupy3+"]")
+document.images[this.occupy3].src=this.colour
+//evalthis= eval ("document.images["+this.occupy4+"]")
+document.images[this.occupy4].src=this.colour}}
+
+function pause()
+{
+if (startyet == 0){
+if (paused !== true )
+{document.getElementById('scorebox').innerHTML="<br><b>PAUSED</b><br><br>"
+clearInterval(s)
+paused = true
+}else{
+s=setInterval('main()',30)
+paused = false
+//document.getElementById('scorebox').innerHTML=""
+}
+}
+}
+
+function instantmovedown()
+{
+//hitground variable is set to 1 briefly when a new shape is called up
+hitground=0
+while (hitground == 0)
+{activeshape.movedown()}}
+
+
+
+
+
+
+
+if (document.all){var IE=true}else{var IE = false}
+// If NS -- that is, !IE -- then set up for mouse capture
+if (IE==false) document.captureEvents(Event.MOUSEMOVE)
+
+// Temporary variables to hold mouse x-y pos.s
+var mouseX = 0
+var mouseY = 0
+var oldmouseX = 0
+var oldmouseY = 0
+var changeinX=0;
+var changeinY=0;
+
+function tonumber(str)
+{str = str.replace("px","")
+str = str*1
+return str;}
+
+function getMouseXY(e)
+{
+if(IE){
+//grab the x-y pos.s if browser is IE
+mouseX = event.clientX + document.body.scrollLeft
+mouseY = event.clientY + document.body.scrollTop
+}else{
+//grab the x-y pos.s if browser is NS
+mouseX = e.pageX
+mouseY = e.pageY}
+//catch possible negative values in NS4
+if (mouseX < 0){mouseX = 0}
+if (mouseY < 0){mouseY = 0}
+checkmice();
+oldmouseX=mouseX;
+oldmouseY=mouseY;
+}
+
+document.onmousemove = getMouseXY;
+
+function checkmice()
+{
+
+for(var i=0;i<boxes.length;i++)
+{
+
+if (boxes[i].moveme == true)//moveing a window
+{
+var oldwidth=tonumber(document.getElementById(boxes[i].divname).style.width)
+var oldheight=tonumber(document.getElementById(boxes[i].divname).style.height)
+screenwidth = document.body.clientWidth*1
+screenheight = document.body.clientHeight*1
+var newleft =	mouseX-diffinx;
+var newtop = mouseY-diffiny;
+//find out if you're trying to drag the window off the bottom and right edges of the screen
+var newright =	mouseX+oldwidth-diffinx+20
+var newbottom = mouseY+oldheight+20
+if (newright > screenwidth){newleft=screenwidth-oldwidth-20}
+if (newbottom > screenheight){newtop=screenheight-oldheight-32}
+if (newleft < 10){newleft = 10}
+if (newtop < 10){newtop = 10}  
+document.getElementById(boxes[i].divname).style.left=newleft
+document.getElementById(boxes[i].divname).style.top=newtop
+}
+
+}
+
+}
+
+
+
+var firsttime=true
+function firstpeice()
+{
+if(firsttime==true){nextshape(); paused=false}
+firsttime=false;
+}
+
+
+
+
+
+//detects browser and re-writes key detection codes as required
+if (navigator.appName == "Microsoft Internet Explorer")
+{fforie = true}
+if (fforie == true){
+document.writeln('<script>')
+document.writeln('function keyDown()')
+document.writeln('{')
+document.writeln('if(event.keyCode == 39){if (paused !== true){activeshape.moveright()}}')
+document.writeln('if(event.keyCode == 37){if (paused !== true){activeshape.moveleft()}}')
+document.writeln('if(event.keyCode == 40){if (paused !== true){activeshape.movedown()}}')
+document.writeln('if(event.keyCode == 38){if (paused !== true){activeshape.rotate()}}')
+document.writeln('if(event.keyCode == 32){if (paused !== true){instantmovedown()}}')
+document.writeln('if(event.keyCode == 80){if (ended !== 1){pause()}};')
+document.writeln('if(event.keyCode == 13){firstpeice(); startyet=0}')
+//paused=false
+document.writeln('if(event.keyCode == 27){self.close()};')
+document.writeln('}')
+document.writeln(endofscript)
+}else{
+//nextshape();
+document.writeln('<script>')
+document.writeln('function keyDown(e)')
+document.writeln('{')
+document.writeln('if(e.which == 39){if (paused !== true){activeshape.moveright()}}')
+document.writeln('if(e.which == 37){if (paused !== true){activeshape.moveleft()}}')
+document.writeln('if(e.which == 40){if (paused !== true){activeshape.movedown()}}')
+document.writeln('if(e.which == 38)if (paused !== true){{activeshape.rotate()}}')
+document.writeln('if(e.which == 32)if (paused !== true){{instantmovedown()}}')
+document.writeln('if(e.which == 80){if (ended !== 1){pause()}}')
+document.writeln('if(e.which == 13){firstpeice(); startyet=0}')
+document.writeln('if(e.which == 27){self.close()};')
+document.writeln('}')
+document.writeln('document.onkeydown=keyDown;')
+document.writeln(endofscript)}
+//-->
+</script>
+
+<script language="JavaScript" type="text/javascript">
+<!--
+
+
+//-->
+</script>
+
+</body>
+</html>

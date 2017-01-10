@@ -1,0 +1,43 @@
+/* 
+    Document   : Spirograph
+    Created on : Jul 30, 2012, 9:25:30 PM
+    Author     : Luke
+    Description:
+        Purpose of the stylesheet follows.
+*/
+
+html, body {
+ margin: 0px;
+ padding: 0px;
+ border: 0px;
+ padding-bottom: 1em;
+ 
+
+       /* font-family: Verdana, Arial, Helvetica, sans-serif;
+       font-size: 13px;
+        line-height: 17px;
+        margin: 0;
+        padding: 0;*/
+       font-family: Verdana, Arial, Helvetica, sans-serif;
+ }
+ 
+ .between_button_text{
+     /*min-width:4em;*/
+     width:3.5em;
+     text-align: center;
+     display:inline-block;
+     /*position:absolute;*/
+ }
+ 
+ .button_title{
+     width:5.5em;
+     display:inline-block;
+ }
+
+ /*#spirographDiv{
+     padding-left: 1em;
+ }*/
+ 
+ .inline{
+     display:inline-block;
+ }

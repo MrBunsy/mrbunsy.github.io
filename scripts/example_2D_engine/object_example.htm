@@ -1,0 +1,28 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+		<title>Untitled Document</title>
+	</head>
+	<body>
+		
+		<script>
+			function MyObject(property1,property2)
+			{
+				this.property1=property1;
+				this.property2=property2;
+				
+				this.doSomething=function(){alert('something')}
+			}
+			
+			
+			var bob=new MyObject('hello',56);
+			
+			alert("bob.property1 = "+bob.property1+", bob.property2 = "+bob.property2);
+			
+			bob.doSomething();
+
+		</script>
+		
+	</body>
+</html>

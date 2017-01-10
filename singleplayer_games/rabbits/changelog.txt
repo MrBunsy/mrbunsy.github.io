@@ -1,0 +1,244 @@
+0.01 (20-07-08)
+-working grid drawing for squares
+-working grid spacing for hexagons.
+
+0.02 (20-07-08)
+-working grid of hexagons
+
+0.03 (20-07-08)
+-random greens for hexagons
+
+0.06 (20-07-08)
+-lots of internal tweaks, after stealing some functions from the 2D engine the game can now tell which cell you've clicked in.
+
+0.06 (20-07-08)
+-started work on a simple menu system - I'm going for functional rather than looking good atm.  Once everything works I'll go back and give the asthetics a good going over.
+
+0.08 (20-07-08)
+-put all the draw functions into draw.js, so I can potentially change the graphics easily.
+
+0.09 (21-07-08)
+-added newgrid option to drawGrid - either generate a grid or draw an existing grid.
+
+0.12 (21-07-08)
+-re-written drawGrid so it's not newGrid and drawCells.  slightly slower, but fits in with the rest of the script - hopefully meaning I'll write less bugs because it's easier to follow.
+-moving rabbits working, detection of collision with edges of grid and arrows
+-hatch working nicely, with spawn limits and alternating colours.
+
+0.13 (21-07-08)
+-entirely re-written the entity system, so there are different objects for everything, eg new hutch(), new block().  Hopefully will make adding objects much, much easier.
+
+0.15 (21-07-08)
+-working arrow placement, rotating and dragging!
+
+0.16 (21-07-08)
+-end of level detection working
+
+0.18 (22-07-08)
+-added objects: carrot, teddy, lettuce, book
+-fixed being able to drag arrows on top of each other.
+
+0.19 (22-07-08)
+-fixed teddy in IE
+-added outline to teddy
+-started work on level editor
+-can create everything which exists so far.
+-can delete and move everything
+
+0.21 (22-07-08)
+-level editor working, can test a map whilst in editor.
+-load and save mechanism working - can load to play, or load to edit.
+
+0.22 (22-07-08)
+-dodgy work-around added to stop arrows staying in world after testing it in the editor.
+-added levelmessage - the option to set a message when a level is loaded.
+
+0.23 (23-07-08)
+-pressing fast forward when paused will un-pause the game, then fast forward.
+
+0.24 (23-07-08)
+-working, though far from finished, animations.
+
+0.25 (23-07-08)
+-impoved animations for crashing and getting to a burrow. ('ow!' and 'yey!' respectively)
+
+0.26 (23-07-08)
+-improved collision animations further - looks better with constant stream of bunnies.  Also, quality is editable through a variable, so might add an options menu
+-animations will need optimising (saving variables for re-use next loop, for example) if higher quality animation wanted at low CPU levels.
+-attempted storing coords in rabbit object - updating only when moved.  Seems to have made no difference.  Probably it's the canvas and the trig making the main diffence.
+
+0.27 (23-07-08)
+-Added levelGroup and level objects, a load campaign menu, and respective additions to the 'you have saved all the bunnies' message.
+-completing one level in a campaign will result in a 'next level' option.
+
+0.28 (23-07-08)
+-IE will fast forward using no animations
+
+0.29 (23-07-08)
+-Improved toolbox to make it more user-friendly.
+
+0.31 (24-07-08)
+-attempt to optmise use of canvas
+-draw0.18b works - and IE uses 60% of one core rather than 100% progress!  I re-defined some functions on loading if IE is true, so that all the strokes are done in one go by adding functions containing the strokes to an array, and then running them all at once at the end.
+-draw0.21 - 2 layers of stroke and fill for IE - so only the green bg and 4 layers are drawn (+extra for colours)
+
+0.32 (24-07-08)
+-tidied up order of layers drawn in IE - now looks nearly as good as FF again.
+
+0.33 (24-07-08)
+-added another colour layer for IE - carried objects now look better.
+-tidied up teddy in IE, not as good as non-IE, but much better than it was.
+
+0.34 (24-07-08)
+-added bold lines to IE, slightly slower again, but looks nearly en-par with non-IE now (change the teddy and it would be great). 
+
+0.35 (24-07-08)
+-put IEdraw stuff into IEdraw.js
+-added repaint object to editor - non-IE graphics working, but doesn't do anything in game yet.
+
+0.36 (25-07-08)
+-idea worked!  Two canvases - one for cells, one for bunnies, works as fast as yesterday's IEdraw method, and means graphics are en-par with non-IE.
+-yesterday was wasted :P, but I might re-use that technique later to speed bunnies up even more.
+
+0.37 (25-07-08)
+-renamed barriers to gates - this'd been getting on my nerves.
+-fixed bugs with ears and objects not being drawn because of new canvas selections
+-fixed sometimes scatty turning animation so it always rotates the bunny through the smallest angle now.
+-added locks and keys
+
+0.39 (25-07-08)
+-fixed locks and keys not always updating in right order - now put it all in a new function
+
+0.40 (25-07-08)
+-added Help page.
+-taken campaigns menu link down
+-when any level finishes, if it can lead to another, it will.
+
+0.41 (25-07-08)
+-attempt at an option where bunnies queue up instead of collide, however I can't think of a particularily good algorythm (current one doesn't support toggleable locks), and there appears to be a bug because it's not working.  i'm not going to bother fixing it, and will probably fork from 0.40
+
+0.42 (25-07-08)
+-fixed lingering problems with not being given right links when finishing a level.
+
+0.43 (26-07-08)
+-returned 0.41 non-colliding script, decided that I'll just not have toggle keys and non-collisions - everything else ought to be possible to work out.
+
+0.44 (26-07-08)
+-attempts to solve problems whereby bunnies would spawn when they shouldn't with non-colliding on didn't work
+-leaving script there to finish later.
+-added levelmessage to the level object, instead of evaled javascript.
+
+0.45 (26-07-08)
+-in editing, clicking anywhere on an object which isn't an arrow or a hutch will allow it to be dragged.
+-in game, placing an arrow will point it towards the mouse
+-selecting two tools will de-bold the previous one now (it was unselected as far as the script was concerned, but didn't change on the toolbox GUI).
+-added better hatch drawing
+-fixed bug with de-bolding if a tool had been used up.
+
+0.46 (27-07-08)
+-bunnies always spawn straight after pressing play, before there was sometimes a noticable wait.
+-I think I've fixed the bug where placing an arrow, or anything causing redrawworld, whilst paused would sometimes result in a leap of the bunnies.
+
+0.47 (27-07-08)
+-tidied up menus a bit
+-added a Leave Level? Menu
+-added About page
+-added Repeat Hints Message to in game menu
+
+0.48 (27-07-08)
+-added fakelocks - locks which simply copy an existing lock, so keys can open a group of locks.
+
+0.49b (28-07-08)
+-spawning when bunnies don't collide is fixed!
+
+0.50 (28-07-08)
+-non-colliding works!!!
+-fixed non-colliding with locks and keys - I don't think toggleable locks will work, but non-toggleable work fine.
+
+0.51 (28-07-08)
+-fixed non-colliding bug where rabbits went YEY each loop after getting in the warren.
+-added option to switch bunny colliding mode in editor and added it to savegame()
+
+0.52 (28-07-08)
+-fixed problem where if two bunnies were facing each other strange things would happen on non-colliding.  Now one of them stands still.
+-made a lot of the tutorial levels non-colliding
+-if the worldsize is >700 wide, offset is reduced to 5.
+-BUG FOUND, similar to two bunnies facing, if the bunnies are made to go in a loop they don't move, but they are animated as such, and the hutch doesn't detect it can't spawn, so they die on top of the hutch after being spawned.
+
+0.53 (28-07-08)
+-bit of a work-around rather than a proper fix, but it works.  I've solved all (hopefully) the odd problems with bunnies queuing in unusual ways.
+
+0.54 (28-07-08)
+-added Reset Toolbox option
+
+0.55 (28-07-08)
+-added an Edit Entity option to editor
+-fixed drawing all-rabbit warrens when specific wasn't 0.
+
+0.56 (28-07-08)
+-added Edit Grid Size to editor, slightly improved my system for working out the size of cells.
+
+0.57 (29-07-08)
+-fixed loading level into editor resizing cells.
+-stable release
+
+0.58 (29-07-08)
+-attempting to add Really Simple History - so the back button works between the menus.
+-canvas is now loaded in the script, not onload, for non-IE and after a 10ms delay on IE.
+-also added new bigMenu object to try and make this easier to script.
+
+0.59 (29-07-08)
+-RSH seems to be fully intergrated to all menu navigations.
+-added a cancel option to the "you've won" messagebox.
+
+0.60 (29-07-08)
+-loading a level into the editor will set 'Rabbits Will' correctly
+-clicking on an object to edit it will set the options to its current settings.
+-deleting a lock will delete and keys and fakelocks linked to it, and re-number all other keys and fakelocks as needed
+
+0.61 (29-07-08)
+-fixed bug when refreshing page with #custommap
+-added confirmation window for Reset Everything.
+
+0.62 (30-07-08)
+-added miniMenu object
+-added Import Map to editor
+-added setupcanvas() back to onload - hopefully that will prevent future problems.
+-text automatically selected when saving level.
+-STABLE RELEASE
+
+Note: I'm deliberatly leaving behavour so that rabbits can collide on top of a warren, different to in Pit Droids.
+
+0.63 (30-07-08)
+-rabbittype and specific options in editor have been re-done, for gates there is no All Rabbits option, and when selecting carrying the colour text is removed.
+
+0.64 (31-07-08)
+-added strokes and fills for canvas[1] similar to old IErendermode - should speed up bunnies being drawn.
+-using mike's level as a benchmark, 0.64 definitely uses less CPU than 0.63 in Firefox.  Same CPU usage in IE, but the bunnies move faster.
+-not as big an improvement as I'd hoped, but definitely an improvement.
+-campaigns are gone, although lots of code still lingers.  I might leave it in case I implement some sort of game rather than single level system later.
+
+0.65 (31-07-08)
+-added nobuild - cell with dark green bg and grass.  Rabbits can walk over it, but arrows can't be placed on it.
+-added arms back to teddy with new drawing system
+-added hex tiles to bg
+-added disableSelection to menus and most minimenus - text can't be selected.  This isn't to stop people copying text, but to make it feel more like a game and less like a webpage.
+
+0.66 (1-08-08)
+-renamed nobuild to grass.
+
+0.67 (1-08-08)
+-now textbox in loadlevel is highlighted.
+
+0.68 (14-08-08 -> 02/09/2008)
+-starting work on better GUI:
+ -Icons for start, pause, etc, from the Tango Icon Library
+ -pngs for arrows in toolbox + fancy toolbox icon (might need to switch to canvas in future if ratios added - unlikely to happen now though as developement has basicqally stopped.)
+ -icons Stop for reset bunnies, back to start for restart all
+ -little house for menu.
+ -ingamemenu() is now called before opening the menu - sorts out whether next level, etc, is needed.  Didn't previously seem to be called for some reason.
+
+0.69 (03/09/2008)
+-fixed fast forward when pressing image
+-improved toolbox (now two arrows per row and less text)
+-noselect preformed on the in game toolbar.

@@ -1,0 +1,53 @@
+<!DOCTYPE HTML>
+<html>
+  <head>
+    <title></title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <script type="text/javascript" src="common.js"></script>
+         <script type="text/javascript" src="RealisticTree.js"></script>
+         <script type="text/javascript" src="leaves.js"></script>
+
+<!--[if IE]>
+   <script type="text/javascript" src="excanvasIE8.js">
+
+</script>
+<![endif]-->
+
+  </head>
+  <body>
+  <canvas id="testCanvas" width="600" height="600"></canvas>
+  <script>
+      var loadCanvas=function(){
+          var canvasTag=document.getElementById("testCanvas");
+            var testCanvas=false;
+            if (canvasTag.getContext)
+            {
+                    testCanvas = canvasTag.getContext('2d');
+            }
+            /*
+             testCanvas.fillStyle="rgb(255,0,0)";
+            testCanvas.fillRect(50,50,200,200);
+
+            testCanvas.save();
+            testCanvas.translate(200, 200)
+            testCanvas.rotate(Math.PI/8);
+            testCanvas.scale(0.5,0.5);
+
+            testCanvas.fillStyle="rgb(0,250,0)";
+            testCanvas.fillRect(50,50,200,200);
+
+
+            testCanvas.restore();
+            */
+            var tree=new RealisticTreeClass([300,560],-Math.PI/2,10,Math.PI/3,[200,200,0,1],[255,0,0,1],30,0.9,0.9,1,1,1.06,[0,3],true,0,10);
+            //var tree=new RealisticTreeClass([300,600],-Math.PI/2,9,Math.PI/4,[200,200,0,1],[255,0,0,1],50,1,1,1,1,1.1,[0,3]);
+            //                              (pos,angle,iterations,angleLimit,startColour,endColour,branchLength,branchRatio,gravity)
+            tree.grow();
+            tree.draw(testCanvas);
+            //tree.draw(testCanvas,2,[50,1]);
+      }
+
+      myAddEvent(window,'onload',loadCanvas);
+    </script>
+  </body>
+</html>

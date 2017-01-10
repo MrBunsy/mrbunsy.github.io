@@ -1,0 +1,50 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+		<title>Physics Sandbox 4</title>
+		<script type="text/javascript" src="commonFunctions.js"></script> 
+		<script type="text/javascript" src="RenderClass.js"></script>
+		<script type="text/javascript" src="DetectClass.js"></script>
+		<script type="text/javascript" src="ResponseClass.js"></script>
+		<script type="text/javascript" src="PhysicsClass.js"></script>
+		<script type="text/javascript" src="SandboxClass.js"></script>
+		<script type="text/javascript" src="EngineGUIClass.js"></script>
+		<script type="text/javascript" src="json2.js"></script> 
+		<script type="text/javascript" src="Animation.js"></script>
+		<script type="text/javascript" src="PWAnimations.js"></script>
+		<script type="text/javascript" src="ajax.js"></script> 
+		<script type="text/javascript" src="sandbox.js"></script>
+		 
+		<!--[if IE]>
+			<script type="text/javascript" src="excanvas3.compiled.js"></script>
+			<script type="text/javascript" src="IEsucks.js"></script>
+		<![endif]--> 
+		<style>
+			ul {
+				margin-left: 40px;
+			}
+			li {
+				list-style: none;
+				margin-left: 4px;
+			}
+			.marginedList{
+				/*list-style: disc;*/
+				left:20px;
+				position:relative;
+			}
+		</style>
+	</head>
+	<body bgcolor="#99DDFF">
+		<script>
+			var sandboxInitialJson='{"gravity":[0,100],"friction":5,"shapesArray":[{"shape":2,"_width":8000,"_height":6000,"d":[8000,6000],"pos":[0,0,0],"hard":true,"e":1,"hollow":true,"inverse":true,"canRotate":false,"visible":false,"canMove":false,"pin":false,"colour":"000000","mI":1000,"gameType":"border","charge":0,"springs":[],"cantCollideWithArray":[],"contactWith":[]},{"shape":0,"alive":true,"_r":1,"d":1,"pos":[0,0,0],"v":[0,0,0],"mass":10,"f":[0,0,0],"hard":false,"e":1,"hollow":false,"inverse":false,"canRotate":true,"visible":false,"canMove":false,"pin":false,"colour":"000000","gameType":"anchor","mI":5,"charge":0,"springs":[],"cantCollideWithArray":[],"contactWith":[]},{"shape":0,"alive":true,"_r":25,"d":25,"pos":[-10,2638,0],"v":[0,0,0],"mass":50,"f":[0,0,0],"hard":true,"e":1,"hollow":false,"inverse":false,"canRotate":true,"visible":true,"canMove":false,"pin":false,"colour":"008800","gameType":false,"mI":15625,"charge":0,"springs":[],"cantCollideWithArray":[],"contactWith":[]},{"shape":0,"alive":true,"_r":25,"d":25,"pos":[-251,2557,0],"v":[0,0,0],"mass":50,"f":[0,0,0],"hard":true,"e":1,"hollow":false,"inverse":false,"canRotate":true,"visible":true,"canMove":true,"pin":false,"colour":"FF0000","gameType":false,"mI":15625,"charge":0,"springs":[8],"cantCollideWithArray":[5,6,7,8,9,10,11,12,13],"contactWith":[]},{"shape":0,"alive":true,"_r":25,"d":25,"pos":[211,2556,0],"v":[0,0,0],"mass":50,"f":[0,0,0],"hard":true,"e":1,"hollow":false,"inverse":false,"canRotate":true,"visible":true,"canMove":true,"pin":false,"colour":"FFFF00","gameType":false,"mI":15625,"charge":0,"springs":[9],"cantCollideWithArray":[5,6,7,8,9,10,11,12,13],"contactWith":[]},{"shape":4,"alive":true,"_length":49.890868557603795,"d":24.945434278801898,"pos":[-215.05555555555554,2559.222222222222,0.00890845030168774],"v":[0,0,0],"mass":5,"f":[0,0,0],"hard":true,"e":1,"hollow":true,"inverse":false,"canRotate":true,"visible":true,"canMove":true,"pin":false,"colour":"000000","gameType":"string","mI":1037.124485596708,"charge":0,"springs":[0,8],"cantCollideWithArray":[3,4,5,6,7,8,9,10,11,12,13],"contactWith":[]},{"shape":4,"alive":true,"_length":49.890868557603795,"d":24.945434278801898,"pos":[-165.16666666666666,2559.6666666666665,0.00890845030168774],"v":[0,0,0],"mass":5,"f":[0,0,0],"hard":true,"e":1,"hollow":true,"inverse":false,"canRotate":true,"visible":true,"canMove":true,"pin":false,"colour":"000000","gameType":"string","mI":1037.124485596708,"charge":0,"springs":[0,1],"cantCollideWithArray":[3,4,5,6,7,8,9,10,11,12,13],"contactWith":[]},{"shape":4,"alive":true,"_length":49.890868557603795,"d":24.945434278801898,"pos":[-115.27777777777777,2560.111111111111,0.00890845030168774],"v":[0,0,0],"mass":5,"f":[0,0,0],"hard":true,"e":1,"hollow":true,"inverse":false,"canRotate":true,"visible":true,"canMove":true,"pin":false,"colour":"000000","gameType":"string","mI":1037.124485596708,"charge":0,"springs":[1,2],"cantCollideWithArray":[3,4,5,6,7,8,9,10,11,12,13],"contactWith":[]},{"shape":4,"alive":true,"_length":49.890868557603795,"d":24.945434278801898,"pos":[-65.38888888888889,2560.5555555555557,0.00890845030168774],"v":[0,0,0],"mass":5,"f":[0,0,0],"hard":true,"e":1,"hollow":true,"inverse":false,"canRotate":true,"visible":true,"canMove":true,"pin":false,"colour":"000000","gameType":"string","mI":1037.124485596708,"charge":0,"springs":[2,3],"cantCollideWithArray":[3,4,5,6,7,8,9,10,11,12,13],"contactWith":[]},{"shape":4,"alive":true,"_length":49.890868557603795,"d":24.945434278801898,"pos":[-15.5,2561,0.00890845030168774],"v":[0,0,0],"mass":5,"f":[0,0,0],"hard":true,"e":1,"hollow":true,"inverse":false,"canRotate":true,"visible":true,"canMove":true,"pin":false,"colour":"000000","gameType":"string","mI":1037.124485596708,"charge":0,"springs":[3,4],"cantCollideWithArray":[3,4,5,6,7,8,9,10,11,12,13],"contactWith":[]},{"shape":4,"alive":true,"_length":49.890868557603795,"d":24.945434278801898,"pos":[34.388888888888886,2561.4444444444443,0.00890845030168774],"v":[0,0,0],"mass":5,"f":[0,0,0],"hard":true,"e":1,"hollow":true,"inverse":false,"canRotate":true,"visible":true,"canMove":true,"pin":false,"colour":"000000","gameType":"string","mI":1037.124485596708,"charge":0,"springs":[4,5],"cantCollideWithArray":[3,4,5,6,7,8,9,10,11,12,13],"contactWith":[]},{"shape":4,"alive":true,"_length":49.890868557603795,"d":24.945434278801898,"pos":[84.27777777777777,2561.8888888888887,0.00890845030168774],"v":[0,0,0],"mass":5,"f":[0,0,0],"hard":true,"e":1,"hollow":true,"inverse":false,"canRotate":true,"visible":true,"canMove":true,"pin":false,"colour":"000000","gameType":"string","mI":1037.124485596708,"charge":0,"springs":[5,6],"cantCollideWithArray":[3,4,5,6,7,8,9,10,11,12,13],"contactWith":[]},{"shape":4,"alive":true,"_length":49.890868557603795,"d":24.945434278801898,"pos":[134.16666666666663,2562.3333333333335,0.00890845030168774],"v":[0,0,0],"mass":5,"f":[0,0,0],"hard":true,"e":1,"hollow":true,"inverse":false,"canRotate":true,"visible":true,"canMove":true,"pin":false,"colour":"000000","gameType":"string","mI":1037.124485596708,"charge":0,"springs":[6,7],"cantCollideWithArray":[3,4,5,6,7,8,9,10,11,12,13],"contactWith":[]},{"shape":4,"alive":true,"_length":49.890868557603795,"d":24.945434278801898,"pos":[184.05555555555554,2562.777777777778,0.00890845030168774],"v":[0,0,0],"mass":5,"f":[0,0,0],"hard":true,"e":1,"hollow":true,"inverse":false,"canRotate":true,"visible":true,"canMove":true,"pin":false,"colour":"000000","gameType":"string","mI":1037.124485596708,"charge":0,"springs":[7,9],"cantCollideWithArray":[3,4,5,6,7,8,9,10,11,12,13],"contactWith":[]}],"explosionArray":[],"springArray":[{"shapeA":5,"shapeB":6,"distA":24.945434278801898,"angleA":0,"distB":24.945434278801898,"angleB":3.141592653589793,"length":0,"strength":10000,"visible":true},{"shapeA":6,"shapeB":7,"distA":24.945434278801898,"angleA":0,"distB":24.945434278801898,"angleB":3.141592653589793,"length":0,"strength":10000,"visible":true},{"shapeA":7,"shapeB":8,"distA":24.945434278801898,"angleA":0,"distB":24.945434278801898,"angleB":3.141592653589793,"length":0,"strength":10000,"visible":true},{"shapeA":8,"shapeB":9,"distA":24.945434278801898,"angleA":0,"distB":24.945434278801898,"angleB":3.141592653589793,"length":0,"strength":10000,"visible":true},{"shapeA":9,"shapeB":10,"distA":24.945434278801898,"angleA":0,"distB":24.945434278801898,"angleB":3.141592653589793,"length":0,"strength":10000,"visible":true},{"shapeA":10,"shapeB":11,"distA":24.945434278801898,"angleA":0,"distB":24.945434278801898,"angleB":3.141592653589793,"length":0,"strength":10000,"visible":true},{"shapeA":11,"shapeB":12,"distA":24.945434278801898,"angleA":0,"distB":24.945434278801898,"angleB":3.141592653589793,"length":0,"strength":10000,"visible":true},{"shapeA":12,"shapeB":13,"distA":24.945434278801898,"angleA":0,"distB":24.945434278801898,"angleB":3.141592653589793,"length":0,"strength":10000,"visible":true},{"shapeA":5,"shapeB":3,"distA":24.945434278801898,"angleA":3.141592653589793,"distB":11.180339887498949,"angleB":0.17985349979247828,"length":0,"strength":10000,"visible":true},{"shapeA":13,"shapeB":4,"distA":24.945434278801898,"angleA":0,"distB":7.280109889280518,"angleB":1.849095985800008,"length":0,"strength":10000,"visible":true}],"smallWorld":false,"mainViewPos":[0,2700],"mainViewZoom":1}';
+		</script>
+		<div id="sandboxDiv" style="width:800px;height:600px;float:left;border: solid black 1px;">
+			<canvas id="sandboxCanvas" width="800" height="600"></canvas>
+		</div>
+		<div id="sandboxControlDiv"></div>
+		<br>
+		<br>
+		<canvas id="sandboxMiniMapCanvas" width="200" height="150" style="border: solid black 1px"></canvas>
+	</body>
+</html>

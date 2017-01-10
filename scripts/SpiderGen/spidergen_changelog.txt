@@ -1,0 +1,43 @@
+0.1 (15/09/2008)
+-working blob on a spring bouncing about!  Substancial because this is the first use of PARTS of the 2D engine in another context!
+
+0.2 (15/09/2008)
+-proper, rendered, string!
+-using a fake Render object, with only an adapted drawconnection function.
+
+0.3 (16/09/2008)
+-animation thing for swinging off screen largely working.
+-bit of cheating by adding extra spring :P
+
+0.4 (17/09/2008)
+-wait for still turned down to 1 second
+-proper incy-wincy spider style spider!  little smile and legs :D
+
+0.5 (17/09/2008)
+-tweaked boost so it gives gradually more boost (swing starts slower, but gets above starting point faster than before)
+-detects demise of swinging spider (room for improvement, though)
+
+...
+
+0.7 (17/09/2008)
+-finally finished rendering for darwinia spider body, after a few attempts
+
+0.8 (17/09/2008)
+-Darwinia spider:
+-walking animation!
+-can pause!
+-can jump!
+-is awesome!
+-will do somethign every 10th step (on average).  Is twice as likely to jump as stand still.
+
+0.9 (18/09/2008)
+-added facing to spider and fixed animations and legs for walking opposite way.
+-loop of spiders sort of working.  when the incy-wincy spider appears again it's a big tangled, not sure why.
+-removed auto-loading and canvas generating from .js file (makes script easier to add to another project)
+
+1.0 (18/09/2008)
+-Added runAlone option - whether script is running physics or not
+
+1.0.1 (18/09/2008)
+-fixed what broke.
+-fixed legs not lining up with differen frictions.

@@ -1,0 +1,423 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html>
+<head>
+<title>Luke's 2D JavaScript Engine version 0.9</title>
+<script src="keys.js" type="text/javascript"></script>
+</head>
+<body onkeydown="keydown(event)" onkeyup="keyup(event)">
+<span id="worldspan"></span>
+<span id="testspan"></span>
+<script language="JavaScript" type="text/javascript">
+<!--
+var wholeworld= new Array()
+
+//General variables used to define major things in the world
+
+var world=document.getElementById('worldspan');
+//gravity, and in which direction (could be used as a cheap wind, like Worms 1)  100 seems to be a nice value
+var gravityY=100;
+var gravityX=0;
+//how much things slow down by, by themselves
+var friction=20
+//time/s per refresh
+var timeperloop= 0.02
+//essentially fps
+var refreshrate=timeperloop*1000
+//velocity retained during collision (as fraction), set to 1 for inelastic collisions
+var dampen=1
+//most force the user can apply to 'us'
+var maxuserforce=20000
+var incriment=maxuserforce/10
+
+//the minimum speed anything can have before it's stopped (set to 0 for no min speed)
+var minspeed=2
+
+function entity(state,name,x,y,width,height,mass,image,type,vx,vy,fx,fy,hard,sticky,shape,divoptions)
+{
+this.name=name;this.x=x;this.y=y;this.width=width;this.height=height;this.mass=mass;this.image=image;
+this.div=name+'div';
+//types 0 =moveable entitiy, 1= still object
+this.type=type;
+//v=veloctity,f=force
+this.vx=vx;this.vy=vy;this.fx=fx;this.fy=fy;
+//state is used for wether it's alive or dead (out of the world) or whatever 0=dead, 1=alive (in the world)
+this.state=state
+//sticky types: false means elastic collision, true means all momentum is lost
+this.sticky=sticky;
+//shapes, 1= rectangle, 0=circle, 2=square/rectangle, but collide as circle
+this.shape=shape
+//can it collide?
+this.hard=hard
+//functions
+//this.UpDateMe=UpDateMe
+this.Kill=Kill
+this.UnKill=UnKill
+this.PlotMe=PlotMe
+//enter our object into the world array
+wholeworld.push(this)
+this.divoptions=divoptions
+if(!testfordiv(this.div)){world.innerHTML+="<div id=\'"+this.div+"' style='position:absolute;  width:"+this.width+";"+this.divoptions+" height:"+this.height+";  top:"+this.y+"; left:"+this.x+"'><img src='"+this.image+"'></div>"}
+}
+
+function testfordiv(id)
+{var testme=document.getElementById(id);
+if(testme){return true;}else{return false;}}
+
+//here are where objects are created
+
+//NAMES MUST BE UNIQUE
+
+//entity(state,name,x,y,width,height,mass,image,type,vx,vy,fx,fy,hard,sticky,shape,divoptions)
+
+var lowerborder=new entity(1,'lowerborder',-100,600,1000,100,10,'blank.gif',1,0,0,0,0,true,false,1,'border:solid black 1px;');
+var upperborder=new entity(1,'upperborder',-100,-100,1000,100,10,'blank.gif',1,0,0,0,0,true,false,1,'border:solid black 1px;');
+var leftborder=new entity(1,'leftborder',-100,-100,100,800,10,'blank.gif',1,0,0,0,0,true,false,1,'border:solid black 1px;');
+var rightborder=new entity(1,'rightborder',800,-100,100,800,10,'blank.gif',1,0,0,0,0,true,false,1,'border:solid black 1px;');
+
+var us=new entity(1,'us',10,350,50,50,100,'balls/black.gif',0,0,0,0,0,true,false,0,'');
+
+//var ball1=new entity(1,'ball1',100,350,50,50,100,'balls/black.gif',1,0,0,0,0,true,false,0,'');
+
+//var us=new entity('us',100,350,150,50,100,'usdiv','balls/black.gif',0,0,0,0,0,true,false,1,true);
+
+
+var aproxmass=100
+var giveortake=5
+
+/*
+var ball1=new entity(1,'ball1',300,350,50,50,100,'balls/red.gif',0,0,0,0,0,true,false,0,'');
+var ball2=new entity(1,'ball2',350,350,50,50,100,'balls/orange.gif',0,0,0,0,0,true,false,0,'');
+var ball3=new entity(1,'ball3',400,350,50,50,100,'balls/yellow.gif',0,0,0,0,0,true,false,0,'');
+var ball4=new entity(1,'ball4',450,350,50,50,100,'balls/yellow.gif',0,0,0,0,0,true,false,0,'');
+*/
+
+//row 1 (left to right)
+var ball1=new entity(1,'ball1',300,350,50,50,randommass(aproxmass,giveortake),'balls/red.gif',0,0,0,0,0,true,false,0,'');
+//row 2
+
+var ball2=new entity(1,'ball2',343,325,50,50,randommass(aproxmass,giveortake),'balls/orange.gif',0,0,0,0,0,true,false,0,'');
+var ball3=new entity(1,'ball3',343,375,50,50,randommass(aproxmass,giveortake),'balls/orange.gif',0,0,0,0,0,true,false,0,'');
+//row 3
+var ball4=new entity(1,'ball4',386,350,50,50,randommass(aproxmass,giveortake),'balls/yellow.gif',0,0,0,0,0,true,false,0,'');
+var ball5=new entity(1,'ball5',386,300,50,50,randommass(aproxmass,giveortake),'balls/yellow.gif',0,0,0,0,0,true,false,0,'');
+var ball6=new entity(1,'ball6',386,400,50,50,randommass(aproxmass,giveortake),'balls/yellow.gif',0,0,0,0,0,true,false,0,'');
+//row 4
+var ball7=new entity(1,'ball7',429,325,50,50,randommass(aproxmass,giveortake),'balls/green.gif',0,0,0,0,0,true,false,0,'');
+var ball8=new entity(1,'ball8',429,375,50,50,randommass(aproxmass,giveortake),'balls/green.gif',0,0,0,0,0,true,false,0,'');
+var ball9=new entity(1,'ball9',429,275,50,50,randommass(aproxmass,giveortake),'balls/green.gif',0,0,0,0,0,true,false,0,'');
+var ball10=new entity(1,'ball10',429,425,50,50,randommass(aproxmass,giveortake),'balls/green.gif',0,0,0,0,0,true,false,0,'');
+//row5
+var ball11=new entity(1,'ball11',472,250,50,50,randommass(aproxmass,giveortake),'balls/blue.gif',0,0,0,0,0,true,false,0,'');
+var ball12=new entity(1,'ball12',472,350,50,50,randommass(aproxmass,giveortake),'balls/blue.gif',0,0,0,0,0,true,false,0,'');
+var ball13=new entity(1,'ball13',472,300,50,50,randommass(aproxmass,giveortake),'balls/blue.gif',0,0,0,0,0,true,false,0,'');
+var ball14=new entity(1,'ball14',472,400,50,50,randommass(aproxmass,giveortake),'balls/blue.gif',0,0,0,0,0,true,false,0,'')
+var ball15=new entity(1,'ball15',472,450,50,50,randommass(aproxmass,giveortake),'balls/blue.gif',0,0,0,0,0,true,false,0,'');
+
+
+function randommass(aprox,leeway)
+{var themass=aprox+(Math.random()-1)*2*leeway
+return Math.round(themass)}
+
+function Kill()
+{this.state=0;
+redrawworld()}
+
+function UnKill()
+{var canwepopout=checkcollide(this)
+if (canwepopout !==false){setTimeout(this.name+".UnKill()",100);}else{
+this.state=1;
+redrawworld()}}
+
+function PlotMe()
+{if(!testfordiv(this.div)){if(!testfordiv(this.div)){world.innerHTML+="<div id=\'"+this.div+"' style='position:absolute;  width:"+this.width+";"+this.divoptions+" height:"+this.height+";  top:"+this.y+"; left:"+this.x+"'><img src='"+this.image+"'></div>"}}}
+
+//loop stuff
+var loopme=setInterval('loop()',refreshrate)
+function loop()
+{
+moveus()
+replotentities()
+}
+
+function moveus()
+{
+if (moveright){us.fx+=incriment; if (us.fx>maxuserforce){us.fx=maxuserforce};}
+if (moveleft){us.fx-=incriment; if (us.fx<-maxuserforce){us.fx=-maxuserforce}}
+if(!moveright && !moveleft){if (us.fx>0){us.fx-=incriment};if (us.fx<0){us.fx+=incriment}}
+if (moveup){us.fy-=incriment; if (us.fy < -maxuserforce){us.fy=-maxuserforce}}
+if (movedown){us.fy+=incriment; if (us.fy > maxuserforce){us.fy=maxuserforce}}
+if (!moveup && !movedown){us.fy+=incriment*2; if (us.fy > 0){us.fy=0}}
+//document.getElementById('testspan').innerHTML="ourfx ="+us.fx+" ourfx ="+us.fy+" ourvx ="+us.vx+" ourvy ="+us.vy
+}
+
+function updatefps()
+{if (timeperloop!==(1/document.gameform.fpsselect.value)){timeperloop=1/document.gameform.fpsselect.value;refreshrate=1000/document.gameform.fpsselect.value;clearInterval(loopme);loopme=setInterval('loop()',refreshrate)}}
+
+
+//displacement
+var currentleft;
+var currenttop;
+//velocity
+var currentvx;
+var currentvy;
+var newvx
+var newvy
+//force
+var currentfx;
+var currentfy;
+//acceleration
+var ax
+var ay
+
+//seconds per loop
+
+var collide;
+var collide2;
+var ourvx;
+var theirvx;
+var ourvy;
+var theirvy;
+
+var whichdiv;
+var ournewvx;
+var ournewvy;
+var theirnewvx;
+var theirnewvy;
+
+var ourleft
+var ourright
+var ourtop
+var ourbottom
+var theirleft
+var theirright
+var theirtop
+var theirbottom
+var dontcontinue
+
+var diffinx
+var diffiny
+var collisionangle
+var theirspeed
+var ourspeed
+
+var ourperpendicularv;
+var ourparellelv;
+var theirperpendicularv;
+var theirparellelv;
+
+var ournewperpendicularv;
+var ournewparellelv;
+var theirnewperpendicularv;
+var theirnewparellelv;
+
+var ouranglebelowx
+var theiranglebelowx
+
+var currentlycolliding
+
+
+function findacceleration(tempforce,tempmass,tempvelocity,tempfriction)
+{
+var tempa = (tempforce)/tempmass
+//attempt at moddeling friction
+if(tempvelocity>1){tempa-=tempfriction}
+if(tempvelocity<(-1)){tempa+=tempfriction}
+return tempa
+}
+
+//IDEA FOR FRICITON, ADD FRICTION TO SPEED, THEN RESLOVE FOR X AND Y VELOCITIES
+
+function replotentities()
+{
+for (i=0;i<wholeworld.length;i++)
+{
+if(wholeworld[i].type == 0 && wholeworld[i].state!==0)
+{//if type=0 then we're a entity and thus need to be replotted, and we're not dead
+ourspeed=Math.sqrt(wholeworld[i].vx*wholeworld[i].vx+wholeworld[i].vy*wholeworld[i].vy)
+//acceleration of object to be updated; f=ma therefore a=f/m
+ax=(wholeworld[i].fx+gravityX*wholeworld[i].mass-wholeworld[i].vx*friction)/wholeworld[i].mass
+ay=(wholeworld[i].fy+gravityY*wholeworld[i].mass-wholeworld[i].vy*friction)/wholeworld[i].mass
+//v=u+at
+newvy=wholeworld[i].vy+ay*timeperloop
+newvx=wholeworld[i].vx+ax*timeperloop
+//wholeworld[i].vy=newvy
+//wholeworld[i].vx=newvx
+//optimisation, if we're not moving, don't faff about re-plotting our position
+if(newvy!==0 || newvx!==0){
+// if we're moving really slowly, and there's no force on us, then stop moving.
+if(Math.abs(wholeworld[i].vy) <=minspeed && Math.abs(wholeworld[i].vx) <=minspeed && wholeworld[i].fx==0 && wholeworld[i].fy==0 && ax==0 && ay==0){newvx=0;newvy=0;}
+//s=ut + 0.5at^2 therefore, new position = old position + ut+1/2at^2
+newx=(wholeworld[i].vx*timeperloop+1/2*ax*timeperloop*timeperloop)+wholeworld[i].x
+newy=(wholeworld[i].vy*timeperloop+1/2*ay*timeperloop*timeperloop)+wholeworld[i].y
+//if(wholeworld[i].name=='ball5'){document.getElementById('testspan').innerHTML="ball5 ax ="+ax+" ball5fx ="+wholeworld[i].fy+" ball5 ay ="+ay+" ball5vy ="+wholeworld[i].vy}
+for (i2=0;i2<wholeworld.length;i2++)
+{
+if(wholeworld[i2].hard==true && i!==i2)
+{
+var testcollide=checkcollide(newx,newy,wholeworld[i].width,wholeworld[i].height,wholeworld[i].shape,wholeworld[i2].x,wholeworld[i2].y,wholeworld[i2].width,wholeworld[i2].height,wholeworld[i2].shape)
+if(testcollide==true)
+{
+if(wholeworld[i2].sticky==false)
+{
+if(wholeworld[i].shape==0 && wholeworld[i2].shape==0)
+{collideascircles()}else{collideassquares()}
+
+if(wholeworld[i2].type==0){wholeworld[i2].vx=theirnewvx;wholeworld[i2].vy=theirnewvy}
+newx=wholeworld[i].x;newy=wholeworld[i].y;
+wholeworld[i].vx=newvx
+wholeworld[i].vy=newvy
+//end of if sticky
+}
+//end of there is a collision
+}
+//end of collidable if statement
+}
+//end of i2 (collision) loop
+}
+
+wholeworld[i].vx=newvx
+wholeworld[i].vy=newvy
+wholeworld[i].x=newx
+wholeworld[i].y=newy
+
+whichdiv=document.getElementById(wholeworld[i].div);
+whichdiv.style.left=Math.round(newx);
+whichdiv.style.top=Math.round(newy);
+
+//end of if we're moving statement
+}
+//end of if entity statement
+}
+//end of wholeworld loop 
+}
+//end of replotentities()
+}
+
+function update(updateme)
+{}
+
+function collideassquares()
+{
+
+//from an equation I found on the internet (elastic collisons, re-arrengement of the above two equations)
+if(wholeworld[i2].type == 0){//we're colliding with an entity, so it can also move
+
+//1D collision equations dervived from kinetic energer and conservation of momentum, probably incorrectly applied in a 2D context
+newvx=( (wholeworld[i].mass-wholeworld[i2].mass)/(wholeworld[i].mass+wholeworld[i2].mass))*wholeworld[i].vx+( (2*wholeworld[i2].mass)/(wholeworld[i].mass+wholeworld[i2].mass) )*wholeworld[i2].vx
+newvy=( (wholeworld[i].mass-wholeworld[i2].mass)/(wholeworld[i].mass+wholeworld[i2].mass))*wholeworld[i].vy+( (2*wholeworld[i2].mass)/(wholeworld[i].mass+wholeworld[i2].mass) )*wholeworld[i2].vy
+theirnewvx=( (wholeworld[i2].mass-wholeworld[i].mass)/(wholeworld[i2].mass+wholeworld[i].mass))*wholeworld[i2].vx+( (2*wholeworld[i].mass)/(wholeworld[i2].mass+wholeworld[i].mass) )*wholeworld[i].vx
+theirnewvy=( (wholeworld[i2].mass-wholeworld[i].mass)/(wholeworld[i2].mass+wholeworld[i].mass))*wholeworld[i2].vy+( (2*wholeworld[i].mass)/(wholeworld[i2].mass+wholeworld[i].mass) )*wholeworld[i].vy
+}else{//they're an object
+
+dontcontinue=0
+theirleft=wholeworld[i2].x
+theirright=wholeworld[i2].x+wholeworld[i2].width
+theirtop=wholeworld[i2].y
+theirbottom=wholeworld[i2].y+wholeworld[i2].height
+if(wholeworld[i].y>theirtop && wholeworld[i].y<theirbottom && dontcontinue==0  && wholeworld[i].shape !==3){newvx=wholeworld[i].vx*(-1);newvy=wholeworld[i].vy;dontcontinue++;}
+if(wholeworld[i].x>theirleft &&wholeworld[i].x<theirright && dontcontinue==0 && wholeworld[i].shape !==3){newvy=wholeworld[i].vy*(-1);newvx=wholeworld[i].vx;dontcontinue++}
+if(wholeworld[i].y+wholeworld[i].height>theirtop && wholeworld[i].y+wholeworld[i].height<theirbottom && dontcontinue==0 && wholeworld[i].shape !==3){newvx=wholeworld[i].vx*(-1);newvy=wholeworld[i].vy;dontcontinue++;}
+if(wholeworld[i].x+wholeworld[i].width>theirleft && wholeworld[i].x+wholeworld[i].width<theirright && dontcontinue==0 && wholeworld[i].shape !==3){newvy=wholeworld[i].vy*(-1);newvx=wholeworld[i].vx;dontcontinue++}
+
+if(dontcontinue==0 || wholeworld[i].shape ==3)
+{
+collideascircles()
+//alert('inside squares - circles')
+}
+
+}
+
+}
+
+
+
+
+function collideascircles()
+{
+ourcentrex=wholeworld[i].x+wholeworld[i].width/2
+ourcentrey=wholeworld[i].y+wholeworld[i].height/2
+theircentrex=wholeworld[i2].x+wholeworld[i2].width/2
+theircentrey=wholeworld[i2].y+wholeworld[i2].height/2
+diffinx=theircentrex-ourcentrex
+diffiny=theircentrey-ourcentrey
+
+if(diffinx == 0){collisionangle=0}else{collisionangle=Math.atan(diffiny/diffinx)}
+
+//essentially, momentum is conserved parrellel and perpendicular to the angle of collision
+//http://director-online.com/buildArticle.php?id=532 proved immensly useful, and in actual fact, rendered most of 
+//my previous work at collisions wasted as I re-wrote a lot of it
+if(wholeworld[i].vx<0){ouranglebelowx=(Math.PI)+(Math.atan(wholeworld[i].vy/wholeworld[i].vx))}
+else if(wholeworld[i].vx>0 && wholeworld[i].vy>=0){ouranglebelowx=Math.atan(wholeworld[i].vy/wholeworld[i].vx)}
+else if(wholeworld[i].vx>0 && wholeworld[i].vy < 0){ouranglebelowx=2*(Math.PI)+(Math.atan(wholeworld[i].vy/wholeworld[i].vx))}
+else if(wholeworld[i].vx==0 && wholeworld[i].vy == 0){ouranglebelowx=0}
+else if(wholeworld[i].vx==0 && wholeworld[i].vy>=0){ouranglebelowx=(Math.PI)/2}
+else{ouranglebelowx=3*(Math.PI)/2}
+if(wholeworld[i2].vx<0){theiranglebelowx=(Math.PI)+(Math.atan(wholeworld[i2].vy/wholeworld[i2].vx))}
+else if(wholeworld[i2].vx>0 && wholeworld[i2].vy>=0){theiranglebelowx=Math.atan(wholeworld[i2].vy/wholeworld[i2].vx)}
+else if(wholeworld[i2].vx>0 && wholeworld[i2].vy < 0){theiranglebelowx=2*(Math.PI)+(Math.atan(wholeworld[i2].vy/wholeworld[i2].vx))}
+else if(wholeworld[i2].vx==0 && wholeworld[i2].vy == 0){theiranglebelowx=0}
+else if(wholeworld[i2].vx==0 && wholeworld[i2].vy>=0){theiranglebelowx=(Math.PI)/2}
+else{theiranglebelowx=3*(Math.PI)/2}
+
+//ourspeed is set earlier
+theirspeed=Math.sqrt(wholeworld[i2].vx*wholeworld[i2].vx+wholeworld[i2].vy*wholeworld[i2].vy)
+ourparellelv=ourspeed*(Math.cos(ouranglebelowx-collisionangle))
+ourperpendicularv=ourspeed*(Math.sin(ouranglebelowx-collisionangle))
+theirparellelv=theirspeed*(Math.cos(theiranglebelowx-collisionangle))
+theirperpendicularv=theirspeed*(Math.sin(theiranglebelowx-collisionangle))
+if(wholeworld[i2].type == 0){//we're colliding with an entity, so it can also move
+
+ournewparellelv=( (wholeworld[i].mass-wholeworld[i2].mass)/(wholeworld[i].mass+wholeworld[i2].mass))*ourparellelv+( (2*wholeworld[i2].mass)/(wholeworld[i].mass+wholeworld[i2].mass) )*theirparellelv
+theirnewparellelv=( (wholeworld[i2].mass-wholeworld[i].mass)/(wholeworld[i2].mass+wholeworld[i].mass))*theirparellelv+( (2*wholeworld[i].mass)/(wholeworld[i2].mass+wholeworld[i].mass) )*ourparellelv
+newvx=ournewparellelv*(Math.cos(collisionangle))+ourperpendicularv*(Math.cos(collisionangle+(Math.PI/2)))
+newvy=ournewparellelv*(Math.sin(collisionangle))+ourperpendicularv*(Math.sin(collisionangle+(Math.PI/2)))
+theirnewvx=theirnewparellelv*(Math.cos(collisionangle))+theirperpendicularv*(Math.cos(collisionangle+(Math.PI/2)))
+theirnewvy=theirnewparellelv*(Math.sin(collisionangle))+theirperpendicularv*(Math.sin(collisionangle+(Math.PI/2)))
+
+}else{//we're colliding with an object, so it can't move
+
+ournewparellelv=ourparellelv*(-1)
+newvx=ournewparellelv*(Math.cos(collisionangle))+ourperpendicularv*(Math.cos(collisionangle+(Math.PI/2)))
+newvy=ournewparellelv*(Math.sin(collisionangle))+ourperpendicularv*(Math.sin(collisionangle+(Math.PI/2)))
+
+}
+}
+
+
+//x,y=topleft coords, w=width,h=height,s=shape
+function checkcollide(x1,y1,w1,h1,s1,x2,y2,w2,h2,s2)
+{
+rightx1=x1+w1
+rightx2=x2+w2
+bottomy1=y1+h1
+bottomy2=y2+h2
+centrex1=x1+w1/2
+centrex2=x2+w2/2
+centrey1=y1+h1/2
+centrey2=y2+h2/2
+rad1=h1/2
+rad2=h2/2
+if(s1==0 && s2==0)
+{
+//both are circles
+radii=rad1+rad2
+//pythagoras
+var circledistance=Math.sqrt( (centrex1-centrex2)*(centrex1-centrex2)+(centrey1-centrey2)*(centrey1-centrey2) )
+//alert(circledistance) 
+//if the distance between the two circles is less than or equal to the sum of their two radii then they'll collide
+if(circledistance<radii-1){return true}
+}else{
+//one of us isn't a circle
+if(rightx1 > x2 && x1 < (x2+w2) && y1 < (y2+h2) && bottomy1 > y2){return true}
+}
+return false;
+}
+
+
+
+//-->
+</script>
+
+</body>
+</html>

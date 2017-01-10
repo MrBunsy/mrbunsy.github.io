@@ -1,0 +1,469 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html>
+<head>
+<title>Coulombs Law Tests on Luke's 2D JavaScript Engine version 1.65.3</title>
+<script src="keys.js" type="text/javascript"></script>
+<script src="canvas2.js" type="text/javascript"></script>
+</head>
+<body onkeydown="keydown(event)" onkeyup="keyup(event)">
+<!--you MUST pre-load all images used in the game like this, as some browsers do very weird things when new images are called up by javascript.  Also helps stop problems with images not loaidng in time
+Also, make sure you have a background div of some sort, over the top, to hide them. (display:none; will also do weird things in my experience in IE)
+//-->
+<img src="balls/white.gif" alt=""><img src="balls/blue.gif" alt=""><img src="balls/green.gif" alt=""><img src="balls/blue.gif" alt=""><img src="balls/red.gif" alt=""><img src="balls/yellow.gif" alt=""><img src="balls/orange.gif" alt=""><img src="blank.gif" alt=""><img src="balls/black.gif" alt="">
+<span id="worldspan"></span>
+<script src="2D_engine1.65.3.js" type="text/javascript"></script>
+<span id="canvasspan"></span>
+<span id="linesspan"></span>
+<div id="testspan" style="position:relative; z-index:5;"></div>
+<div id="testspan2" style="position:relative; z-index:5;"></div>
+<script language="JavaScript" type="text/javascript">
+<!--
+
+
+
+//polytest 1.65 - collision detection with polys works by interesctions of circles and straight lines.  Works reliably, but is in-efficient.
+
+
+//coming soon - a larger theoretical poly around the outside of each poly, and testing with circles if the midpoint is inside this larger poly.
+//should work, and will hopefully be much faster since less calculations are needed.
+
+
+
+//polytest 1.65 - collision detection with polys works by interesctions of circles and straight lines.  Works reliably, but is in-efficient.
+
+
+//coming soon - a larger theoretical poly around the outside of each poly, and testing with circles if the midpoint is inside this larger poly.
+//should work, and will hopefully be much faster since less calculations are needed.
+
+
+
+
+var wholeworld= new Array()
+
+//General variables used to define major things in the world
+
+var world=document.getElementById('worldspan');
+//gravity, and in which direction (could be used as a cheap wind, like Worms 1)  100 seems to be a nice value
+var gravityY=100;
+var gravityX=0;
+//how much  speed everything retains per loop (fraction)
+var friction=0.995
+//time/s per refresh
+var timeperloop=0.02
+//essentially fps
+var refreshrate;
+if (document.all){var IE=true}else{var IE = false}
+if(IE){refreshrate=timeperloop*796;}else{refreshrate=timeperloop*1000;}
+//velocity retained during collision (as fraction), set to 1 for inelastic collisions
+var dampen=1
+//most force the user can apply to 'us'
+var maxuserforce=20000
+var incriment=maxuserforce/10
+
+//the minimum speed anything can have before it's stopped (set to 0 for no min speed)
+var minspeed=10
+
+
+
+
+//here are where objects are created
+//NAMES MUST BE UNIQUE
+
+//entity(state,name,x,y,width,height,mass,image,type,vx,vy,fx,fy,hard,sticky,shape,divoptions,gametype,elastic)
+
+//x,y co-ords are for the top left hand corner, div options are standard HTML bits and bobs for the style of the div
+
+//these are for the borders, you'll always want some kind of border (even if invisible) to stop anything being able to leave the screen
+
+var bg=new entity(1,'bg',00,00,550,550,0,false,1,0,0,0,0,false,false,1,'background-color:white;',3,1);
+
+var lowerborder=new entity(1,'lowerborder',0,550,1100,50,10,false,1,0,0,0,0,true,false,1,'background-color:#808080;',0,1);
+var upperborder=new entity(1,'upperborder',0,0,1100,50,10,false,1,0,0,0,0,true,false,1,'background-color:#808080;',0,1);
+var leftborder=new entity(1,'leftborder',0,0,50,600,10,false,1,0,0,0,0,true,false,1,'background-color: #808080;',0,1);
+var rightborder=new entity(1,'rightborder',1050,0,50,600,10,false,1,0,0,0,0,true,false,1,'background-color:#808080;',0,1);
+
+//var borderpoly=new entity(1,'borderpoly',[50,1000,1000,50],[50,50,700,700],1,1,10,'black',1,0,0,0,0,true,false,3,'',3,1,true);
+
+
+var springlines=new Array();
+function springline(from,to,springstrength,springlength,linetype)
+{
+if(to>from){this.from=from;this.to=to;}else{this.to=from;this.from=to;}
+this.springstrength=springstrength
+this.springlength=springlength
+
+//0=no line, 1=dots proportinal to length of line
+this.linetype=linetype
+
+if(springlength>100)
+{this.dots=Math.ceil(springlength/50)}
+else{this.dots=Math.ceil(springlength/20)}
+
+this.dotsize=Math.ceil(springlength/20)
+
+document.getElementById('linesspan').innerHTML+="<span id='"+this.from+"-"+this.to+"'></span>"
+this.arraypos=springlines.length;
+springlines.push(this)
+//alert(document.getElementById('linesspan').innerHTML)
+
+this.updateline=updateline
+
+}
+
+var updatedlines=new Array()
+
+function updateline()
+{//alert(this.from+"-"+this.to)
+switch(this.linetype)
+{
+case 1:
+if(!inarray(this.arraypos,updatedlines))
+{
+document.getElementById(this.from+"-"+this.to).innerHTML='';
+var startx=wholeworld[this.from].x+wholeworld[this.from].width/2-Math.round(this.dotsize/2);
+var starty=wholeworld[this.from].y+wholeworld[this.from].height/2-Math.round(this.dotsize/2);
+var dx=wholeworld[this.to].x-wholeworld[this.from].x;
+var dy=wholeworld[this.to].y-wholeworld[this.from].y;
+var linelength=Math.sqrt(dx*dx+dy*dy);
+dx/=this.dots
+dy/=this.dots
+for(var d=1;d<this.dots;d++)
+{document.getElementById(this.from+"-"+this.to).innerHTML+="<div style='position:absolute;width:"+this.dotsize+";height:"+this.dotsize+"; clip:rect(0,"+this.dotsize+"px,"+this.dotsize+"px,0); background-color:black; top:"+(starty+d*dy)+";left:"+(startx+d*dx)+";'></div>";}
+//end of if in array
+updatedlines.push(this.arraypos)
+}
+
+break;}
+
+}
+
+
+var chargedobjects=new Array();
+
+function makecharged(chargeme)//if not 0 then gives an object a charge, if 0 then removes charge
+{
+if(chargeme==0){this.charged=false;this.charge=0;chargedobjects.splice(this.chargearraypos, 1)
+}else{
+this.charge=chargeme;
+this.charged=true;
+this.chargearraypos=chargedobjects.length
+chargedobjects.push(this);}
+}
+
+var ball=new entity(1,'ball',200,350,50,50,100,'balls/red.gif',0,0,0,0,0,true,false,0,'',1,0.95);
+
+//ball.makecharged(0.2)
+//ball2.makecharged(0.2)
+//var square=new entity(1,'square',300,275,30,50,100,false,0,0,0,0,0,true,false,1,'border:solid black 1px;',1,0.95);
+
+
+function inarray(needle,haystack)
+{for (var k=0;k<haystack.length;k++)
+{if(haystack[k] == needle){return true;}}
+return false;}
+
+var aproxmass=100
+var giveortake=5
+
+//for polygons entity(state,name,x array,y array,thickness,z-index,mass,colour,type,vx,vy,fx,fy,hard,sticky,shape,ignore,gametype,elastic,hollow)
+
+/*
+var smallball1=new entity(1,'smallball1',150,300,9,9,100,'tinyballs/red.gif',0,0,0,0,0,true,false,0,'',2,1);
+var smallball2=new entity(1,'smallball2',200,300,9,9,100,'tinyballs/red.gif',0,0,0,0,0,true,false,0,'',2,1);
+var smallball3=new entity(1,'smallball3',175,343,9,9,100,'tinyballs/red.gif',0,0,0,0,0,true,false,0,'',2,1);
+var smallball4=new entity(1,'smallball4',175,257,9,9,100,'tinyballs/red.gif',0,0,0,0,0,true,false,0,'',2,1);
+
+connect(smallball1.arraypos,smallball2.arraypos,10000,50)
+connect(smallball1.arraypos,smallball3.arraypos,10000,50)
+connect(smallball2.arraypos,smallball3.arraypos,10000,50)
+connect(smallball4.arraypos,smallball1.arraypos,10000,50)
+connect(smallball4.arraypos,smallball2.arraypos,10000,50)
+connect(smallball4.arraypos,smallball3.arraypos,10000,50)
+
+*/
+
+var fixedpoint=new entity(1,'fixedpoint',200,0,50,50,100,false,1,0,0,0,0,true,false,0,'',2,1);
+//var ball3=new entity(1,'ball3',200,150,50,50,100,'balls/green.gif',0,0,0,0,0,true,false,0,'',1,0.95);
+
+connect(ball.arraypos,fixedpoint.arraypos,1000,300,1)
+
+//var charge1=new entity(1,'charge1',520,150,9,9,100,'tinyballs/red.gif',0,-10,0,0,0,true,false,0,'',2,1);
+//var charge2=new entity(1,'charge2',250,200,50,50,100,'balls/black.gif',1,0,0,0,0,true,false,0,'',2,1);
+
+//connect(ball.arraypos,charge2.arraypos,100000,200)
+//connect(ball2.arraypos,charge2.arraypos,100000,200)
+
+//charge1.makecharged(0.02)
+//charge2.makecharged(-0.1)
+
+
+
+
+
+
+
+
+function connect(one,two,strength,howfar,linetype)
+{
+if(howfar===false){
+//don't pre-set it, but set it as the current distance
+howfar=Math.sqrt( Math.pow(wholeworld[one].x+wholeworld[one].width/2-wholeworld[two].x-wholeworld[two].width/2,2)+Math.pow(wholeworld[one].y+wholeworld[one].height/2-wholeworld[two].y-wholeworld[two].height/2,2))
+
+}
+
+var tempvar = new springline(one,two,strength,howfar,linetype)
+
+wholeworld[one].connected.push(two);
+wholeworld[one].springstrength.push(strength)
+wholeworld[one].springlength.push(howfar)
+wholeworld[one].springlinearraypos.push(springlines.length-1)
+
+wholeworld[two].connected.push(one);
+wholeworld[two].springstrength.push(strength)
+wholeworld[two].springlength.push(howfar)
+wholeworld[two].springlinearraypos.push(springlines.length-1)
+}
+
+
+
+
+
+
+
+
+var counter=0;
+//loop stuff
+var loopme=setInterval('loop()',refreshrate)
+function loop()
+{
+moveus()
+replotentities()
+
+switch(needredraw)
+{
+case true:
+redrawworld()
+needredraw=false
+break;
+}
+counter++
+}
+
+var player=ball.arraypos;
+
+function moveus()
+{
+
+if (moveright){wholeworld[player].fx+=incriment; if (wholeworld[player].fx>maxuserforce){wholeworld[player].fx=maxuserforce};}
+if (moveleft){wholeworld[player].fx-=incriment; if (wholeworld[player].fx<-maxuserforce){wholeworld[player].fx=-maxuserforce}}
+if(!moveright && !moveleft){if (wholeworld[player].fx>0){wholeworld[player].fx-=incriment};if (wholeworld[player].fx<0){wholeworld[player].fx+=incriment}}
+if (moveup){wholeworld[player].fy-=incriment; if (wholeworld[player].fy < -maxuserforce){wholeworld[player].fy=-maxuserforce}}
+if (movedown){wholeworld[player].fy+=incriment; if (wholeworld[player].fy > maxuserforce){wholeworld[player].fy=maxuserforce}}
+if (!moveup && !movedown){wholeworld[player].fy+=incriment*2; if (wholeworld[player].fy > 0){wholeworld[player].fy=0}}
+
+/*
+if(moveleft){player.vx=-100;player.fy=-100}
+if(moveright){player.vx=100;player.fy=-100}
+if(!moveleft && !moveright){player.vx=0;}
+*/
+//document.getElementById('testspan').innerHTML="ourfx ="+us.fx+" ourfx ="+us.fy+" ourvx ="+us.vx+" ourvy ="+us.vy
+}
+
+
+
+
+
+function springstuff(x1,x2,y1,y2,sprstr,sprlng)
+{
+var farapart=Math.sqrt( Math.pow(x2-x1,2) + Math.pow(y2-y1,2)  )
+var springforce=-sprstr*(farapart-sprlng);
+var springangle=getangle(x1-x2,y1-y2);
+return [farapart,springforce,springangle];
+}
+
+
+
+
+
+//IDEA FOR FRICITON, ADD FRICTION TO SPEED, THEN RESLOVE FOR X AND Y VELOCITIES
+
+function replotentities()
+{
+updatedlines=new Array()
+for (i=0;i<wholeworld.length;i++)
+{
+if(wholeworld[i].type == 0 && wholeworld[i].state==1)
+{
+//if type=0 then we're a entity and thus need to be replotted, and we're not dead
+ourspeed=Math.sqrt(wholeworld[i].vx*wholeworld[i].vx+wholeworld[i].vy*wholeworld[i].vy)
+
+var ourangle
+
+if(wholeworld[i].vx<0){ourangle=(Math.PI)+(Math.atan(wholeworld[i].vy/wholeworld[i].vx))}
+else if(wholeworld[i].vx>0 && wholeworld[i].vy>=0){ourangle=Math.atan(wholeworld[i].vy/wholeworld[i].vx)}
+else if(wholeworld[i].vx>0 && wholeworld[i].vy < 0){ourangle=2*(Math.PI)+Math.atan(wholeworld[i].vy/wholeworld[i].vx)}
+else if(wholeworld[i].vx==0 && wholeworld[i].vy == 0){ourangle=0}
+else if(wholeworld[i].vx==0 && wholeworld[i].vy>=0){ourangle=(Math.PI)/2}
+else{ourangle=3*(Math.PI)/2}
+
+var ourspeedfriction=ourspeed*friction
+
+//if(wholeworld[i].connected.length>0){ourspeedfriction/=2;}
+
+//acceleration of object to be updated; f=ma therefore a=f/m
+var fx=wholeworld[i].fx+gravityX*wholeworld[i].mass//-wholeworld[i].vx
+var fy=wholeworld[i].fy+gravityY*wholeworld[i].mass//-wholeworld[i].vy
+
+if(wholeworld[i].charged)
+{for(var k=0;k<chargedobjects.length;k++)
+{if(chargedobjects[k].name!==wholeworld[i].name)
+{var rsqrd=Math.pow(wholeworld[i].x-chargedobjects[k].x,2)+Math.pow(wholeworld[i].y-chargedobjects[k].y,2)
+//coloumbs law:
+//f=k.q1.q2/r^2
+var coulombforce=8990000000*chargedobjects[k].charge*wholeworld[i].charge/rsqrd
+var coulombangle=getangle(wholeworld[i].x-chargedobjects[k].x,wholeworld[i].y-chargedobjects[k].y)
+fy+=Math.sin(coulombangle)*coulombforce
+fx+=Math.cos(coulombangle)*coulombforce}}}
+
+for(var k=0;k<wholeworld[i].connected.length;k++)
+{
+var them=wholeworld[i].connected[k];
+springlines[wholeworld[i].springlinearraypos[k]].updateline();
+
+//Hooke's Law:
+//F=-kx
+var springvar = springstuff((wholeworld[i].x+wholeworld[i].width/2),(wholeworld[them].x+wholeworld[them].width/2),(wholeworld[i].y+wholeworld[i].height/2),(wholeworld[them].y+wholeworld[them].height/2),wholeworld[i].springstrength[k],wholeworld[i].springlength[k])
+//(wholeworld[us].x+wholeworld[us].width/2)-(wholeworld[them].x+wholeworld[them].width/2),(wholeworld[us].y+wholeworld[us].height/2)-(wholeworld[them].y+wholeworld[them].height/2)
+
+var testfy=fy+Math.sin(springvar[2])*springvar[1]//+wholeworld[i].vx
+var testfx=fx+Math.cos(springvar[2])*springvar[1]//+wholeworld[i].vy
+
+var testax=testfx/wholeworld[i].mass
+var testay=testfy/wholeworld[i].mass
+var testnewvy=Math.sin(ourangle)*ourspeedfriction+(testfx/wholeworld[i].mass)*timeperloop
+var testnewvx=Math.cos(ourangle)*ourspeedfriction+(testfy/wholeworld[i].mass)*timeperloop
+var testnewx=(testnewvx*timeperloop+1/2*testax*timeperloop*timeperloop)+wholeworld[i].x
+var testnewy=(testnewvy*timeperloop+1/2*testay*timeperloop*timeperloop)+wholeworld[i].y
+
+var springvar2 = springstuff((testnewx+wholeworld[i].width/2),(wholeworld[them].x+wholeworld[them].width/2),(testnewy+wholeworld[i].height/2),(wholeworld[them].y+wholeworld[them].height/2),wholeworld[i].springstrength[k],wholeworld[i].springlength[k])
+
+var testfy2=fy+Math.sin(springvar2[2])*springvar2[1]
+var testfx2=fx+Math.cos(springvar2[2])*springvar2[1]
+
+//the above works out what the force applied to the particle should be where it currently is, but this can't just be applied because inherant problems with using a framerate will mean energy ends up effectively appearing from nowhere.
+//so it works out where the particle would be put if that force was applied, and then works out what force would be applied in this new position.
+//then averages these two forces.  This seems to work quite nicely.
+
+fy+=(testfy2+testfy)/2
+fx+=(testfx2+testfx)/2
+
+}
+
+ax=fx/wholeworld[i].mass
+ay=fy/wholeworld[i].mass
+
+//v=u+at
+newvy=Math.sin(ourangle)*ourspeedfriction+ay*timeperloop
+newvx=Math.cos(ourangle)*ourspeedfriction+ax*timeperloop
+//wholeworld[i].vy=newvy
+//wholeworld[i].vx=newvx
+//optimisation, if we're not moving, don't faff about re-plotting our position
+if(newvy!==0 || newvx!==0){
+// if we're moving really slowly, and there's no force on us, then stop moving.
+if(ourspeedfriction <=minspeed && wholeworld[i].fx==0 && wholeworld[i].fy==0 && ax==0 && ay==0){newvx=0;newvy=0;}
+//s=ut + 0.5at^2 therefore, new position = old position + ut+1/2at^2
+newx=(wholeworld[i].vx*timeperloop+1/2*ax*timeperloop*timeperloop)+wholeworld[i].x
+newy=(wholeworld[i].vy*timeperloop+1/2*ay*timeperloop*timeperloop)+wholeworld[i].y
+
+for (var i2=0;i2<wholeworld.length;i2++)
+{
+if(wholeworld[i2].hard==true && i!==i2 && wholeworld[i2].state==1)
+{
+if(checkcollide(newx,newy,wholeworld[i].width,wholeworld[i].height,wholeworld[i].shape,wholeworld[i2].x,wholeworld[i2].y,wholeworld[i2].width,wholeworld[i2].height,wholeworld[i2].shape,wholeworld[i],wholeworld[i2]))
+{//if there is a collision
+
+switch(wholeworld[i].gametype)
+{
+//case 1: if(wholeworld[i2].gametype==2){if(wholeworld[i].name=='us'){wholeworld[i].state=4;}else{wholeworld[i].state=3}};break;
+//use this to detect stuff
+}
+
+
+if(wholeworld[i2].sticky==false)
+{
+if(wholeworld[i].shape==0 && wholeworld[i2].shape==0)
+{
+wholeworld[i].vx=newvx
+wholeworld[i].vy=newvy
+collideascircles(wholeworld[i],wholeworld[i2])
+
+}else if(wholeworld[i].shape==3|| wholeworld[i2].shape==3){collidewithpoly(wholeworld[i],wholeworld[i2])}
+else
+{
+collideassquares(wholeworld[i],wholeworld[i2])
+}
+
+if(wholeworld[i2].type==0){wholeworld[i2].vx=theirnewvx;wholeworld[i2].vy=theirnewvy}
+//newx=wholeworld[i].x;newy=wholeworld[i].y;
+
+
+//this bit is new (v1.48), the idea is to solve problems when a ball is stuck between two plates, or similar.
+var dx=newx-wholeworld[i].x
+var dy=newy-wholeworld[i].y
+if(checkcollide((newx-dx/4),(newy-dy/4),wholeworld[i].width,wholeworld[i].height,wholeworld[i].shape,wholeworld[i2].x,wholeworld[i2].y,wholeworld[i2].width,wholeworld[i2].height,wholeworld[i2].shape,wholeworld[i],wholeworld[i2])!==true){newx-=dx/4;newy-=dy/4;}
+else if(checkcollide((newx-dx/2),(newy-dy/2),wholeworld[i].width,wholeworld[i].height,wholeworld[i].shape,wholeworld[i2].x,wholeworld[i2].y,wholeworld[i2].width,wholeworld[i2].height,wholeworld[i2].shape,wholeworld[i],wholeworld[i2])!==true){newx-=dx/2;newy-=dy/2;}
+else if(checkcollide((newx-(dx/4)*3),(newy-(dy/4)*3),wholeworld[i].width,wholeworld[i].height,wholeworld[i].shape,wholeworld[i2].x,wholeworld[i2].y,wholeworld[i2].width,wholeworld[i2].height,wholeworld[i2].shape,wholeworld[i],wholeworld[i2])!==true){newx-=(dx/4)*3;newy-=(dy/4)*3;}
+else{newx=wholeworld[i].x;newy=wholeworld[i].y;}
+
+wholeworld[i].vx=newvx
+wholeworld[i].vy=newvy
+
+//end of if sticky
+}
+
+newvx*=wholeworld[i].elastic
+newvy*=wholeworld[i].elastic
+
+//end of there is a collision
+}
+//end of collidable if statement
+}
+//end of i2 (collision) loop
+}
+
+wholeworld[i].vx=newvx
+wholeworld[i].vy=newvy
+
+wholeworld[i].x=newx
+wholeworld[i].y=newy
+
+whichdiv=document.getElementById(wholeworld[i].div);
+whichdiv.style.left=Math.round(newx);
+whichdiv.style.top=Math.round(newy);
+
+//end of if we're moving statement
+}
+
+//end of if entity statement
+}
+//this will attempt to bring back to life anything which couldn't come back because somehting was in the way 
+else if(wholeworld[i].state==2){wholeworld[i].unkill()}
+else if(wholeworld[i].state==3){wholeworld[i].destroy();}
+else if(wholeworld[i].state==4){wholeworld[i].kill();wholeworld[i].x=100;wholeworld[i].y=275;wholeworld[i].fx=0;wholeworld[i].fy=0;wholeworld[i].vx=0;wholeworld[i].vy=0;wholeworld[i].unkill();}
+//end of wholeworld loop 
+}
+//end of replotentities()
+}
+
+function update(updateme)
+{}
+
+
+//-->
+</script>
+
+</body>
+</html>
+
+

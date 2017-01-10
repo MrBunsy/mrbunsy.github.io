@@ -1,0 +1,161 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<?xml version="1.0" encoding="iso-8859-1"?>
+<html>
+<head>
+<title>Canvas Testing</title>
+</head>
+<body>
+
+<span id="canvasspan"></span>
+
+
+<script language="JavaScript" type="text/javascript">
+<!--
+
+var canvas=document.getElementById('canvasspan');
+
+function line(x1,y1,x2,y2,z,colour,thick)
+{
+this.x1=x1
+this.y1=y1
+this.x2=x2
+this.y2=y2
+this.z=z
+this.colour=colour
+this.thick=thick
+this.DrawLine=DrawLine
+}
+
+function circle(x1,y1,r,z,colour,thick)
+{
+this.x1=x1
+this.y1=y1
+this.r=r
+this.z=z
+this.colour=colour
+this.thick=thick
+this.DrawCircle=DrawCircle
+}
+
+function elipse(x1,y1,rx,ry,z,colour,thick)
+{
+this.x1=x1
+this.y1=y1
+this.rx=rx
+this.ry=ry
+this.z=z
+this.colour=colour
+this.thick=thick
+this.DrawElipse=DrawElipse
+}
+
+function DrawCircle()
+{
+var addhtml=''
+//length of sector = angle * r, and each sector is 1 thickness long, therefore angle of each sector =  1/r
+var eachangle=this.thick/this.r
+for(var s=0;s<=Math.PI*2;s=s+eachangle)
+{
+var pixelleft=Math.round(this.x1+this.r*Math.sin(s))
+var pixeltop=Math.round(this.y1+this.r*Math.cos(s))
+addhtml+="<div style='position:absolute; line-height:0; clip:rect(0,"+this.thick+"px,"+this.thick+"px,0); z-index:"+this.z+"; width:"+this.thick+";height:"+this.thick+"px; left:"+pixelleft+"; top:"+pixeltop+"; background-color:"+this.colour+";'></div>"
+}
+canvas.innerHTML+=addhtml
+}
+
+
+
+function DrawElipse()
+{
+var addhtml=''
+//length of sector = angle * r, and each sector is 1 thickness long, therefore angle of each sector =  1/r
+
+if(this.rx>=this.ry)
+{var eachangle=this.thick/this.rx}else{var eachangle=this.thick/this.ry}
+
+for(var s=0;s<=Math.PI*2;s=s+eachangle)
+{
+var pixelleft=Math.round(this.x1+this.rx*Math.sin(s))
+var pixeltop=Math.round(this.y1+this.ry*Math.cos(s))
+addhtml+="<div style='position:absolute; line-height:0; clip:rect(0,"+this.thick+"px,"+this.thick+"px,0); z-index:"+this.z+"; width:"+this.thick+";height:"+this.thick+"px; left:"+pixelleft+"; top:"+pixeltop+"; background-color:"+this.colour+";'></div>"
+}
+canvas.innerHTML+=addhtml
+}
+
+function DrawLine()
+{
+//uses Bresenham's line algorithm
+
+var dy=this.y2-this.y1
+var dx=this.x2-this.x1
+
+var gradient=dy/dx
+//var y= this.y1
+var addhtml=''
+if (gradient <= 1 && gradient >= -1){
+//shallow slope
+if(this.x1<this.x2)
+{var startx=this.x1;var finishx=this.x2;
+var starty=this.y1;var finishy=this.y2
+}else{
+var startx=this.x2;var finishx=this.x1;
+var starty=this.y2;var finishy=this.y1
+}
+var y=starty
+for(x=startx;x<=finishx;x++)
+{
+var realY=gradient*(x-startx)+starty
+var errors=Math.abs(y-realY)
+if(errors>0.5&& gradient <=1 && gradient >=0){y++}
+if(errors>0.5&& gradient <=0){y--}
+addhtml+="<div style='position:absolute; line-height:0; clip:rect(0,1px,"+this.thick+"px,0); z-index:"+this.z+"; width:1px; height:"+this.thick+"px; left:"+x+"; top:"+y+"; background-color:"+this.colour+";'></div>"
+}
+//end of shallow slope
+}else
+{
+//steep slope
+if(this.y1<this.y2)
+{var startx=this.x1;var finishx=this.x2;
+var starty=this.y1;var finishy=this.y2
+}else{
+var startx=this.x2;var finishx=this.x1;
+var starty=this.y2;var finishy=this.y1
+}
+
+var x=startx
+for(y=starty;y<=finishy;y++)
+{
+var realX=(y-starty)/gradient+startx
+var errors=Math.abs(x-realX)
+//if(errors>0.5){x++}
+if(errors>0.5&& gradient >1){x++}
+if(errors>0.5&& gradient <-1){x--}
+addhtml+="<div style='position:absolute; line-height:0; clip:rect(0,"+this.thick+"px,1px,0); z-index:"+this.z+"; width:"+this.thick+"px; height:1px; left:"+x+"; top:"+y+"; background-color:"+this.colour+";'></div>"
+}
+
+//end of steep slope
+}
+
+
+canvas.innerHTML+=addhtml
+}
+
+
+var testline=new line(10,10,700,700,2,'#000000',1)
+testline.DrawLine()
+
+var testline2=new line(300,90,280,100,2,'#00ff00',50)
+testline2.DrawLine()
+
+var testcircle=new circle(400,500,100,1,'#0000ff',1)
+testcircle.DrawCircle()
+
+var testelipse=new elipse(600,200,50,200,1,'#0000ff',1)
+testelipse.DrawElipse()
+
+//-->
+</script>
+
+
+</body>
+</html>

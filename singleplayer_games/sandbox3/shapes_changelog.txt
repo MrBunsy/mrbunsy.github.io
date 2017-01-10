@@ -1,0 +1,5 @@
+0.01 (15/09/2008)
+-Engine split into sections, and this changelog started.
+
+0.02 (15/09/2008)
+-added checks for Render and Physics objects before adding functions to the shapes.

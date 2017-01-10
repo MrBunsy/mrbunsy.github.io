@@ -1,0 +1,821 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html>
+<head>
+<title>Luke's 2D JavaScript Engine version 1.10</title>
+<script src="keys.js" type="text/javascript"></script>
+<script src="canvas.js" type="text/javascript"></script>
+</head>
+<body onkeydown="keydown(event)" onkeyup="keyup(event)">
+<!--you MUST pre-load all images used in the game like this, as some browsers do very weird things when new images are called up by javascript.  Also helps stop problems with images not loaidng in time
+Also, make sure you have a background div of some sort, over the top, to hide them. (display:none; will also do weird things in my experience in IE)
+//-->
+<img src="balls/white.gif" alt=""><img src="balls/blue.gif" alt=""><img src="balls/green.gif" alt=""><img src="balls/blue.gif" alt=""><img src="balls/red.gif" alt=""><img src="balls/yellow.gif" alt=""><img src="balls/orange.gif" alt=""><img src="blank.gif" alt=""><img src="balls/black.gif" alt="">
+<span id="worldspan"></span>
+<span id="canvasspan"></span>
+<div id="testspan" style="position:relative; z-index:5;"></div>
+<div id="testspan2" style="position:relative; z-index:5;"></div>
+<script language="JavaScript" type="text/javascript">
+<!--
+var wholeworld= new Array()
+
+//General variables used to define major things in the world
+
+var world=document.getElementById('worldspan');
+//gravity, and in which direction (could be used as a cheap wind, like Worms 1)  100 seems to be a nice value
+var gravityY=0;
+var gravityX=0;
+//how much  speed everything retains per loop (fraction)
+var friction=1
+//time/s per refresh
+var timeperloop= 0.02
+//essentially fps
+var refreshrate;
+if (document.all){var IE=true}else{var IE = false}
+if(IE){refreshrate=timeperloop*796;}else{refreshrate=timeperloop*1000;}
+//velocity retained during collision (as fraction), set to 1 for inelastic collisions
+var dampen=1
+//most force the user can apply to 'us'
+var maxuserforce=20000
+var incriment=maxuserforce/10
+
+//the minimum speed anything can have before it's stopped (set to 0 for no min speed)
+var minspeed=4
+
+var addtoworld;
+
+function testnameinarray(thisname)
+{for (var i5=0;i5<wholeworld.length;i5++)
+{if(wholeworld[i5].name == thisname){return i5;}}
+return false;}
+
+function entity(state,name,x,y,width,height,mass,image,type,vx,vy,fx,fy,hard,sticky,shape,divoptions,gametype,elastic)
+{
+var testarray=testnameinarray(name)
+if(testarray == false)
+{//if this entity isn't already in the world array, add it.....
+this.name=name;this.x=x;this.y=y;this.width=width;this.height=height;this.mass=mass;this.image=image;
+this.div=name+'div';
+//consider using documenty.gEtelkememtbyid?
+this.img=name+'img';
+//types 0 =moveable entitiy, 1= still object
+this.type=type;
+//v=veloctity,f=force
+this.vx=vx;this.vy=vy;this.fx=fx;this.fy=fy;
+//state is used for wether it's alive or dead (out of the world) or whatever 0=dead, 1=alive (in the world), 2= waiting to be brought back, 3 = due for destruction, 4 = due to be reset (white ball)
+this.state=state
+//sticky types: false means elastic collision, true means all momentum is lost
+this.sticky=sticky;
+//shapes, 1= rectangle, 0=circle, 2=square/rectangle, but collide as circle, 3 = polygon
+this.shape=shape
+//can it collide?
+this.hard=hard
+//game types.  0=border, 1=ball, 2=hole, 3=not part of game
+this.gametype=gametype
+//how elastic the collisions are 1=fully, 0.5=partially
+this.elastic=elastic
+//enter our object into the world array
+wholeworld.push(this)
+this.divoptions=divoptions
+
+if(!testfordiv(this.div) && this.shape!==3)
+{addtoworld="<div id=\'"+this.div+"' style='position:absolute;  width:"+this.width+";"+this.divoptions+" height:"+this.height+";  top:"+this.y+"; left:"+this.x+';'
+if(this.state!==1){addtoworld+="display:none;"}else{addtoworld+="display:block;"}
+addtoworld+="'>";
+if(this.image!==false){addtoworld+="<img id='"+this.name+"img' src='"+this.image+"'>";}
+addtoworld+="</div>"
+world.innerHTML+=addtoworld}
+
+else{//polygon time! :D
+for(var i=0;i<this.x.length;i++)
+{i2=i+1
+if(i2==this.x.length){i2=0;}
+//height = z-index, image = colour, width = thickness
+DrawLine(this.x[i],this.y[i],this.x[i2],this.y[i2],this.height,this.image,this.width,this.name+'class')
+}
+
+}
+
+}else{
+//....the worldarray already contains something by this name, so update it
+wholeworld[testarray].name=name;wholeworld[testarray].x=x*1;wholeworld[testarray].y=y*1;wholeworld[testarray].width=width*1;wholeworld[testarray].height=height*1;wholeworld[testarray].mass=mass*1;wholeworld[testarray].image=image;
+wholeworld[testarray].div=name+'div';
+wholeworld[testarray].img=name+'img';
+wholeworld[testarray].type=type;
+wholeworld[testarray].vx=vx;wholeworld[testarray].vy=vy;wholeworld[testarray].fx=fx;wholeworld[testarray].fy=fy;
+wholeworld[testarray].state=state
+wholeworld[testarray].sticky=sticky;
+wholeworld[testarray].shape=shape
+wholeworld[testarray].hard=hard
+wholeworld[testarray].gametype=gametype
+wholeworld[testarray].elastic=elastic
+wholeworld[testarray].divoptions=divoptions
+wholeworld[testarray].updatediv();
+}
+//functions
+this.kill=kill
+this.unkill=unkill
+this.plotme=plotme
+this.updatediv=updatediv
+this.destroy=destroy
+}
+
+function testfordiv(id)
+{var testme=document.getElementById(id);
+if(testme){return true;}else{return false;}}
+
+//here are where objects are created
+//NAMES MUST BE UNIQUE
+
+//entity(state,name,x,y,width,height,mass,image,type,vx,vy,fx,fy,hard,sticky,shape,divoptions,gametype,elastic)
+
+//x,y co-ords are for the top left hand corner, div options are standard HTML bits and bobs for the style of the div
+
+//these are for the borders, you'll always want some kind of border (even if invisible) to stop anything being able to leave the screen
+/*
+var lowerborder=new entity(1,'lowerborder',0,550,1100,50,10,'blank.gif',1,0,0,0,0,true,false,1,'background-color:#804000;',0,1);
+var upperborder=new entity(1,'upperborder',0,0,1100,50,10,'blank.gif',1,0,0,0,0,true,false,1,'background-color:#804000;',0,1);
+var leftborder=new entity(1,'leftborder',0,0,50,600,10,'blank.gif',1,0,0,0,0,true,false,1,'background-color:#804000;',0,1);
+var rightborder=new entity(1,'rightborder',1050,0,50,600,10,'blank.gif',1,0,0,0,0,true,false,1,'background-color:#804000;',0,1);
+*/
+var border=new entity(1,'borderpoly',[50,550,550,50],[50,50,550,550],1,1,10,'black',1,0,0,0,0,true,false,3,'',3,1);
+
+//var fakeobject=new entity(1,'fakeobject',50,50,1000,500,0,'blank.gif',1,0,0,0,0,false,false,1,'',3,1);
+
+var bg=new entity(1,'bg',00,00,550,550,0,false,1,0,0,0,0,false,false,1,'background-color:white;',3,1);
+/*
+var pocketimg=new entity(1,'pocketimg',600,300,50,50,100,'balls/black.gif',1,0,0,0,0,false,false,0,'',3,1);
+var pocket=new entity(1,'pocket',620,320,10,10,100,'blank.gif',1,0,0,0,0,true,false,0,'',2,1);
+*/
+
+var us=new entity(1,'us',100,275,50,50,100,'balls/green.gif',0,0,0,0,0,true,false,0,'border:solid black 1px;',1,1);
+
+var aproxmass=100
+var giveortake=5
+/*
+//row 1 (left to right)
+var ball1=new entity(1,'ball1',300,275,49,49,randommass(aproxmass,giveortake,1,1),'balls/red.gif',0,0,0,0,0,true,false,0,'',1,1);
+//row 2
+
+var ball2=new entity(1,'ball2',343,250,49,49,randommass(aproxmass,giveortake,1,1),'balls/orange.gif',0,0,0,0,0,true,false,0,'',1,1);
+var ball3=new entity(1,'ball3',343,300,49,49,randommass(aproxmass,giveortake,1,1),'balls/orange.gif',0,0,0,0,0,true,false,0,'',1,1);
+//row 3
+var ball4=new entity(1,'ball4',386,275,49,49,randommass(aproxmass,giveortake,1,1),'balls/yellow.gif',0,0,0,0,0,true,false,0,'',1,1);
+var ball5=new entity(1,'ball5',386,225,49,49,randommass(aproxmass,giveortake,1,1),'balls/yellow.gif',0,0,0,0,0,true,false,0,'',1,1);
+var ball6=new entity(1,'ball6',386,325,49,49,randommass(aproxmass,giveortake,1,1),'balls/yellow.gif',0,0,0,0,0,true,false,0,'',1,1);
+//row 4
+var ball7=new entity(1,'ball7',429,250,49,49,randommass(aproxmass,giveortake,1,1),'balls/green.gif',0,0,0,0,0,true,false,0,'',1,1);
+var ball8=new entity(1,'ball8',429,300,49,49,randommass(aproxmass,giveortake,1,1),'balls/green.gif',0,0,0,0,0,true,false,0,'',1,1);
+var ball9=new entity(1,'ball9',429,200,49,49,randommass(aproxmass,giveortake,1,1),'balls/green.gif',0,0,0,0,0,true,false,0,'',1,1);
+var ball10=new entity(1,'ball10',429,350,49,49,randommass(aproxmass,giveortake,1,1),'balls/green.gif',0,0,0,0,0,true,false,0,'',1,1);
+//row5
+var ball11=new entity(1,'ball11',472,175,49,49,randommass(aproxmass,giveortake,1,1),'balls/blue.gif',0,0,0,0,0,true,false,0,'',1,1);
+var ball12=new entity(1,'ball12',472,275,49,49,randommass(aproxmass,giveortake,1,1),'balls/blue.gif',0,0,0,0,0,true,false,0,'',1,1);
+var ball13=new entity(1,'ball13',472,225,49,49,randommass(aproxmass,giveortake,1,1),'balls/blue.gif',0,0,0,0,0,true,false,0,'',1,1);
+var ball14=new entity(1,'ball14',472,325,49,49,randommass(aproxmass,giveortake,1,1),'balls/blue.gif',0,0,0,0,0,true,false,0,'',1,1);
+var ball15=new entity(1,'ball15',472,375,49,49,randommass(aproxmass,giveortake,1,1),'balls/blue.gif',0,0,0,0,0,true,false,0,'',1,1);
+*/
+
+//for polygons entity(state,name,x array,y array,thickness,z-index,mass,colour,type,vx,vy,fx,fy,hard,sticky,shape,ignore,gametype,elastic)
+
+//var polytest=new entity(1,'polytest',[700,500,500,700],[300,300,500,500],1,1,10,'blue',1,0,0,0,0,true,false,3,'',3,1);
+
+
+//random mass - specically designed for pool, but can be used anywhere.  Attempt to remove complete uniformness to create a bit more realism
+function randommass(aprox,leeway)
+{var themass=aprox+(Math.random()-1)*2*leeway
+return Math.round(themass)}
+
+
+var needredraw=false
+
+
+function redrawworld()
+{world.innerHTML='';
+for (i4=0;i4<wholeworld.length;i4++)
+{wholeworld[i4].plotme()}}
+
+function updatediv()
+{document.getElementById(this.div).style.left=this.x
+document.getElementById(this.div).style.top=this.y
+document.getElementById(this.div).style.width=this.width
+document.getElementById(this.div).style.height=this.height}
+
+
+function kill()
+{this.state=0;
+document.getElementById(this.div).style.display='none';}
+
+//brings entity back
+function unkill()
+{
+if(this.shape!==3){
+canwepopout=checkforanycollide(this)
+if (canwepopout !==false){this.state=2;if(this.name=='us'){canwepopout.vx=100}}else{this.state=1;document.getElementById(this.div).style.display='block';}
+this.updatediv();
+}
+}
+
+function destroy()
+{
+if(this.shape!==3){
+document.getElementById(this.div).style.display='none';
+var destroywhom;
+for (var i9=0;i9<wholeworld.length;i9++)
+{if(wholeworld[i9].name==this.name){destroywhom=i9}}
+wholeworld.splice(destroywhom, 1)
+}
+}
+
+
+function plotme()
+{
+if(this.shape!==3){
+if(!testfordiv(this.div))
+{addtoworld="<div id=\'"+this.div+"' style='position:absolute;  width:"+this.width+";"+this.divoptions+" height:"+this.height+";  top:"+this.y+"; left:"+this.x+";";
+if(this.state!==1){addtoworld+="display:none;"}else{addtoworld+="display:block;"}
+addtoworld+="'>";
+if(this.image!==false){addtoworld+="<img id='"+this.name+"img' src='"+this.image+"'>";}
+addtoworld+="</div>"
+world.innerHTML+=addtoworld}
+}
+}
+var counter=0;
+//loop stuff
+var loopme=setInterval('loop()',refreshrate)
+function loop()
+{
+moveus()
+replotentities()
+
+switch(needredraw)
+{
+case true:
+redrawworld()
+needredraw=false
+break;
+}
+counter++
+}
+
+function moveus()
+{
+if (moveright){us.fx+=incriment; if (us.fx>maxuserforce){us.fx=maxuserforce};}
+if (moveleft){us.fx-=incriment; if (us.fx<-maxuserforce){us.fx=-maxuserforce}}
+if(!moveright && !moveleft){if (us.fx>0){us.fx-=incriment};if (us.fx<0){us.fx+=incriment}}
+if (moveup){us.fy-=incriment; if (us.fy < -maxuserforce){us.fy=-maxuserforce}}
+if (movedown){us.fy+=incriment; if (us.fy > maxuserforce){us.fy=maxuserforce}}
+if (!moveup && !movedown){us.fy+=incriment*2; if (us.fy > 0){us.fy=0}}
+//document.getElementById('testspan').innerHTML="ourfx ="+us.fx+" ourfx ="+us.fy+" ourvx ="+us.vx+" ourvy ="+us.vy
+}
+
+function updatefps()
+{if (timeperloop!==(1/document.gameform.fpsselect.value)){timeperloop=1/document.gameform.fpsselect.value;refreshrate=1000/document.gameform.fpsselect.value;clearInterval(loopme);loopme=setInterval('loop()',refreshrate)}}
+
+
+var typecounter
+
+//counts how many of a certain type of peice are are in a certain state
+function counttype(thistype,thisstate)
+{typecounter=0;
+for (var k=0;k<wholeworld.length;k++)
+{if(wholeworld[k].type == thistype && wholeworld[k].state == thisstate){typecounter++}}
+return typecounter;}
+
+
+//displacement
+var currentleft;
+var currenttop;
+//velocity
+var currentvx;
+var currentvy;
+var newvx
+var newvy
+//force
+var currentfx;
+var currentfy;
+//acceleration
+var ax
+var ay
+
+//seconds per loop
+
+var collide;
+var collide2;
+var ourvx;
+var theirvx;
+var ourvy;
+var theirvy;
+
+var whichdiv;
+var ournewvx;
+var ournewvy;
+var theirnewvx;
+var theirnewvy;
+
+var ourleft
+var ourright
+var ourtop
+var ourbottom
+var theirleft
+var theirright
+var theirtop
+var theirbottom
+var dontcontinue
+
+var diffinx
+var diffiny
+var collisionangle
+var theirspeed
+var ourspeed
+
+var ourperpendicularv;
+var ourparellelv;
+var theirperpendicularv;
+var theirparellelv;
+
+var ournewperpendicularv;
+var ournewparellelv;
+var theirnewperpendicularv;
+var theirnewparellelv;
+
+var ouranglebelowx
+var theiranglebelowx
+
+var currentlycolliding
+
+
+function findacceleration(tempforce,tempmass,tempvelocity,tempfriction)
+{
+var tempa = (tempforce)/tempmass
+//attempt at moddeling friction
+if(tempvelocity>1){tempa-=tempfriction}
+if(tempvelocity<(-1)){tempa+=tempfriction}
+return tempa
+}
+
+
+
+function checkpockets(whattocheck)
+{
+var testcollide2=checkcollide(whattocheck.x,whattocheck.y,whattocheck.width,whattocheck.height,whattocheck.shape,pocket.x,pocket.y,pocket.width,pocket.height,pocket.shape)
+if(testcollide2 == true){
+
+if(whattocheck.name=='us')
+{//you've sunk the white
+whattocheck.kill()
+whattocheck.x=100
+whattocheck.y=275
+whattocheck.fx=0
+whattocheck.fy=0
+whattocheck.vx=0
+whattocheck.vy=0
+whattocheck.unkill()
+}else{
+//you've sunk something else
+whattocheck.kill()
+}
+//alert(whattocheck.name)
+}
+
+}
+
+
+//IDEA FOR FRICITON, ADD FRICTION TO SPEED, THEN RESLOVE FOR X AND Y VELOCITIES
+
+function replotentities()
+{
+for (i=0;i<wholeworld.length;i++)
+{
+if(wholeworld[i].type == 0 && wholeworld[i].state==1)
+{
+//if type=0 then we're a entity and thus need to be replotted, and we're not dead
+ourspeed=Math.sqrt(wholeworld[i].vx*wholeworld[i].vx+wholeworld[i].vy*wholeworld[i].vy)
+
+var ourangle
+
+if(us.vx<0){ourangle=(Math.PI)+(Math.atan(us.vy/us.vx))}
+else if(us.vx>0 && us.vy>=0){ourangle=Math.atan(us.vy/us.vx)}
+else if(us.vx>0 && us.vy < 0){ourangle=2*(Math.PI)+Math.atan(us.vy/us.vx)}
+else if(us.vx==0 && us.vy == 0){ourangle=0}
+else if(us.vx==0 && us.vy>=0){ourangle=(Math.PI)/2}
+else{ourangle=3*(Math.PI)/2}
+
+var ourspeedfriction=ourspeed*friction
+
+//acceleration of object to be updated; f=ma therefore a=f/m
+ax=(wholeworld[i].fx+gravityX*wholeworld[i].mass-wholeworld[i].vx)/wholeworld[i].mass
+ay=(wholeworld[i].fy+gravityY*wholeworld[i].mass-wholeworld[i].vy)/wholeworld[i].mass
+//v=u+at
+newvy=Math.sin(ourangle)*ourspeedfriction+ay*timeperloop
+newvx=Math.cos(ourangle)*ourspeedfriction+ax*timeperloop
+//wholeworld[i].vy=newvy
+//wholeworld[i].vx=newvx
+//optimisation, if we're not moving, don't faff about re-plotting our position
+if(newvy!==0 || newvx!==0){
+// if we're moving really slowly, and there's no force on us, then stop moving.
+if(ourspeedfriction <=minspeed && wholeworld[i].fx==0 && wholeworld[i].fy==0 && ax==0 && ay==0){newvx=0;newvy=0;}
+//s=ut + 0.5at^2 therefore, new position = old position + ut+1/2at^2
+newx=(wholeworld[i].vx*timeperloop+1/2*ax*timeperloop*timeperloop)+wholeworld[i].x
+newy=(wholeworld[i].vy*timeperloop+1/2*ay*timeperloop*timeperloop)+wholeworld[i].y
+
+for (i2=0;i2<wholeworld.length;i2++)
+{
+if(wholeworld[i2].hard==true && i!==i2 && wholeworld[i2].state==1)
+{
+if(checkcollide(newx,newy,wholeworld[i].width,wholeworld[i].height,wholeworld[i].shape,wholeworld[i2].x,wholeworld[i2].y,wholeworld[i2].width,wholeworld[i2].height,wholeworld[i2].shape,wholeworld[i],wholeworld[i2]))
+{//if there is a collision
+
+switch(wholeworld[i].gametype)
+{
+case 1: if(wholeworld[i2].gametype==2){if(wholeworld[i].name=='us'){wholeworld[i].state=4;}else{wholeworld[i].state=3}};break;
+//use this to detect stuff
+}
+
+
+if(wholeworld[i2].sticky==false)
+{
+if(wholeworld[i].shape==0 && wholeworld[i2].shape==0)
+{
+wholeworld[i].vx=newvx
+wholeworld[i].vy=newvy
+collideascircles(wholeworld[i],wholeworld[i2])
+
+}else if(wholeworld[i].shape==3|| wholeworld[i2].shape==3){collidewithpoly(wholeworld[i],wholeworld[i2])}
+else
+{
+collideassquares(wholeworld[i],wholeworld[i2])
+}
+
+if(wholeworld[i2].type==0){wholeworld[i2].vx=theirnewvx;wholeworld[i2].vy=theirnewvy}
+newx=wholeworld[i].x;newy=wholeworld[i].y;
+wholeworld[i].vx=newvx
+wholeworld[i].vy=newvy
+//end of if sticky
+}
+//end of there is a collision
+}
+//end of collidable if statement
+}
+//end of i2 (collision) loop
+}
+
+wholeworld[i].vx=newvx
+wholeworld[i].vy=newvy
+wholeworld[i].x=newx
+wholeworld[i].y=newy
+
+whichdiv=document.getElementById(wholeworld[i].div);
+whichdiv.style.left=Math.round(newx);
+whichdiv.style.top=Math.round(newy);
+
+//end of if we're moving statement
+}
+
+//end of if entity statement
+}
+//this will attempt to bring back to life anything which couldn't come back because somehting was in the way 
+else if(wholeworld[i].state==2){wholeworld[i].unkill()}
+else if(wholeworld[i].state==3){wholeworld[i].destroy();}
+else if(wholeworld[i].state==4){wholeworld[i].kill();wholeworld[i].x=100;wholeworld[i].y=275;wholeworld[i].fx=0;wholeworld[i].fy=0;wholeworld[i].vx=0;wholeworld[i].vy=0;wholeworld[i].unkill();}
+//end of wholeworld loop 
+}
+//end of replotentities()
+}
+
+function update(updateme)
+{}
+
+
+//the 'collide as' functions collide the two objects given to them, 'us' and 'them', and sets the global variables newvy, newvx, theirnewvy and theirnewvx
+
+
+function collidewithpoly(us,them)
+{
+//atm all polys are objects so they can't be 'us'
+//var polyline= polyandshape(them.x,them.y,them.w,them.h,them.s,newx,newy,us.w,us.h,us.s)
+var k=polyline
+var k2=k+1
+if(k2==them.x.length){k2=0;}
+
+//if(them.x[k2]>them.x[k]){var x1=them.x[k];var x2=them.x[k2];var y1=them.y[k];var y2=them.y[k2];}else{var x2=them.x[k];var x1=them.x[k2];var y2=them.y[k];var y1=them.y[k2];}
+
+if(them.y[k2]!==them.y[k] && them.x[k2]!==them.x[k])
+{var gradient=(them.y[k2]-them.y[k])/(them.x[k2]-them.x[k])}
+//horizontal line
+else if(them.y[k2]==them.y[k]){var gradient=0}
+else{var gradient=Infinity}
+
+gradient=(them.y[k2]-them.y[k])/(them.x[k2]-them.x[k])
+var dy=(them.y[k2]-them.y[k])
+var dx=(them.x[k2]-them.x[k])
+/*
+var lineangle=Math.atan(gradient)
+var ourangle=Math.atan(us.vy/us.vx)
+*/
+var ourangle
+
+if(us.vx<0){ourangle=(Math.PI)+(Math.atan(us.vy/us.vx))}
+else if(us.vx>0 && us.vy>=0){ourangle=Math.atan(us.vy/us.vx)}
+else if(us.vx>0 && us.vy < 0){ourangle=2*(Math.PI)+Math.atan(us.vy/us.vx)}
+else if(us.vx==0 && us.vy == 0){ourangle=0}
+else if(us.vx==0 && us.vy>=0){ourangle=(Math.PI)/2}
+else{ourangle=3*(Math.PI)/2}
+
+if(ourangle>(Math.PI)){oursmallangle=ourangle-Math.PI}else{oursmallangle=ourangle}
+
+//ourangle is the angle the direction of the ball makes with the x axis, measured in a clockwise direction, where the angle is between 0 and 360
+
+document.getElementById('testspan2').innerHTML='ourangle = '+ourangle/Math.PI*180
+
+var lineangle;
+if(dx<0){lineangle=(Math.PI)+(Math.atan(dy/dx));}//alert('dx<0')}
+else if(dx>0 && dy>=0){lineangle=Math.atan(dy/dx);}//alert('dx>0 && dy>=0')}
+else if(dx>0 && dy < 0){lineangle=2*(Math.PI)+Math.atan(dy/dx);}//alert('dx>0 && dy < 0')}
+else if(dx==0 && dy == 0){lineangle=0;}//alert('dx==0 && dy == 0')}
+else if(dx==0 && dy>=0){lineangle=(Math.PI)/2;}//alert('dx==0 && dy>=0')}
+else{lineangle=3*(Math.PI)/2}
+
+if(lineangle>=(Math.PI)){smalllineangle=lineangle-Math.PI}else{smalllineangle=lineangle}
+
+
+
+//we're above the line going left
+if(smalllineangle==0 && us.vx<0 && us.vy>0){smalllineangle=Math.PI}
+//below the line going left
+else if(smalllineangle==0 && us.vx<0 && us.vy<0){smalllineangle=0}
+//below line going right
+else if(smalllineangle==0 && us.vx>0 && us.vy<0){smalllineangle=Math.PI}
+
+//line angle is the angle the line makes with the x axis, measured in a clockwise direction, where the angle is between 0 and 180
+
+document.getElementById('testspan2').innerHTML+=' lineangle = '+lineangle/Math.PI*180
+
+var dotproduct=us.vx*dx+us.vy*dy
+if(Math.abs(dotproduct)>1)
+{
+var lengthofline=Math.sqrt(dy*dy+dx*dx)
+var cosofangle=dotproduct/(lengthofline*ourspeed)
+var vectorangle=Math.acos(cosofangle)
+if(vectorangle>Math.PI/2){vectorangle-=Math.PI/2}
+else if(vectorangle<-Math.PI/2){vectorangle+=Math.PI/2}
+}
+else
+{vectorangle=Math.PI/2}
+
+
+if(lineangle>ourangle){vectorangle=lineangle-ourangle}else{vectorangle=ourangle-lineangle}
+
+if(vectorangle>Math.PI){vectorangle-=Math.PI}
+else if(vectorangle<-Math.PI){vectorangle+=Math.PI}
+
+if(vectorangle>Math.PI/2){vectorangle=Math.PI-vectorangle}
+else if(vectorangle<-Math.PI/2){vectorangle=Math.PI+vectorangle}
+
+
+//vector angle is the acute dot product of the direction of the ball and the line.  Originally the collision detection used vectors as well, but I couldn't get it to work.
+document.getElementById('testspan2').innerHTML+=' vectorangle = '+vectorangle/Math.PI*180
+
+if(oursmallangle<smalllineangle)
+{newvx=Math.cos(ourangle+vectorangle*2)*ourspeed
+newvy=Math.sin(ourangle+vectorangle*2)*ourspeed;alert('plus'+counter)}
+else
+{newvx=Math.cos(ourangle-vectorangle*2)*ourspeed
+newvy=Math.sin(ourangle-vectorangle*2)*ourspeed;alert('minus'+counter)}
+
+//newx+=newvx*timerperloop
+//newy+=newvy*timerperloop
+
+}
+
+function collideassquares(us,them)
+{
+
+//from an equation I found on the internet (elastic collisons, re-arrengement of the above two equations)
+if(them.type == 0){//we're colliding with an entity, so it can also move
+
+//1D collision equations dervived from kinetic energer and conservation of momentum, probably incorrectly applied in a 2D context
+newvx=( (us.mass-them.mass)/(us.mass+them.mass))*us.vx+( (2*them.mass)/(us.mass+them.mass) )*them.vx
+newvy=( (us.mass-them.mass)/(us.mass+them.mass))*us.vy+( (2*them.mass)/(us.mass+them.mass) )*them.vy
+theirnewvx=( (them.mass-us.mass)/(them.mass+us.mass))*them.vx+( (2*us.mass)/(them.mass+us.mass) )*us.vx
+theirnewvy=( (them.mass-us.mass)/(them.mass+us.mass))*them.vy+( (2*us.mass)/(them.mass+us.mass) )*us.vy
+}else{//they're an object
+
+dontcontinue=0
+theirleft=them.x
+theirright=them.x+them.width
+theirtop=them.y
+theirbottom=them.y+them.height
+if(us.y>theirtop && us.y<theirbottom && dontcontinue==0  && us.shape !==3){newvx=us.vx*(-1);newvy=us.vy;dontcontinue++;}
+if(us.x>theirleft &&us.x<theirright && dontcontinue==0 && us.shape !==3){newvy=us.vy*(-1);newvx=us.vx;dontcontinue++}
+if(us.y+us.height>theirtop && us.y+us.height<theirbottom && dontcontinue==0 && us.shape !==3){newvx=us.vx*(-1);newvy=us.vy;dontcontinue++;}
+if(us.x+us.width>theirleft && us.x+us.width<theirright && dontcontinue==0 && us.shape !==3){newvy=us.vy*(-1);newvx=us.vx;dontcontinue++}
+
+if(dontcontinue==0 || us.shape ==3)
+{
+collideascircles()
+//alert('inside squares - circles')
+}
+
+}
+
+}
+
+
+
+
+function collideascircles(us,them)
+{
+ourcentrex=us.x+us.width/2
+ourcentrey=us.y+us.height/2
+theircentrex=them.x+them.width/2
+theircentrey=them.y+them.height/2
+diffinx=theircentrex-ourcentrex
+diffiny=theircentrey-ourcentrey
+
+if(diffinx == 0){collisionangle=0}else{collisionangle=Math.atan(diffiny/diffinx)}
+
+//essentially, momentum is conserved parrellel and perpendicular to the angle of collision
+//http://director-online.com/buildArticle.php?id=532 proved immensly useful, and in actual fact, rendered most of 
+//my previous work at collisions wasted as I re-wrote a lot of it
+if(us.vx<0){ouranglebelowx=(Math.PI)+(Math.atan(us.vy/us.vx))}
+else if(us.vx>0 && us.vy>=0){ouranglebelowx=Math.atan(us.vy/us.vx)}
+else if(us.vx>0 && us.vy < 0){ouranglebelowx=2*(Math.PI)+(Math.atan(us.vy/us.vx))}
+else if(us.vx==0 && us.vy == 0){ouranglebelowx=0}
+else if(us.vx==0 && us.vy>=0){ouranglebelowx=(Math.PI)/2}
+else{ouranglebelowx=3*(Math.PI)/2}
+if(them.vx<0){theiranglebelowx=(Math.PI)+(Math.atan(them.vy/them.vx))}
+else if(them.vx>0 && them.vy>=0){theiranglebelowx=Math.atan(them.vy/them.vx)}
+else if(them.vx>0 && them.vy < 0){theiranglebelowx=2*(Math.PI)+(Math.atan(them.vy/them.vx))}
+else if(them.vx==0 && them.vy == 0){theiranglebelowx=0}
+else if(them.vx==0 && them.vy>=0){theiranglebelowx=(Math.PI)/2}
+else{theiranglebelowx=3*(Math.PI)/2}
+
+//ourspeed is set earlier
+theirspeed=Math.sqrt(them.vx*them.vx+them.vy*them.vy)
+ourparellelv=ourspeed*(Math.cos(ouranglebelowx-collisionangle))
+ourperpendicularv=ourspeed*(Math.sin(ouranglebelowx-collisionangle))
+theirparellelv=theirspeed*(Math.cos(theiranglebelowx-collisionangle))
+theirperpendicularv=theirspeed*(Math.sin(theiranglebelowx-collisionangle))
+if(them.type == 0){//we're colliding with an entity, so it can also move
+
+ournewparellelv=( (us.mass-them.mass)/(us.mass+them.mass))*ourparellelv+( (2*them.mass)/(us.mass+them.mass) )*theirparellelv
+theirnewparellelv=( (them.mass-us.mass)/(them.mass+us.mass))*theirparellelv+( (2*us.mass)/(them.mass+us.mass) )*ourparellelv
+newvx=ournewparellelv*(Math.cos(collisionangle))+ourperpendicularv*(Math.cos(collisionangle+(Math.PI/2)))
+newvy=ournewparellelv*(Math.sin(collisionangle))+ourperpendicularv*(Math.sin(collisionangle+(Math.PI/2)))
+theirnewvx=theirnewparellelv*(Math.cos(collisionangle))+theirperpendicularv*(Math.cos(collisionangle+(Math.PI/2)))
+theirnewvy=theirnewparellelv*(Math.sin(collisionangle))+theirperpendicularv*(Math.sin(collisionangle+(Math.PI/2)))
+
+}else{//we're colliding with an object, so it can't move
+
+ournewparellelv=ourparellelv*(-1)
+newvx=ournewparellelv*(Math.cos(collisionangle))+ourperpendicularv*(Math.cos(collisionangle+(Math.PI/2)))
+newvy=ournewparellelv*(Math.sin(collisionangle))+ourperpendicularv*(Math.sin(collisionangle+(Math.PI/2)))
+
+}
+}
+
+
+function checkforanycollide(collidee)
+{
+for(i5=0;i5<wholeworld.length;i5++)
+{
+
+if(wholeworld[i5].type==0 && wholeworld[i5].state==1)
+{
+var testcollide=checkcollide(collidee.x,collidee.y,collidee.width,collidee.height,collidee.shape,wholeworld[i5].x,wholeworld[i5].y,wholeworld[i5].width,wholeworld[i5].height,wholeworld[i5].shape)
+if(testcollide == true){return wholeworld[i5]}
+}
+
+}
+return false;
+}
+
+var polycollide;
+
+//x,y=topleft coords, w=width,h=height,s=shape
+function checkcollide(x1,y1,w1,h1,s1,x2,y2,w2,h2,s2,us,them)
+{
+rightx1=x1+w1
+rightx2=x2+w2
+bottomy1=y1+h1
+bottomy2=y2+h2
+centrex1=x1+w1/2
+centrex2=x2+w2/2
+centrey1=y1+h1/2
+centrey2=y2+h2/2
+rad1=h1/2
+rad2=h2/2
+if(s1==0 && s2==0)
+{
+//both are circles
+radii=rad1+rad2
+//pythagoras
+var circledistance=Math.sqrt( (centrex1-centrex2)*(centrex1-centrex2)+(centrey1-centrey2)*(centrey1-centrey2) )
+//alert(circledistance) 
+//if the distance between the two circles is less than or equal to the sum of their two radii then they'll collide
+if(circledistance<radii){return true}
+}
+
+//shapes, 1= rectangle, 0=circle, 2=square/rectangle, but collide as circle, 3 = polygon
+
+else if(s1==3 || s2==3)//involves a polygon
+{
+if(s1==3)
+{polycollide=polyandshape(us,x2,y2,them)}
+else{polycollide=polyandshape(them,x1,y1,us)}
+
+if(polycollide!==false){return true;}
+
+}
+else
+{
+//circle + rectangle combo
+if(rightx1 > x2 && x1 < (x2+w2) && y1 < (y2+h2) && bottomy1 > y2){return true}
+}
+return false;
+}
+
+var polyline
+
+function polyandshape(poly,theirx,theiry,notpoly)
+{
+theircentrex=theirx+notpoly.width/2
+theircentrey=theiry+notpoly.height/2
+
+for(var k=0;k<poly.x.length;k++)
+{//loop through each line of the polygon
+k2=k+1
+if(k2==poly.x.length){k2=0;}
+
+var linelength=distance(poly.x[k2],poly.y[k2],poly.x[k],poly.y[k])+0.5
+
+//I tried crazy stuff with vectors, but this is really rather simple (and crude) in comparison.
+//measure the distance between the centre of the collidee and one end of the line, and then again for the other end of the line.
+//  If this is <= line length+1 then there's a collision!  Needs refining, but works enough for a start 
+
+if(distance(theircentrex,theircentrey,poly.x[k2],poly.y[k2])+distance(theircentrex,theircentrey,poly.x[k],poly.y[k]) <= linelength){polyline=k;return true}
+/*
+if(notpoly.vx>0)
+{
+if(notpoly.vy>0)
+{if(distance(theirx+notpoly.width,theiry+notpoly.height,poly.x[k2],poly.y[k2])+distance(theirx+notpoly.width,theiry+notpoly.height,poly.x[k],poly.y[k]) <= linelength){polyline=k;return true}}
+else{if(distance(theirx+notpoly.width,theiry,poly.x[k2],poly.y[k2])+distance(theirx+notpoly.width,theiry,poly.x[k],poly.y[k]) <= linelength){polyline=k;return true}}
+}else{
+if(notpoly.vy>0)
+{if(distance(theirx,theiry+notpoly.height,poly.x[k2],poly.y[k2])+distance(theirx,theiry+notpoly.height,poly.x[k],poly.y[k]) <= linelength){polyline=k;return true}}
+else{if(distance(theirx,theiry,poly.x[k2],poly.y[k2])+distance(theirx,theiry,poly.x[k],poly.y[k]) <= linelength){polyline=k;return true}}
+}
+
+*/
+
+if(notpoly.shape!==0)//check all four corners
+{
+//top left
+if(distance(theirx,theiry,poly.x[k2],poly.y[k2])+distance(theirx,theiry,poly.x[k],poly.y[k]) <= linelength){polyline=k;return true}
+//bottom right
+else if(distance(theirx+notpoly.width,theiry+notpoly.height,poly.x[k2],poly.y[k2])+distance(theirx+notpoly.width,theiry+notpoly.height,poly.x[k],poly.y[k]) <= linelength){polyline=k;return true}
+//top right
+else if(distance(theirx+notpoly.width,theiry,poly.x[k2],poly.y[k2])+distance(theirx+notpoly.width,theiry,poly.x[k],poly.y[k]) <= linelength){polyline=k;return true}
+//bottom left
+else if(distance(theirx,theiry+notpoly.height,poly.x[k2],poly.y[k2])+distance(theirx,theiry+notpoly.height,poly.x[k],poly.y[k]) <= linelength){polyline=k;return true}
+
+}else{//check centres of all four sides
+
+var radius=notpoly.width/2
+
+//top
+
+for(var angle=0;angle<360;angle+=30)
+{
+if(distance(theircentrex+Math.cos(toradians(angle))*radius,theircentrey-Math.sin(toradians(angle))*radius,poly.x[k2],poly.y[k2])+distance(theircentrex+Math.cos(toradians(angle))*radius,theircentrey-Math.sin(toradians(angle))*radius,poly.x[k],poly.y[k]) <= linelength){polyline=k;return true}
+}
+
+
+
+
+}
+
+
+
+}
+
+return false
+}
+
+function toradians(degrees)
+{return ((Math.PI/180)*degrees)}
+
+function distance(dx1,dy1,dx2,dy2)
+{
+
+var dx=dx2-dx1
+var dy=dy2-dy1
+
+return Math.sqrt(dx*dx+dy*dy)
+}
+//-->
+</script>
+
+</body>
+</html>

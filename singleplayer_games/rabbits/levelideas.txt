@@ -1,0 +1,11 @@
+two streams with no gaps, two bases with colour only barriers around them.
+
+several rows of gates, with rows of warrens behind the last one.  One colour can be send off, so the rest can go through a not-that-colour gate.  then down another isle sending off some colours to warrens, till finnally only one type left and use a normal arrow for it.  be careful with numbers of arrows.
+
+if ratio arrows are put in:  Trees with braches, eg, 1:2, 1:1, and so on.  simple to make, harder to play, hopefully.
+
+Also for ratio arrows: only need to use one thing, eg 2 teddys followed by 3 carrots.  But also have red/green and red and green holes in a different pattern to add to confusion :)
+
+Arrow weave idea:
+two colours, each with two objects (so, red+carrot, blue+teddy, red+lettuce, blue+book), one blue arrow, one carrot arrow and one book arrow - enough to sort out all 4 types.  then an 8 row deep set of arrows, with only one way across for each group.
+-only enough arrows for a really efficient sort.

@@ -1,0 +1,36 @@
+0.1 (29/08/2008)
+-can draw trees! :D
+-can set: iterations, branches, start size.
+
+0.2 (30/08/2008)
+-adapted to TreeObject
+
+0.3 (30/08/2008)
+-added more options to tree (thick, colour, angle, etc)
+
+0.4 (30/08/2008)
+-optimised canvas usage so it works well(ish) in IE.
+
+0.5b (30/08/2008)
+-leaves working.  Could probably do with some more options, though.
+
+0.6 (30/08/2008)
+-version adapted to work with Cards.
+
+-FOUND BUG - doing wrong things in opera and safari.  throwing up INDEX_SIZE_ERR in opera when drawing card.  no idea why yet.
+
+0.8 (31/08/2008)
+-fixed bug - turns out safari and opera will crash when drawing arcs with a radius of 0.
+
+0.9 (31/08/2008)
+-works as normal again (cards version running normally).
+
+1.0 (12/09/2008)
+-added option of alpha to start and end colour.
+-lineCap set to butt.
+
+1.1 (12/09/2008)
+-leafColour option now configerable.
+-branch size now slightly random.
+
+

@@ -1,0 +1,238 @@
+0.37 (1-12-07)
+-working save / load mechanism
+-fixed bugs with dragging blobs created by string.
+
+0.38
+-tidy up of spring system (now connections, rather than just springs) to prepare for other types of connection (rods, hopefully.)
+
+0.39
+-collision detection with springs started work.
+
+.
+.
+.
+
+0.41
+-Working collision *detection* with springs, buggy and mathmatecally incorrect results from collisions with springs.  Detection script currently commented out.
+
+0.42
+-improvement of giving the object a speed after dragging thing, now does it on the speed of the mouse in the last loop.
+-fixed being able to create things stuck in the lower border
+
+0.44 (19-12-07)
+-fixed odd firefox bug where the save window simply wouldn't update.
+
+0.50
+using engine 2.20(newpolys)
+-attempting to bring back polygons, and allow them to move.
+
+Plans (7-01-08) - fix canvas for recent opera versions, and bring in rods
+
+
+0.45 (7-01-08)
+-fixed bug where saving after having deleted springs or objects resulted in them still sort of existing.
+
+0.46 (10-01-08)
+-Added rods.  Not brilliant, don't seem to be accurate enough to simulate a chaotic pendulum, but nifty anyway.
+
+0.47 (12-01-08)
+-Reduced times rod function is looped.  Fixed creating new things after loading a world not creating a new thing, but editing an old thing.
+
+0.48 (13-03-08)
+-Added preload option to url (like php) to load up a certain world on loading.
+
+0.49 (13-03-08)
+-Fixed pause button being wrongly toggled when preloading a world.
+
+0.49.1 (16-03-08)
+-Added Fieldlines function
+
+0.49.2 (19-03-08)
+-Added Planet War's Equipotential Function
+
+0.49.3 (20-03-08)
+-Written better Equipotential function, actually plots colours of 4th root of equipotential
+
+0.49.4 (20-03-08)
+-Improved graphics of function.
+
+Note:
+
+Worked out an error with saving loading.  If springs are connected between lots of objects, and then an object is deleted, everything will continue to work in that session, but after saving and loading the world array will be missing the deleted objects, so all the connections for the springs won't be correct - usually resulting in a 'crash'.
+
+0.51 (21-03-08)
+-Adding newpolys stuff back into newwer version of sandbox & engine.  This uses engine version 2.21 (which is 2.19 + bits of 2.20newpolys)
+
+NOTE: currently, plotting polys as static objects working, but collision detection not.  the polyandobject function probably works, but isn't ever started.
+
+0.51 (21-03-08)
+-polygons back up to scratch with when the last worked (squirms), but implemented with their own origin, points from that origin, and angle change
+
+0.52 (21-03-08)
+-Added filled/hollow polygons, with collision detection to match.
+
+0.53 (21-03-08)
+-Can drag polygons with mouse.
+
+0.54 (22-03-08)
+-Fixed problems with circles colliding with the 'spikey' bits of polygons - it treats corners as circles.  Has a few problems, but nothing as broken as before.
+
+0.55 (31-3-08)
+-Engine v2.25 from fortwars - polygon collision detection now has some optimisation.
+
+(9-05-08)
+engine v2.26 - point and normal with polygon and square only partly working - somehow it doesn't think there's always a collision.  I intent to integrate the normal and point detection into the collision detection
+
+engine v2.28
+Fixed point detection - forget to use newangle, newx and newy.
+
+BUG FOUND (in 0.49 - one on site): strings don't get saved properly.  undefined in the save string.
+
+0.58b (8-06-08)
+set PCvx and vy to 0 for static objects - think it might have made a slight difference.
+
+0.59 (8-06-08)
+-switched from getting polygons working to fixing bugs, getting ready for new game.
+-fixed bug where string wasn't saved properly (hardness wasn't definied when creating string.)
+-non-hard objects can now move (didn't work properly before).
+
+engine 2.30 (8-06-08)
+-started work on a viewport object, this is how the world is viewed, so the world canvas will be defined as a viewport.  Means 'mini maps' are possible, and scrolling + zooming around the map should become possible.
+-viewports (with canvas - divs are definitely going to be broken atm) seem to be working.  engine renders as per usual with one viewport defined.  x,y and zoom aren't yet implemented
+
+engine 2.31 (8-06-08)
+-zoom and x and y work, multiple viewports work!
+-various bugs with ctx still left in sandbox fixed
+
+0.62 (8-06-08)
+-mini-viewport at the bottom vastly zoomed out.
+-zoom works with scrollwheel, but doesn't zoom from the centre.  Need to copy graph script.
+-dragging main viewport works.  Needs improving (press M?)
+-zoom fixed
+-dragging works as option with normal drag, or with drag viewport (+press m to set to dragviewport)
+-arrow keys move world
+
+0.64 (9-06-08)
+-zooming now keeps the mouse where it is - so if it is hovering over an object, it will stay over that object when world is zoomed.  makes zooming into a specific place easy.
+
+need special object for ground - infinitly wide and deep and only draws what's needed on screen (drawing a huge object is SLOW)
+-lowerborder optimised.
+-dragging world and zooming possible whislt paused
+-optimised in IE.
+
+IE CAN'T ZOOM.  Also, balloons overlapping isn't right in IE.
+
+0.65 (9-06-08)
+-minimap in a window and can be minised to where it was originially.
+-zoom fixed in IE.
+
+0.67
+-now has a line for a border, also first 5 elements of world array are kept on wipe, meaning sandboxworlds required a lot of editing.
+
+Problem found!  Large shapes drawn off-screen use up a LOT of CPU (turns out the border is the sole reason for the extra CPU usage from the old version.).  Need some fixes for this.
+Adding balloon to a polygon breaks things.
+
+0.69 (10-06-08)
+-springs can now be attached to a polygon.
+
+0.70 (10-06-08)
+-fixed bug calcuating length of spring introduced in 0.69
+
+0.71 (10-06-08)
+-can draw static shapes.  Can also set them free-but then the bugs start appearing.
+
+Idea - finnally switch over so everything's x and y is defined from the centre.  big job, but would save a lot of future effort.
+
+0.72 (11-06-08)
+-saving now adds 'saved' to objects name, to avoid problems with overlapping names.
+
+balloon springs idea - for the various tests with different spring forces, include fx and fy when testing them.  might fix balloon probs.
+
+0.80 (12-06-08)
+-All objects x and y co-ords are now their centre, solving a lot of problems with movable polygons and saving a lot of future work.
+
+0.81 (23-06-08)
+-Draw shape tool improved - gradual curves now work, but there are quite a few odd problems when not drawing squares perfectly and drawing circles.
+
+0.82 (1-07-08)
+-Added Rotate option, complete with optional collision detection and working in paused.
+
+0.84 + engine 2.42
+-started work on adding DIVS to viewports.
+
+-changed my mind. Too much work for too little benefit to support DIVs again.  I'll leave in all the old code and my started attempts with viewports, but won't work on it again until it's needed.  Instead I'll focus on optimising the engine for the canvas.
+
+(4-07-08) engine 2.42
+-tried new polygon collisions.  Looking vaguely hopefully, but still thorough broken.  Things fly apart far too fast.
+(9-07-08)
+-Found problem - my mistake in calculating some vectors. Physics from http://www.myphysicslab.com/collision.html is now implemented.  Looks stable until sometimes dragging the square causes it to explode, if that can be fixed it's all good.
+
+Sandbox 0.84 is now known as sandbox 3, because it's so different to sandbox2 - draggable view, ground + coloured background, soon to have polygon collisions and a load of new tools.
+
+(11-07-08) engine 2.45
+-added enabled var to viewports - so they can be turned off.
+-added check for object beingn hard to checkforanycollide3
+
+(12-07-08) sandbox 0.86
+-added draw rectangle tool.  Not polished it yet, since I'm planning to add a new draw circle tool and consolodate all the create shape tools.
+
+(13-07-08) sandbox 0.87
+-fixed bug where dragging an object when there was no gravity resulted in strange things happening - due to an old (*really* old, too) optimisation system.
+-fixed polygons colliding with squares, normal vector is now correctly found.
+-fixed update function (for changing gravity) still using old pre-viewport system.
+-added newlines and smallworldstate to save text
+
+(13-07-08) sandbox 0.88
+-added new world loading system.  JS files are only loaded for a specific world when they're needed.  Thus I can have a large library of worlds to load and not impact initial loading time.  I can also easily and quickly add a world which can be accessed through preload.
+
+bug in draw rectangle - mouseX and mouseY need viewport stuff doing to them before they can be used as co-ords.
+bug in 
+
+(14-07-08) sandbox 0.90
+-dragging now works better - the mouse stays on the same point on the object.
+
+(18-07-08) engine 2.51
+-workaround added for nearly vertical lines in polygon collision detection bug thing.
+
+(18-07-08) sandbox 0.91
+-fixed part of script which moves shape part of the way it is due to move when there's a collision - reduces how often polygons get stuck.
+
+(18-07-08) sandbox 0.92
+-attempt at getting above mentioned script to work with angles - not having much success.  I'm going to work from 0.91 instead.
+
+(18-07-08) sandbox 0.93
+-fixed gravity and friction boxes not being updated when loading a world
+
+(18-07-08) engine 2.53
+-working collisions between static circles and moving polygons.  Moments of Intertia are not yet calculated for polygons, but I plan to add this to the polygon object later.
+
+(19-07-08) engine 2.54
+-semi working collisions between moving circles and polys, but energy appears to be gained - I'm going to try implementing moments of interia properly to see if that fixes it.
+
+(19-07-08) engine 2.55
+-fixed energy gain, the problem was when the collision point wasn't actually on either object.  this has been fixed for circles with the noticable effect of no energy gain, and also added for squares in the hope it will fix the odd exploding bug.
+
+(18-07-08) sandbox 0.95
+-fixed rectangle drawing
+
+(1-08-08) sandbox 0.96
+-started implementing bunny style canvas stuff - array of fills and strokes.
+
+1.00 (20/08/2008)
+-put in js file and adapted to new technique (with objects)
+
+1.01 (22/08/2008)
+-fixed bug whereby zooming on page load (before mouseX and mouseY were set) would crash the sandbox.
+-fixed smallworld
+
+1.02 (15/09/2008)
+-fixed updateoptions, updategravity and update friction
+
+1.03 (15/09/2008)
+-taken out physics stuff
+
+1.04 (15/09/2008)
+-added all the 'checkcollide' functions to clean up collision detection.
+
+1.05 (24/09/2008)
+-fixed draw shape.

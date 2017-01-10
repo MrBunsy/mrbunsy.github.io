@@ -1,0 +1,536 @@
+<html>
+<head>
+<title>Hungry Bunny</title>
+<script language="JavaScript" type="text/javascript">
+<!--
+function setcookie()
+{
+    var the_name = score
+
+    var the_cookie = "wm_javascript=" + escape("score:" + the_name);
+
+    document.cookie = the_cookie;
+
+}
+var rabbitmove;
+var counts = 0
+var counts2 = 0
+var score = 0
+var wait = 30
+var needreset = "false"
+var randomfruit = Math.floor(Math.random()*700+100)
+var difficulty = 5
+var difficulty2 = 2000
+
+function main()
+{
+if(wait == 0){
+countscore()
+
+if (randomfruit == 0){createfruit(); randomfruit = Math.floor(Math.random()*700+100)}else{randomfruit--}
+areyoueating()
+rotting()
+if (counts == 5){moverabbit(); win(); counts = 0}else{counts++}
+areyoudead();
+if (counts2 == difficulty){movemonsters(); counts2 = 0}else{counts2++}
+areyoudead();
+display()
+}else{document.getElementById('scorebox').innerHTML=Math.ceil(wait/10); wait--}
+}
+
+//-->
+</script>
+<script language="JavaScript" type="text/javascript">
+<!--
+
+function win()
+{
+if(blobs == 103){alert('You have eaten all the carrots!  Thank you for Beta testing Hungry Bunny!'); setcookie(); location.href="level2.htm"}
+if(blobs > 99){checkforblobs()}
+
+}
+
+function checkforblobs()
+{
+var x;
+var countblobs = 0
+for(x=0; x<221; x++)
+{
+var evalthis = eval("document.images["+x+"]")  
+var areblobs = evalthis.src
+var enda = areblobs.length
+var endc = areblobs.length-8
+
+var end_of_gif2 = areblobs.substring(endc,enda);
+if (end_of_gif2 == "blob.gif"){countblobs++}
+}
+if (countblobs == 0){blobs = 103}
+}
+
+function countscore()
+{
+if (score > difficulty2){score=score-difficulty2; rabbit.lives++} 
+}
+
+function areyoueating()
+{
+if (rabbit.location == food.location & food.state == "alive"){score=score+food.value; food.rot()}
+if (redmonster.location == food.location & food.state == "alive"){food.rot(); redmonster.ontopsrc="../blank.gif"}
+if (yellowmonster.location == food.location & food.state == "alive"){food.rot(); yellowmonster.ontopsrc="../blank.gif"}
+if (bluemonster.location == food.location & food.state == "alive"){food.rot(); bluemonster.ontopsrc="../blank.gif"}
+}
+
+function rotting()
+{
+if (food.sellbydate !== 0){food.sellbydate--}else{food.rot()}
+}
+
+function createfruit()
+{
+
+var randomnumber =  Math.floor(Math.random()*2+1)
+
+if (randomnumber == 1){food.image = "../apple.gif"}
+if (randomnumber == 2){food.image = "../cherry.gif"}
+if (randomnumber == 3){food.image = "../strawberry.gif"}
+food.state="alive"; food.grow()
+
+food.value = Math.floor(Math.random()*5+1)*100
+food.sellbydate = Math.floor(Math.random()*400+100)
+}
+
+function display()
+{
+if (bigblobs == 0){document.getElementById('scorebox').innerHTML="Lives: "+rabbit.lives+" Score: "+score}else{document.getElementById('scorebox').innerHTML="Lives: "+rabbit.lives+" Score: "+score+" Tree Power: "+bigblobs}}
+
+function areyoudead()
+{
+if (rabbit.location == bluemonster.location){if (bigblobs == 0){needreset = "true"}else{bluemonster.monsterreset(); score=score+200}}
+if (rabbit.location == redmonster.location){if (bigblobs == 0){needreset = "true"}else{redmonster.monsterreset(); score=score+200}}
+if (rabbit.location == yellowmonster.location){if (bigblobs == 0){needreset = "true"}else{yellowmonster.monsterreset(); score=score+200}}    
+
+if(needreset == "true"){needreset = "false"; rabbit.lives=rabbit.lives-1; rabbit.reset(); redmonster.monsterreset(); bluemonster.monsterreset(); yellowmonster.monsterreset(); wait=50;}
+
+if (rabbit.lives == 0){alert("You have run out of lives"), history.go(0)}
+}
+
+function movemonsters()
+{
+if (bigblobs !== 0){bigblobs--;
+if (bigblobs == 6){bluemonster.image="../monster1.gif"; yellowmonster.image="../monster3.gif"; redmonster.image="../monster2.gif"}
+if (bigblobs == 5){bluemonster.image="../blackmonster.gif"; yellowmonster.image="../blackmonster.gif"; redmonster.image="../blackmonster.gif"}
+if (bigblobs == 4){bluemonster.image="../monster1.gif"; yellowmonster.image="../monster3.gif"; redmonster.image="../monster2.gif"}
+if (bigblobs == 3){bluemonster.image="../blackmonster.gif"; yellowmonster.image="../blackmonster.gif"; redmonster.image="../blackmonster.gif"}
+if (bigblobs == 2){bluemonster.image="../monster1.gif"; yellowmonster.image="../monster3.gif"; redmonster.image="../monster2.gif"}
+if (bigblobs == 1){bluemonster.image="../blackmonster.gif"; yellowmonster.image="../blackmonster.gif"; redmonster.image="../blackmonster.gif"}
+}else{
+
+
+bluemonster.image="../monster1.gif"; yellowmonster.image="../monster3.gif"; redmonster.image="../monster2.gif"
+}
+
+if (bigblobs !== 0 & bluemonster.location == 76){}else{bluemonster.hunt()}
+if (bigblobs !== 0 & redmonster.location == 75){}else{redmonster.hunt()}
+if (bigblobs !== 0 & yellowmonster.location == 77){}else{yellowmonster.hunt()}
+}
+
+
+
+function moverabbit()
+{
+if (rabbitmove == "right"){rabbit.move(1)}
+if (rabbitmove == "left"){rabbit.move(-1)}
+if (rabbitmove == "down"){rabbit.move(+17)}
+if (rabbitmove == "up"){rabbit.move(-17)}}
+var paused = "false"
+
+function pause()
+{
+if (paused !== "true" )
+{
+document.getElementById('scorebox').innerHTML="PAUSED"
+clearInterval(s)
+paused = "true"
+}else{
+s=setInterval('main()',50)
+paused = "false"
+}
+}
+
+//-->
+</script>
+<script language="JavaScript" type="text/javascript">
+<!--
+function Creature(name,location,lives)
+{this.name = name
+this.location = location;
+this.lives = lives;
+this.move = move;
+this.reset = reset}
+
+function Fruit(name,location,image,state,value,sellbydate)
+{this.name = name;
+this.state = state;
+this.value = value;
+this.sellbydate = sellbydate;
+this.location = location;
+this.image = image;
+this.rot = rot;
+this.grow = grow;
+}
+
+function Monster(image,location,time,ontopsrc,wheretomove,colour)
+{this.wheretomove = wheretomove;
+this.ontopsrc = ontopsrc;
+this.image = image;
+this.location = location;
+this.time = time;
+this.hunt = hunt;
+this.colour = colour
+this.monsterreset = monsterreset;}
+
+function grow()
+{
+if (this.location !== rabbit.location)
+{
+evalthis = "document.images["+this.location+"]"
+evalthis2 = eval(evalthis)
+evalthis2.src = this.image;
+}
+}
+
+function rot()
+{
+evalthis = "document.images["+this.location+"]"
+evalthis2 = eval(evalthis)
+evalthis2.src = "../blank.gif"
+this.state="goneoff"
+}
+
+
+function reset()
+{
+//remove rabbit gif
+evalthis=eval("document.images["+this.location+"]")
+evalthis.src = evalthis.name
+
+//******
+rabbit.location = 110;
+document.images[110].src="../rab.gif"
+}
+
+function monsterreset()
+{
+evalthisM=eval("document.images["+this.location+"]"); evalthisM.src = this.ontopsrc;
+if (this.colour == "blue"){this.location = 76; document.images[76].src="../monster1.gif"}
+if (this.colour == "red"){this.location = 75; document.images[75].src="../monster2.gif"}
+if (this.colour == "green"){this.location = 75}
+if (this.colour == "yellow"){this.location = 77; document.images[77].src="../monster3.gif"}
+this.ontopsrc="../blank.gif"
+
+
+//document.images[75].src="../monster2.gif"
+}
+
+function hunt()
+{
+
+// ****** IS MOVE SAFE? ******
+evalthisM1 = eval(this.location+this.wheretomove); if (evalthisM1 < 0){evalthisM1 = 0}; if (evalthisM1 > 221){evalthisM1 = 0}; evalthisM3 = "document.images["+evalthisM1+"]"; evalthisM2 = eval(evalthisM3); if (evalthisM2.name == "../gate.gif"){if(this.location == 76){monstercanmove = "true"}}else{if (evalthisM2.name == "../blank.gif"){monstercanmove = "true"}else{monstercanmove = "false"}}; 
+// ***************************
+
+//var randomnumber = Math.ceil(Math.random()*3)
+//if (randomnumber == 1){}
+
+if (monstercanmove == "true"){
+if (bigblobs == 0){testforrabbit = this.location-rabbit.location;}else{testforrabbit = rabbit.location-this.location;} 
+// ****** LEFT OR RIGHT ******
+if (this.wheretomove == -1){testwheretomove = +17; evalthisM1 = eval(this.location+testwheretomove); if (evalthisM1 < 0){evalthisM1 = 0}; if (evalthisM1 > 221){evalthisM1 = 0}; evalthisM3 = "document.images["+evalthisM1+"]"; evalthisM2 = eval(evalthisM3); if (evalthisM2.name == "../blank.gif"){monstercanmove2 = "true"}};
+if (monstercanmove2 == "true"){monstercanmove2 = "false"; if (testforrabbit < -15){this.wheretomove = +17; donottestformore = "true"}else{if (testforrabbit < 13 & testforrabbit > 0){this.wheretomove = -1; donottestformore = "true"}else{var randomnumber =  Math.ceil(Math.random()*2); if (randomnumber == 1){this.wheretomove = +17; donottestformore = "true"}}}}
+if (donottestformore == "true"){}else{if (this.wheretomove == -1){testwheretomove = -17; evalthisM1 = eval(this.location+testwheretomove); if (evalthisM1 < 0){evalthisM1 = 0}; if (evalthisM1 > 221){evalthisM1 = 0}; evalthisM3 = "document.images["+evalthisM1+"]"; evalthisM2 = eval(evalthisM3); if (evalthisM2.name == "../blank.gif" || evalthisM2.name == "../gate.gif"){var monstercanmove3 = "true"}};}
+if (monstercanmove3 == "true"){monstercanmove3 = "false"; if (testforrabbit > 15){this.wheretomove = -17; donottestformore = "true"}else{if (testforrabbit < 13 & testforrabbit > 0){this.wheretomove = -1; donottestformore = "true"}else{var randomnumber =  Math.ceil(Math.random()*2); if (randomnumber == 1){this.wheretomove = -17; donottestformore = "true"}}}}
+
+if (donottestformore == "true"){}else{if (this.wheretomove == +1){testwheretomove = +17; evalthisM1 = eval(this.location+testwheretomove); if (evalthisM1 < 0){evalthisM1 = 0}; if (evalthisM1 > 221){evalthisM1 = 0}; evalthisM3 = "document.images["+evalthisM1+"]"; evalthisM2 = eval(evalthisM3); if (evalthisM2.name == "../blank.gif"){var monstercanmove4 = "true"}};}
+if (monstercanmove4 == "true"){monstercanmove4 = "false"; if (testforrabbit < -15){this.wheretomove = +17; donottestformore = "true"}else{if (testforrabbit > -13 & testforrabbit < 0){this.wheretomove = +1; donottestformore = "true"}else{var randomnumber =  Math.ceil(Math.random()*2); if (randomnumber == 1){this.wheretomove = +17; donottestformore = "true"}}}}
+if (donottestformore == "true"){}else{if (this.wheretomove == +1){testwheretomove = -17; evalthisM1 = eval(this.location+testwheretomove); if (evalthisM1 < 0){evalthisM1 = 0}; if (evalthisM1 > 221){evalthisM1 = 0}; evalthisM3 = "document.images["+evalthisM1+"]"; evalthisM2 = eval(evalthisM3); if (evalthisM2.name == "../blank.gif" || evalthisM2.name == "../gate.gif"){var monstercanmove5 = "true"}};}
+if (monstercanmove5 == "true"){monstercanmove5 = "false"; if (testforrabbit > 15){this.wheretomove = -17; donottestformore = "true"}else{if (testforrabbit > -13 & testforrabbit < 0){this.wheretomove = +1; donottestformore = "true"}else{var randomnumber =  Math.ceil(Math.random()*2); if (randomnumber == 1){this.wheretomove = -17; donottestformore = "true"}}}}
+
+if (donottestformore == "true"){}else{if (this.wheretomove == +17){testwheretomove = -1; evalthisM1 = eval(this.location+testwheretomove); if (evalthisM1 < 0){evalthisM1 = 0}; if (evalthisM1 > 221){evalthisM1 = 0}; evalthisM3 = "document.images["+evalthisM1+"]"; evalthisM2 = eval(evalthisM3); if (evalthisM2.name == "../blank.gif"){var monstercanmove6 = "true"};}}
+if (monstercanmove6 == "true"){monstercanmove6 = "false"; if (testforrabbit < 13 & testforrabbit > 0){this.wheretomove = -1; donottestformore = "true"}else{if (testforrabbit < -15){this.wheretomove = +17; donottestformore = "true"}else{var randomnumber =  Math.ceil(Math.random()*2); if (randomnumber == 1){this.wheretomove = -1}}}}
+if (donottestformore == "true"){}else{if (this.wheretomove == +17){testwheretomove = +1; evalthisM1 = eval(this.location+testwheretomove); if (evalthisM1 < 0){evalthisM1 = 0}; if (evalthisM1 > 221){evalthisM1 = 0}; evalthisM3 = "document.images["+evalthisM1+"]"; evalthisM2 = eval(evalthisM3); if (evalthisM2.name == "../blank.gif"){var monstercanmove7 = "true"};}}
+if (monstercanmove7 == "true"){monstercanmove7 = "false"; if (testforrabbit > -13 & testforrabbit < 0){this.wheretomove = +1; donottestformore = "true"}else{if (testforrabbit < -15){this.wheretomove = +17; donottestformore = "true"}else{var randomnumber =  Math.ceil(Math.random()*2); if (randomnumber == 1){this.wheretomove = +1}}}}
+
+if (donottestformore == "true"){}else{if (this.wheretomove == -17){testwheretomove = -1; evalthisM1 = eval(this.location+testwheretomove); if (evalthisM1 < 0){evalthisM1 = 0}; if (evalthisM1 > 221){evalthisM1 = 0}; evalthisM3 = "document.images["+evalthisM1+"]"; evalthisM2 = eval(evalthisM3); if (evalthisM2.name == "../blank.gif"){var monstercanmove8 = "true"};}}
+if (monstercanmove8 == "true"){monstercanmove8 = "false"; if (testforrabbit < 13 & testforrabbit > 0){this.wheretomove = -1; donottestformore = "true"}else{if (testforrabbit > 15){this.wheretomove = -17; donottestformore = "true"}else{var randomnumber =  Math.ceil(Math.random()*2); if (randomnumber == 1){this.wheretomove = -1}}}}
+if (donottestformore == "true"){}else{if (this.wheretomove == -17){testwheretomove = +1; evalthisM1 = eval(this.location+testwheretomove); if (evalthisM1 < 0){evalthisM1 = 0}; if (evalthisM1 > 221){evalthisM1 = 0}; evalthisM3 = "document.images["+evalthisM1+"]"; evalthisM2 = eval(evalthisM3); if (evalthisM2.name == "../blank.gif"){var monstercanmove9 = "true"};}}
+if (monstercanmove9 == "true"){monstercanmove9 = "false"; if (testforrabbit > -13 & testforrabbit < 0){this.wheretomove = +1; donottestformore = "true"}else{if (testforrabbit > 15){this.wheretomove = -17; donottestformore = "true"}else{var randomnumber =  Math.ceil(Math.random()*2); if (randomnumber == 1){this.wheretomove = +1}}}}
+
+donottestformore = "false"
+// ****** MONSTER MOVE FORWARDS ******
+evalthisM=eval("document.images["+this.location+"]"); evalthisM.src = this.ontopsrc; evalthisM1 = eval(this.location+this.wheretomove); this.location = evalthisM1; evalthisM3 = "document.images["+this.location+"]"; evalthisM2 = eval(evalthisM3);	if(this.location == 42){startnextmonster()}; 
+
+
+if(this.location == bluemonster.location){if(this.colour !== "blue"){this.ontopsrc = bluemonster.ontopsrc; defaultsrc="false"}}; 
+if(this.location == redmonster.location){if(this.colour !== "red"){this.ontopsrc = redmonster.ontopsrc; defaultsrc="false"}};
+if(this.location == yellowmonster.location){if(this.colour !== "yellow"){this.ontopsrc = yellowmonster.ontopsrc; defaultsrc="false"}}; 
+
+if(this.location == rabbit.location){this.ontopsrc = "../blank.gif"; defaultsrc="false"}; if(defaultsrc !=="false"){this.ontopsrc = evalthisM2.src;}; defaultsrc = "true";  evalthisM2.src=this.image; 
+
+
+// ***********************************
+}
+else
+{
+var monstercanmove10;
+if (bigblobs == 0){testforrabbit = this.location-rabbit.location;}else{testforrabbit = rabbit.location-this.location;}
+
+//is rabbit above monster?
+if (testforrabbit > 17)
+{
+//alert('rabbitUP '+testforrabbit+" "+this.colour)
+//check you can move upwards
+evalthisM1 = eval(this.location-17); if (evalthisM1 < 0){evalthisM1 = 0}; if (evalthisM1 > 221){evalthisM1 = 0}; evalthisM3 = "document.images["+evalthisM1+"]"; evalthisM2 = eval(evalthisM3); if (evalthisM2.name == "../blank.gif"){monstercanmove10 = "true"}else{monstercanmove10 = "false"};
+if (monstercanmove10=="true")
+{this.wheretomove = -17;}}
+
+if (testforrabbit < -17)
+{
+//alert('rabbitDOWN '+testforrabbit+" "+this.colour)
+evalthisM1 = eval(this.location+17); if (evalthisM1 < 0){evalthisM1 = 0}; if (evalthisM1 > 221){evalthisM1 = 0}; evalthisM3 = "document.images["+evalthisM1+"]"; evalthisM2 = eval(evalthisM3); if (evalthisM2.name == "../blank.gif"){monstercanmove10 = "true"}else{monstercanmove10 = "false"};
+if (monstercanmove10=="true")
+{this.wheretomove = +17;}}
+
+if (testforrabbit > -10 & testforrabbit < 0)
+{
+//alert('rabbitRIGHT '+testforrabbit+" "+this.colour)
+evalthisM1 = eval(this.location+1); if (evalthisM1 < 0){evalthisM1 = 0}; if (evalthisM1 > 221){evalthisM1 = 0}; evalthisM3 = "document.images["+evalthisM1+"]"; evalthisM2 = eval(evalthisM3); if (evalthisM2.name == "../blank.gif"){monstercanmove10 = "true"}else{monstercanmove10 = "false"};
+if (monstercanmove10=="true")
+{this.wheretomove = +1;}}
+
+if (testforrabbit < 10 & testforrabbit > 0)
+{
+//alert('rabbitLEFT '+testforrabbit+" "+this.colour)
+evalthisM1 = eval(this.location-1); if (evalthisM1 < 0){evalthisM1 = 0}; if (evalthisM1 > 221){evalthisM1 = 0}; evalthisM3 = "document.images["+evalthisM1+"]"; evalthisM2 = eval(evalthisM3); if (evalthisM2.name == "../blank.gif"){monstercanmove10 = "true"}else{monstercanmove10 = "false"};
+if (monstercanmove10=="true")
+{this.wheretomove = -1;}}
+//if (testforrabbit < 17 & testforrabbit > 0)
+//{
+//alert("rabbit is LEFT"+this.colour+" "+testforrabbit)
+//evalthisM1 = eval(this.location-1); if (evalthisM1 < 0){evalthisM1 = 0}; if (evalthisM1 > 221){evalthisM1 = 0}; evalthisM3 = "document.images["+evalthisM1+"]"; evalthisM2 = eval(evalthisM3); if (evalthisM2.name == "../blank.gif"){monstercanmove10 = "true"}else{monstercanmove10 = "false"};
+//if (monstercanmove10=="true")
+//{this.wheretomove = -1;}}
+
+while (monstercanmove10 !== "true")
+{
+randommonsterdirection(); this.wheretomove = varwheretomove
+evalthisM1 = eval(this.location+this.wheretomove); if (evalthisM1 < 0){evalthisM1 = 0}; if (evalthisM1 > 221){evalthisM1 = 0}; evalthisM3 = "document.images["+evalthisM1+"]"; evalthisM2 = eval(evalthisM3); if (evalthisM2.name == "../blank.gif"){monstercanmove10 = "true"}else{monstercanmove10 = "false"};
+}
+evalthisM=eval("document.images["+this.location+"]"); evalthisM.src = this.ontopsrc; evalthisM1 = eval(this.location+this.wheretomove); this.location = evalthisM1; evalthisM3 = "document.images["+this.location+"]"; evalthisM2 = eval(evalthisM3);	if(this.location == 42){startnextmonster()}; if(this.location == bluemonster.location){if(this.colour !== "blue"){this.ontopsrc = bluemonster.ontopsrc; defaultsrc="false"}}; if(this.location == redmonster.location){if(this.colour !== "red"){this.ontopsrc = redmonster.ontopsrc; defaultsrc="false"}}; if(this.location == yellowmonster.location){if(this.colour !== "yellow"){this.ontopsrc = yellowmonster.ontopsrc; defaultsrc="false"}}; if(this.location == rabbit.location){this.ontopsrc = "../blank.gif"; defaultsrc="false"};if(defaultsrc !=="false"){this.ontopsrc = evalthisM2.src;}; defaultsrc = "true";  evalthisM2.src=this.image;
+
+
+}
+}
+
+function startnextmonster()
+{
+//if (monstersstarted == 0){doesredmonsterexist = "yes"; redmonster.ontopsrc="../blank.gif"; monstersstarted++}
+//if (monstersstarted == 1){doesbluemonsterexist = "yes"; monstersstarted++}
+//if (monstersstarted == 2){doesgreenmonsterexist = "yes"; monstersstarted++}
+}
+
+function randommonsterdirection()
+{
+countingmonster =  Math.ceil(Math.random()*4);if (countingmonster == 1){varwheretomove = -17}; if (countingmonster == 2){varwheretomove = +17}; if (countingmonster == 3){varwheretomove = -1}; if (countingmonster == 4){varwheretomove = +1};
+}
+
+var testforrabbit;
+var monstersstarted = 0
+var defaultsrc;
+var varwheretomove;
+var donottestformore;
+var monstercanmove2;
+var testwheretomove;
+var monstercanmove;
+var doesbluemonsterexist = "yes"
+var doesredmonsterexist = "yes"
+var doesgreenmonsterexist = "yes"
+var doesyellowmonsterexist = "yes"
+
+var bluemonster = new Monster("../monster1.gif",76,15,"../blank.gif",-1,"blue")
+var redmonster = new Monster("../monster2.gif",75,15,"../blank.gif",+1,"red")
+var yellowmonster = new Monster("../monster3.gif",77,15,"../blank.gif",+1,"yellow")
+//var redmonster = new Monster("../monster2.gif",75,15,"../blank.gif",+1,"red")
+var rabbit = new Creature("rabbit",110, 3)
+var food = new Fruit("fruit",110,"../apple.gif","dead")
+var apple = new Fruit("apple",110,"../apple.gif","dead")
+var cherry = new Fruit("cherry",110,"../cherry.gif","dead")
+var strawberry = new Fruit("strawberry",110,"../strawberry.gif","dead")
+
+var evalthis;
+var evalthis2;
+var rabbitimage;
+var bigblobs = 0
+var blobs = 0
+var howfartomove = -17
+var countingmonster = 1
+var evalthisM;
+var evalthisM2;
+var evalthisM3;
+var evalthisM1
+
+function move(where)
+{
+evalthis3 = eval(this.location+where)
+if (evalthis3 < 0){evalthis3 = 0}
+if (evalthis3 > 221){evalthis3 = 0} 
+evalthis = "document.images["+evalthis3+"]"
+evalthis2 = eval(evalthis)
+if (evalthis2.name == "../blank.gif")
+{
+if (this.name == "rabbit")
+{
+if (where == -1){rabbitimage = "../left.gif"}
+if (where == +1){rabbitimage = "../right.gif"}
+if (where == -17){rabbitimage = "../up.gif"}
+if (where == +17){rabbitimage = "../down.gif"}
+}else{
+rabbitimage = this.name
+}
+
+
+
+evalthis=eval("document.images["+this.location+"]")
+evalthis.src = evalthis.name
+
+this.location = evalthis3
+evalthis = "document.images["+this.location+"]"
+evalthis2 = eval(evalthis)
+//alert(evalthis2.name)
+
+var isbigblob = evalthis2.src
+//var splitbigblob = the_word.length-1
+
+var enda = isbigblob.length
+var endb = isbigblob.length-11
+var endc = isbigblob.length-8
+
+var end_of_gif = isbigblob.substring(endb,enda);
+var end_of_gif2 = isbigblob.substring(endc,enda);
+
+//var the_last_letter = the_word.charAt(the_word.length-1);
+
+if (end_of_gif == "bigblob.gif")
+{
+//alert(end_of_gif )
+bigblobs = 20
+
+bluemonster.image="../blackmonster.gif"
+redmonster.image="../blackmonster.gif"
+yellowmonster.image="../blackmonster.gif"
+}
+if (end_of_gif2 == "blob.gif")
+{
+blobs++
+score++
+}
+
+evalthis2.src=rabbitimage
+}
+
+}
+
+
+//var the_image = prompt("change parrot or cheese","");
+//	var the_image_name = "window.document." + the_image;
+//	var the_image_object = eval(the_image_name);
+//	the_image_object.src = "ant.gif";
+
+
+//-->
+</script>
+</head>
+<body onkeydown="javascript:keyDown()" onload="javascript:s=setInterval('main()',40);" bgcolor="#ffffff">
+<script language="JavaScript" type="text/javascript">
+<!--
+var endofscript = '</script>'
+var fforie;
+if (navigator.appName == "Microsoft Internet Explorer")
+{fforie = true}
+if (fforie == true){
+document.writeln('<script>')
+document.writeln('function keyDown()')
+document.writeln('{')
+document.writeln('if(event.keyCode == 39){rabbitmove="right"}')
+document.writeln('if(event.keyCode == 37){rabbitmove="left"}')
+document.writeln('if(event.keyCode == 40){rabbitmove="down"}')
+document.writeln('if(event.keyCode == 38){rabbitmove="up"}')
+document.writeln('if(event.keyCode == 80){pause()};')
+document.writeln('if(event.keyCode == 27){self.close()};')
+document.writeln('}')
+document.writeln(endofscript)
+}
+else
+{
+document.writeln('<script>')
+document.writeln('function keyDown(e)')
+document.writeln('{')
+document.writeln('if(e.which == 39){rabbitmove="right"}')
+document.writeln('if(e.which == 37){rabbitmove="left"}')
+document.writeln('if(e.which == 40){rabbitmove="down"}')
+document.writeln('if(e.which == 38){rabbitmove="up"}')
+document.writeln('if(e.which == 80){pause()}')
+document.writeln('if(e.which == 27){self.close()};')
+document.writeln('}')
+document.writeln('document.onkeydown=keyDown;')
+document.writeln(endofscript)}
+var numbers = 500
+
+function easy()
+{
+var the_box = window.document.form_1.easybutton;
+  if (the_box.checked == true) 
+  {
+    window.document.form_1.hardbutton.checked = false;
+		difficulty = 5
+		difficulty2 = 1000
+		}
+}
+
+function hard()
+{
+  var the_box = window.document.form_1.hardbutton;
+  if (the_box.checked == true) {
+    window.document.form_1.easybutton.checked = false;
+		difficulty = 4
+		difficulty2 = 2000
+  }
+}
+
+//-->
+</script>
+
+<center>
+<img src="../white.gif" name='../white.gif' width="25" height="25" alt=""><img src="../bigblob.gif" name="../blank.gif" width="25" height="25" alt=""><img src="../blob.gif" name="../blank.gif" width="25" height="25" alt=""><img src="../blob.gif" name="../blank.gif" width="25" height="25" alt=""><img src="../blob.gif" name="../blank.gif" width="25" height="25" alt=""><img src="../blob.gif" name="../blank.gif" width="25" height="25" alt=""><img src="../blob.gif" name="../blank.gif" width="25" height="25" alt=""><img src="../blob.gif" name="../blank.gif" width="25" height="25" alt=""><img src="../blob.gif" name="../blank.gif" width="25" height="25" alt=""><img src="../blob.gif" name="../blank.gif" width="25" height="25" alt=""><img src="../blob.gif" name="../blank.gif" width="25" height="25" alt=""><img src="../blob.gif" name="../blank.gif" width="25" height="25" alt=""><img src="../blob.gif" name="../blank.gif" width="25" height="25" alt=""><img src="../blob.gif" name="../blank.gif" width="25" height="25" alt=""><img src="../blob.gif" name="../blank.gif" width="25" height="25" alt=""><img src="../bigblob.gif" name="../blank.gif" width="25" height="25" alt=""><img src="../white.gif" name='../white.gif' width="25" height="25" alt=""><br>
+<img src="../white.gif" name='../white.gif' width="25" height="25" alt=""><img src="../blob.gif" name='../blank.gif' width="25" height="25" alt=""><img src="../wrightdown.gif" name="../wrightdown.gif" width="25" height="25" alt=""><img src="../wrightleft.gif" name="../wrightleft.gif" width="25" height="25" alt=""><img src="../wdownleft.gif" name="../wdownleft.gif" width="25" height="25" alt=""><img src="../blob.gif" name="../blank.gif" width="25" height="25" alt=""><img src="../wrightleft.gif" name="../wrightleft.gif" width="25" height="25" alt=""><img src="../wrightleft.gif" name="../wrightleft.gif" width="25" height="25" alt=""><img src="../wrightleft.gif" name="../wrightleft.gif" width="25" height="25" alt=""><img src="../wrightleft.gif" name="../wrightleft.gif" width="25" height="25" alt=""><img src="../wrightleft.gif" name="../wrightleft.gif" width="25" height="25" alt=""><img src="../blob.gif" name="../blank.gif" width="25" height="25" alt=""><img src="../wrightdown.gif" name="../wrightdown.gif" width="25" height="25" alt=""><img src="../wrightleft.gif" name="../wrightleft.gif" width="25" height="25" alt=""><img src="../wdownleft.gif" name="../wdownleft.gif" width="25" height="25" alt=""><img src="../blob.gif" name="../blank.gif" width="25" height="25" alt=""><img src="../white.gif" name='../white.gif' width="25" height="25" alt=""><br>
+<img src="../white.gif" name='../white.gif' width="25" height="25" alt=""><img src="../blob.gif" name="../blank.gif" width="25" height="25" alt=""><img src="../wupdown.gif" name="../wupdown.gif" width="25" height="25" alt=""><img src="../blank.gif" name="../blank.gif" width="25" height="25" alt=""><img src="../wupdown.gif" name="../wupdown.gif" width="25" height="25" alt=""><img src="../blob.gif" name="../blank.gif" width="25" height="25" alt=""><img src="../blob.gif" name="../blank.gif" width="25" height="25" alt=""><img src="../blob.gif" name="../blank.gif" width="25" height="25" alt=""><img src="../blob.gif" name="../blank.gif" width="25" height="25" alt=""><img src="../blob.gif" name="../blank.gif" width="25" height="25" alt=""><img src="../blob.gif" name="../blank.gif" width="25" height="25" alt=""><img src="../blob.gif" name="../blank.gif" width="25" height="25" alt=""><img src="../blob.gif" name="../blank.gif" width="25" height="25" alt=""><img src="../blob.gif" name="../blank.gif" width="25" height="25" alt=""><img src="../wupdown.gif" name="../wupdown.gif" width="25" height="25" alt=""><img src="../blob.gif" name="../blank.gif" width="25" height="25" alt=""><img src="../white.gif" name='../white.gif' width="25" height="25" alt=""><br>
+<img src="../white.gif" name='../white.gif' width="25" height="25" alt=""><img src="../blob.gif" name="../blank.gif" width="25" height="25" alt=""><img src="../wupright.gif" name="../wupright.gif" width="25" height="25" alt=""><img src="../wrightleft.gif" name="../wrightleft.gif" width="25" height="25" alt=""><img src="../wupleft.gif" name="../wupleft.gif" width="25" height="25" alt=""><img src="../blob.gif" name="../blank.gif" width="25" height="25" alt=""><img src="../wrightdown.gif" name="../wrightdown.gif" width="25" height="25" alt=""><img src="../wrightleft.gif" name="../wrightleft.gif" width="25" height="25" alt=""><img src="../gate.gif" name="../gate.gif" width="25" height="25" alt=""><img src="../wrightleft.gif" name="../wrightleft.gif" width="25" height="25" alt=""><img src="../wdownleft.gif" name="../wdownleft.gif" width="25" height="25" alt=""><img src="../blob.gif" name="../blank.gif" width="25" height="25" alt=""><img src="../wupdown.gif" name="../wupdown.gif" width="25" height="25" alt=""><img src="../blob.gif" name="../blank.gif" width="25" height="25" alt=""><img src="../wupdown.gif" name="../wupdown.gif" width="25" height="25" alt=""><img src="../blob.gif" name="../blank.gif" width="25" height="25" alt=""><img src="../white.gif" name='../white.gif' width="25" height="25" alt=""><br>
+<img src="../white.gif" name='../white.gif' width="25" height="25" alt=""><img src="../blob.gif" name="../blank.gif" width="25" height="25" alt=""><img src="../blob.gif" name="../blank.gif" width="25" height="25" alt=""><img src="../blob.gif" name="../blank.gif" width="25" height="25" alt=""><img src="../blob.gif" name="../blank.gif" width="25" height="25" alt=""><img src="../blob.gif" name="../blank.gif" width="25" height="25" alt=""><img src="../wupdown.gif" name="../wupdown.gif" width="25" height="25" alt=""><img src="../monster2.gif" name="../blank.gif" width="25" height="25" alt=""><img src="../monster1.gif" name="../blank.gif" width="25" height="25" alt=""><img src="../monster3.gif" name="../blank.gif" width="25" height="25" alt=""><img src="../wupdown.gif" name="../wupdown.gif" width="25" height="25" alt=""><img src="../blob.gif" name="../blank.gif" width="25" height="25" alt=""><img src="../wupright.gif" name="../wupright.gif" width="25" height="25" alt=""><img src="../wrightleft.gif" name="../wrightleft.gif" width="25" height="25" alt=""><img src="../wupleft.gif" name="../wupleft.gif" width="25" height="25" alt=""><img src="../blob.gif" name="../blank.gif" width="25" height="25" alt=""><img src="../white.gif" name='../white.gif' width="25" height="25" alt=""><br>
+<img src="../white.gif" name='../white.gif' width="25" height="25" alt=""><img src="../blob.gif" name="../blank.gif" width="25" height="25" alt=""><img src="../wrightdown.gif" name="../wrightdown.gif" width="25" height="25" alt=""><img src="../wrightleft.gif" name="../wrightleft.gif" width="25" height="25" alt=""><img src="../wdownleft.gif" name="../wdownleft.gif" width="25" height="25" alt=""><img src="../blob.gif" name="../blank.gif" width="25" height="25" alt=""><img src="../wupright.gif" name="../wupright.gif" width="25" height="25" alt=""><img src="../wrightleft.gif" name="../wrightleft.gif" width="25" height="25" alt=""><img src="../wrightleft.gif" name="../wrightleft.gif" width="25" height="25" alt=""><img src="../wrightleft.gif" name="../wrightleft.gif" width="25" height="25" alt=""><img src="../wupleft.gif" name="../wupleft.gif" width="25" height="25" alt=""><img src="../blob.gif" name="../blank.gif" width="25" height="25" alt=""><img src="../blob.gif" name="../blank.gif" width="25" height="25" alt=""><img src="../blob.gif" name="../blank.gif" width="25" height="25" alt=""><img src="../blob.gif" name="../blank.gif" width="25" height="25" alt=""><img src="../blob.gif" name="../blank.gif" width="25" height="25" alt=""><img src="../white.gif" name='../white.gif' width="25" height="25" alt=""><br>
+<img src="../white.gif" name='../white.gif' width="25" height="25" alt=""><img src="../blob.gif" name="../blank.gif" width="25" height="25" alt=""><img src="../wupdown.gif" name="../wupdown.gif" width="25" height="25" alt=""><img src="../blank.gif" name="../blank.gif" width="25" height="25" alt=""><img src="../wupdown.gif" name="../wupdown.gif" width="25" height="25" alt=""><img src="../blob.gif" name="../blank.gif" width="25" height="25" alt=""><img src="../blob.gif" name="../blank.gif" width="25" height="25" alt=""><img src="../blob.gif" name="../blank.gif" width="25" height="25" alt=""><img src="../rab.gif" name="../blank.gif" width="25" height="25" alt=""><img src="../blob.gif" name="../blank.gif" width="25" height="25" alt=""><img src="../blob.gif" name="../blank.gif" width="25" height="25" alt=""><img src="../blob.gif" name="../blank.gif" width="25" height="25" alt=""><img src="../wrightdown.gif" name="../wrightdown.gif" width="25" height="25" alt=""><img src="../wrightleft.gif" name="../wrightleft.gif" width="25" height="25" alt=""><img src="../wdownleft.gif" name="../wdownleft.gif" width="25" height="25" alt=""><img src="../blob.gif" name="../blank.gif" width="25" height="25" alt=""><img src="../white.gif" name='../white.gif' width="25" height="25" alt=""><br>
+<img src="../white.gif" name='../white.gif' width="25" height="25" alt=""><img src="../blob.gif" name="../blank.gif" width="25" height="25" alt=""><img src="../wupdown.gif" name="../wupdown.gif" width="25" height="25" alt=""><img src="../blank.gif" name="../blank.gif" width="25" height="25" alt=""><img src="../wupdown.gif" name="../wupdown.gif" width="25" height="25" alt=""><img src="../blob.gif" name="../blank.gif" width="25" height="25" alt=""><img src="../wright.gif" name="../wright.gif" width="25" height="25" alt=""><img src="../wleft.gif" name="../wleft.gif" width="25" height="25" alt=""><img src="../blob.gif" name="../blank.gif" width="25" height="25" alt=""><img src="../wupdown.gif" name="../wupdown.gif" width="25" height="25" alt=""><img src="../blob.gif" name="../blank.gif" width="25" height="25" alt=""><img src="../wrightdown.gif" name="../wrightdown.gif" width="25" height="25" alt=""><img src="../wupleft.gif" name="../wupleft.gif" width="25" height="25" alt=""><img src="../blank.gif" name="../blank.gif" width="25" height="25" alt=""><img src="../wupdown.gif" name="../wupdown.gif" width="25" height="25" alt=""><img src="../blob.gif" name="../blank.gif" width="25" height="25" alt=""><img src="../white.gif" name='../white.gif' width="25" height="25" alt=""><br>
+<img src="../white.gif" name='../white.gif' width="25" height="25" alt=""><img src="../blob.gif" name="../blank.gif" width="25" height="25" alt=""><img src="../wupdown.gif" name="../wupdown.gif" width="25" height="25" alt=""><img src="../wrightdown.gif" name="../wrightdown.gif" width="25" height="25" alt=""><img src="../wupleft.gif" name="../wupleft.gif" width="25" height="25" alt=""><img src="../blob.gif" name="../blank.gif" width="25" height="25" alt=""><img src="../blob.gif" name="../blank.gif" width="25" height="25" alt=""><img src="../blob.gif" name="../blank.gif" width="25" height="25" alt=""><img src="../blob.gif" name="../blank.gif" width="25" height="25" alt=""><img src="../wupdown.gif" name="../wupdown.gif" width="25" height="25" alt=""><img src="../blob.gif" name="../blank.gif" width="25" height="25" alt=""><img src="../wupright.gif" name="../wupright.gif" width="25" height="25" alt=""><img src="../wrightleft.gif" name="../wrightleft.gif" width="25" height="25" alt=""><img src="../wrightleft.gif" name="../wrightleft.gif" width="25" height="25" alt=""><img src="../wupleft.gif" name="../wupleft.gif" width="25" height="25" alt=""><img src="../blob.gif" name="../blank.gif" width="25" height="25" alt=""><img src="../white.gif" name='../white.gif' width="25" height="25" alt=""><br>
+<img src="../white.gif" name='../white.gif' width="25" height="25" alt=""><img src="../blob.gif" name="../blank.gif" width="25" height="25" alt=""><img src="../wupdown.gif" name="../wupdown.gif" width="25" height="25" alt=""><img src="../wupdown.gif" name="../wupdown.gif" width="25" height="25" alt=""><img src="../blob.gif" name="../blank.gif" width="25" height="25" alt=""><img src="../blob.gif" name="../blank.gif" width="25" height="25" alt=""><img src="../wrightdown.gif" name="../wrightdown.gif" width="25" height="25" alt=""><img src="../wdownleft.gif" name="../wdownleft.gif" width="25" height="25" alt=""><img src="../blob.gif" name="../blank.gif" width="25" height="25" alt=""><img src="../blob.gif" name="../blank.gif" width="25" height="25" alt=""><img src="../blob.gif" name="../blank.gif" width="25" height="25" alt=""><img src="../blob.gif" name="../blank.gif" width="25" height="25" alt=""><img src="../blob.gif" name="../blank.gif" width="25" height="25" alt=""><img src="../blob.gif" name="../blank.gif" width="25" height="25" alt=""><img src="../blob.gif" name="../blank.gif" width="25" height="25" alt=""><img src="../blob.gif" name="../blank.gif" width="25" height="25" alt=""><img src="../white.gif" name='../white.gif' width="25" height="25" alt=""><br>
+<img src="../white.gif" name='../white.gif' width="25" height="25" alt=""><img src="../blob.gif" name="../blank.gif" width="25" height="25" alt=""><img src="../wupdown.gif" name="../wupdown.gif" width="25" height="25" alt=""><img src="../wupdown.gif" name="../wupdown.gif" width="25" height="25" alt=""><img src="../blob.gif" name="../blank.gif" width="25" height="25" alt=""><img src="../wrightdown.gif" name="../wrightdown.gif" width="25" height="25" alt=""><img src="../wupleft.gif" name="../wupleft.gif" width="25" height="25" alt=""><img src="../wupright.gif" name="../wupright.gif" width="25" height="25" alt=""><img src="../wrightleft.gif" name="../wrightleft.gif" width="25" height="25" alt=""><img src="../wdownleft.gif" name="../wdownleft.gif" width="25" height="25" alt=""><img src="../blob.gif" name="../blank.gif" width="25" height="25" alt=""><img src="../wrightdown.gif" name="../wrightdown.gif" width="25" height="25" alt=""><img src="../wrightleft.gif" name="../wrightleft.gif" width="25" height="25" alt=""><img src="../wrightleft.gif" name="../wrightleft.gif" width="25" height="25" alt=""><img src="../wdownleft.gif" name="../wdownleft.gif" width="25" height="25" alt=""><img src="../blob.gif" name="../blank.gif" width="25" height="25" alt=""><img src="../white.gif" name='../white.gif' width="25" height="25" alt=""><br>
+<img src="../white.gif" name='../white.gif' width="25" height="25" alt=""><img src="../blob.gif" name="../blank.gif" width="25" height="25" alt=""><img src="../wupright.gif" name="../wupright.gif" width="25" height="25" alt=""><img src="../wupleft.gif" name="../wupleft.gif" width="25" height="25" alt=""><img src="../blob.gif" name="../blank.gif" width="25" height="25" alt=""><img src="../wupright.gif" name="../wupright.gif" width="25" height="25" alt=""><img src="../wrightleft.gif" name="../wrightleft.gif" width="25" height="25" alt=""><img src="../wrightleft.gif" name="../wrightleft.gif" width="25" height="25" alt=""><img src="../wrightleft.gif" name="../wrightleft.gif" width="25" height="25" alt=""><img src="../wupleft.gif" name="../wupleft.gif" width="25" height="25" alt=""><img src="../blob.gif" name="../blank.gif" width="25" height="25" alt=""><img src="../wupright.gif" name="../wupright.gif" width="25" height="25" alt=""><img src="../wrightleft.gif" name="../wrightleft.gif" width="25" height="25" alt=""><img src="../wrightleft.gif" name="../wrightleft.gif" width="25" height="25" alt=""><img src="../wupleft.gif" name="../wupleft.gif" width="25" height="25" alt=""><img src="../blob.gif" name="../blank.gif" width="25" height="25" alt=""><img src="../white.gif" name='../white.gif' width="25" height="25" alt=""><br>
+<img src="../white.gif" name='../white.gif' width="25" height="25" alt=""><img src="../bigblob.gif" name="../blank.gif" width="25" height="25" alt=""><img src="../blob.gif" name="../blank.gif" width="25" height="25" alt=""><img src="../blob.gif" name="../blank.gif" width="25" height="25" alt=""><img src="../blob.gif" name="../blank.gif" width="25" height="25" alt=""><img src="../blob.gif" name="../blank.gif" width="25" height="25" alt=""><img src="../blob.gif" name="../blank.gif" width="25" height="25" alt=""><img src="../blob.gif" name="../blank.gif" width="25" height="25" alt=""><img src="../blob.gif" name="../blank.gif" width="25" height="25" alt=""><img src="../blob.gif" name="../blank.gif" width="25" height="25" alt=""><img src="../blob.gif" name="../blank.gif" width="25" height="25" alt=""><img src="../blob.gif" name="../blank.gif" width="25" height="25" alt=""><img src="../blob.gif" name="../blank.gif" width="25" height="25" alt=""><img src="../blob.gif" name="../blank.gif" width="25" height="25" alt=""><img src="../blob.gif" name="../blank.gif" width="25" height="25" alt=""><img src="../bigblob.gif" name="../blank.gif" width="25" height="25" alt=""><img src="../white.gif" name='../white.gif' width="25" height="25" alt=""><br>
+<div id="scorebox"></div><br>
+<form name="form_1">
+<input type="radio" name ="easybutton" onClick="easy();">Easy 
+<input type="radio" name ="hardbutton" onClick="hard();" checked>Hard
+</form>
+<u>Controls</u><br>
+P = Pause<br>
+Arrow keys = move
+</center>
+</body>
+</html>

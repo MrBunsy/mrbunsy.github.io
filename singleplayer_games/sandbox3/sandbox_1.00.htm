@@ -1,0 +1,188 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html>
+<head>
+<title>Physics Sandbox 1.00 - Luke's 2D JavaScript Engine version 2.55</title>
+<style type="text/css">
+body {
+background-color:#c7e6ff;
+font-family: Helvetica,Arial, "trebuchet MS",  sans-serif;
+
+}
+
+/*z-indexs: windows:2, menus:3, graph:1, about:5, new lines:4;*/
+</style>
+<script src="2D_engine3.00a.js" type="text/javascript"></script>
+<script src="2D_engine3.00b.js" type="text/javascript"></script>
+<script src="sandbox1.00.js" type="text/javascript"></script>
+<script src="sandbox_divwindows.js" type="text/javascript"></script>
+<script src="keys.js" type="text/javascript"></script>
+<!--[if IE]><script type="text/javascript" src="excanvas-compressed.js"></script><![endif]-->
+</head>
+<body onload="setupcanvas();" onkeydown="keydown(event)" onkeyup="keyup(event)">
+<div id="worldspan" style="position:absolute;top:6;left:8;display:none;border:solid black 1px;cursor:pointer;width:800;height:550" onmousedown="mousegonedown(event,false)"></div>
+<span id="linespan" style="position:absolute;top:6;left:8;display:block;"></span>
+<span id="windowspan"></span>
+<div style="position:absolute;left:830;top:20;">
+<h3><a href="../../index.php?go=sandbox">Back to Main Site</a> </h3>
+<b>World Options:</b><br>
+<br>
+<input type="button" id="pausebutton" value="Pause" onClick="togglepause();">
+<br>
+<input type="button" value="Save World" onClick="saveworld();">
+<br>
+<input type="button" value="Load World" onClick="greyout(true);if(!paused){togglepause()};document.getElementById('loaddiv').style.display='block';">
+<br>
+<input type="button" value="Clear World" onClick="clearworld();">
+<br>
+<input type="button" value="Reset Viewport" onClick="viewports[0].x=0;viewports[0].y=0;viewports[0].zoom=1;redrawworld();">
+<br>
+<span onclick="debug=true">debug</span><br>
+<!--
+<b>Draw:</b>
+<br>
+<input type="button" value="Fieldlines" onClick="plotfieldlines();">
+<br>
+<input type="button" value="Equipotential" onClick="plotallEP();">
+
+Draw Equiponential at: <span onclick="drawEP(10)" class="clickme">10</span> <span onclick="drawEP(15)" class="clickme">15</span> <span onclick="drawEP(20)" class="clickme">20</span> <span onclick="drawEP(30)" class="clickme">30</span>
+
+<br>
+<b>Change:</b>
+//-->
+<br>
+<form action="javascript:updateoptions();">
+Gravity: <input type="text" size="3" id="customgravity" value="200"><br>
+Friction: <input type="text" size="3" id="customfriction" value="5"><br>
+Small World <input type="checkbox" id="smallworld" onclick="updateworldsize();"><br>
+Mouse Precision:<br> <input type="text" size="1" id="mousesize" value="10">(Pixels)<br>
+<!--Render Using:<select id="customrender" onchange="extrarender();" onClick="extrarender();"><option value="canvas">Canvas</option><option value="divs">Divs</option></select><br>
+<span id="extrarenderspan">Show Springs<input type="checkbox" id="showspringsbox" onClick="redrawworld();"></span>//-->
+<input type="submit" value="Update">
+</form>
+<br>
+<b>Mouse Click Will:</b><br>
+<select id="mousedoes" onchange="extramouse();" onClick="extramouse();">
+<option value="drag">Drag Object</option>
+<option value="draw">Draw Shape</option>
+<option value="drawrectangle">Draw Rectangle</option>
+<option value="rotate">Rotate Polygon</option>
+<option value="dragworld">Move Viewport</option>
+<option value="delete">Delete Object</option>
+<option value="create">Create Object</option>
+<!--<option value="EP">Alert EP</option>//-->
+<option value="alertname">Alert name</option>//
+<option value="fix">Fix Object</option>
+<option value="free">Free Object</option>
+<option value="addballoon">Add Balloon</option>
+<option value="breakconnections">Break Springs</option>
+<option value="givecharge">Give Charge</option>
+<option value="nocharge">Make Neutral</option>
+<option value="springconnect">Connect with Spring</option>
+<option value="rodconnect">Connect with Rod</option>
+<option value="stringconnect">Connect with String</option>
+</select>
+<br><br>
+
+<span id="chargespan" style="display:none">
+Charge: <input type="button" id="chargebutton" value="+" onClick="togglecharge();"><input type="text" size="5" id="chargesize" value="0.2">
+<br>
+New Colour: <input type="checkbox" id="chargecolour" checked>
+</span>
+<span id="springspan" style="display:none">
+Stiffness: <input type="text" size="5" id="customk" value="1000"><br>
+Length: <input type="text" size="5" id="customspringlength" value="0"> (Use 0 for auto)<br>
+Line: <select id="customlinetype"><option value=1>Thin Black</option><option value=0>None</option></select><br>
+</span>
+
+<span id="stringspan" style="display:none">
+Density:<input type="text" size="5" id="stringdensity" value="40"><br>
+Dotsize:<input type="text" size="5" id="stringdotsize" value="6"><br>
+Stiffness:<input type="text" size="5" id="stringk" value="5000"><br>
+</span>
+<span id="balloonspan" style="display:none">
+Click on an object to tie a balloon to it.<br><br>
+Thrust:<input type="text" size="5" id="balloonthrust" value="200"><br>
+</span>
+<span id="rodspan" style="display:none">
+Rods are <b>highly experimental</b><br>
+Length:<input type="text" size="5" id="customrodlength" value="0"> (Use 0 for auto)<br>
+Looseness:<input type="text" size="5" id="customrodgive" value="10"><br>
+</span>
+
+<span id="drawrectanglespan" style="display:none">
+Collision Detection <input type="checkbox" id="drawrectanglecolision" checked>
+</span>
+<span id="createspan" style="display:none">
+Type: <select id="createtype"><option value=0>Movable</option><option value=1>Static</option></select><br>
+Colour: <select id="createcolour"><option value='green'>Green</option><option value='red'>Red</option><option value='rgb(255,165,0)'>Orange</option><option value='yellow'>Yellow</option><option value='lime'>Lime</option><option value='blue'>Blue</option><option value='purple'>Purple</option><option value='pink'>Pink</option></select><br>
+Shape: <select id="createshape" onchange="extracreate();" onClick="extracreate();"><option value=0>Circle</option><!--<option value=1>Rectangle</option>//--></select><br>
+<span style="display:none" id="createsquare">
+Width: <input type="text" size="5" id="createwidth" value="50"><br>
+Height: <input type="text" size="5" id="createheight" value="50"><br>
+</span>
+<span style="display:none" id="createcircle">
+Diameter:<input type="text" size="5" id="creatediameter" value="50"><br>
+</span>
+Elasticity:<input type="text" size="5" id="createelastic" value="0.95">(0 to 1)<br>
+Mass:<input type="text" size="5" id="createmass" value="50"><br>
+Collision Detection <input type="checkbox" id="createcolision" checked>
+</span>
+<span id="dragspan" style="display:none">
+Collision Detection <input type="checkbox" id="dragcollisions" checked><br>
+Can Drag View<input type="checkbox" id="dragworldpossible" checked><br>
+Keep Old Speed <input type="checkbox" id="dragmomentum">
+</span>
+<span id="rotatespan" style="display:none">
+<b>Only works for polygons<br>(Which can be created using Draw Shape).</b><br><br>
+Collision Detection <input type="checkbox" id="rotatecollisions" checked><br>
+</span>
+
+<span id="selectedspan" style="display:none"></span>
+</div>
+
+<div id="loadingdiv" style="position:absolute;display:none;left:300;top:250;border:solid black 2px;z-index:5;background-color:white; padding:20px;">
+<h3>Loading...</h3>
+</div>
+
+<div id="loaddiv" style="position:absolute;display:none;left:300;top:250;border:solid black 2px;z-index:5;background-color:white; padding:20px;">
+<h3>Choose world to load</h3>
+<form action="javascript:loadworld(document.getElementById('loadselect').value,false)">
+<select id="loadselect">
+<option value="custom">Saved World</option>
+<option value="lattice">Forming Lattice</option>
+<option value="cradle">Newton's Cradle</option>
+<option value="susbridge">Simple Suspension Bridge</option>
+<!--<option value="bettersusbridge">Better Suspension Bridge</option> having 5 objects always in the world has broken this, and it'll take ages to repair.//-->
+<option value="example">Example World</option>
+<option value="pentagon">Pentagon</option>
+<option value="orbit">Orbit Example</option>
+<option value="balloons">Balloons Example</option>
+<option value="squinkle">Squinkle</option>
+</select>
+<input type='submit' value="load">
+<br><br>
+<center>
+<input type='button' value="Cancel" onclick="greyout(false);document.getElementById('loaddiv').style.display='none';togglepause();">
+</center>
+</form>
+</div>
+<div id="greyoutdiv" style="display:none; z-index:4; width:801;height:551; top:6; left:8; position:absolute; background-color:gray; filter:alpha(opacity=75);-moz-opacity:.75;opacity:.75;" ></div>
+
+<canvas id="mainworldcanvas" width="800" height="550" style="border:solid black 1px;cursor:pointer;background-color:#8cd2ff;" onmousedown="mousegonedown(event,false)"></canvas>
+
+<br>
+<span id="openminimapspan" style="cursor:pointer;display:none;" onclick="document.getElementById('openminimapspan').style.display='none';minimapwindow.OpenWindow();viewports[1].enabled=true;">
+<u>Open Mini Map</u>
+</span>
+<!--<canvas id="canvastag2" width="400" height="275" style="border:solid black 1px;cursor:pointer;"></canvas>//-->
+
+
+<div id="testspan" style="position:relative; z-index:5;"></div>
+<div id="testspan2" style="position:relative; z-index:5;"></div>
+
+
+</body>
+</html>
+
+

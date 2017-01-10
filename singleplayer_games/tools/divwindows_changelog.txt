@@ -1,0 +1,8 @@
+1.00
+-First working verison, probably.
+
+1.01
+-Added a script which can be run on closing a window (for Squirms I think).
+
+1.02
+-Added a CentreWindow() method.

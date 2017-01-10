@@ -1,0 +1,27 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html>
+<head>
+<title>Xocrates' Multiwinia Board Game</title>
+</head>
+<body>
+<!--[if IE]><script type="text/javascript" src="excanvas-compressed.js"></script><![endif]-->
+<div id="MWBGdiv" style="width:700;height:700;"></div>
+
+<script src="2Dengine3_general_0.02.js" type="text/javascript"></script>
+<script src="2Dengine3_physics_0.04.js" type="text/javascript"></script>
+<script src="2Dengine3_shapes_0.02.js" type="text/javascript"></script>
+<script src="geometry0.1.js" type="text/javascript"></script>
+<script src="multiwinia0.28.js" type="text/javascript"></script>
+
+<script language="JavaScript" type="text/javascript">
+<!--
+
+document.getElementById('MWBGdiv').innerHTML+='<span style="display:none">this makes it work in IE for some bizzare reason</span><canvas id="MWBGcanvas" width="'+(parseFloat(document.getElementById('MWBGdiv').style.width))+'" height="'+(parseFloat(document.getElementById('MWBGdiv').style.height))+'"></canvas><canvas id="MWBGcanvas2" width="'+(parseFloat(document.getElementById('MWBGdiv').style.width))+'" height="'+(parseFloat(document.getElementById('MWBGdiv').style.height))+'"></canvas><span id="MWBGtextSpan"></span><span id="MWBGmenuSpan"></span>';
+
+MWBG.addLoadEvent(MWBG.load);
+//-->
+</script>
+
+</body>
+</html>

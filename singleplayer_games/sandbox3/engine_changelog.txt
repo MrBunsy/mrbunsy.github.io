@@ -1,0 +1,25 @@
+3.00 (21/08/2008)
+-split changelog from sandbox
+-started (not finished, got as far as checkcollide()) re-writing engine script with objects and my new style of layout.
+-6 objects:  Render, Shapes, Physics, General, Response and Detect.  Planning to add UI later.
+-entity object is gone, replaced by Shapes.circle, oldrectangle and polygon
+-new technique for passing info to collision detection, pos = [x,y], dimensions=array of different things for different shapes.
+-draw objects for each shape added, set to use the fills and strokes idea from rabbits.
+-redrawworld not tampered with yet
+-DIVs have been entirely removed.  This is because the old div system won't work with viewports or moving polygons without a lot of work, so I think it's better to start entirely from scratch with a new system when (and if) it's needed.
+
+-idea for future div system - use line idea formerlly for springs, but add triangles to the mix to support filled in polys
+
+3.01 (21/08/2008)
+-gradually debugging all the typos and errors made when preforming the above changes.
+-found problem:  this. cannot be used in the temporary functions for fill and stroke arrays.  Easy enough to solve, but will take a little while.
+
+3.04 (23/08/2008)
+-fixing polygon collision response.
+
+3.05 (13/09/2008)
+-fixed some more collision detection bugs with polygons - now seems to be colliding with circles correctly.
+-collision response with polygon seemingly fixed.
+
+3.05 (15/09/2008)
+seperate coponents split into seperate JS files - meaning that parts of the engine can be implenented elsewhere (eg just the physics, or just the collision detection)

@@ -1,0 +1,1108 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html>
+<head>
+<title>Pacman Level 2</title>
+<script type="text/javascript">
+<!--
+// all variables
+var rabbitmovev = "stop"
+var up   = 83
+var right= 99
+var left = 97
+var down = 113
+var on = 98
+var blob = 0
+var oldblob = 103
+var lives = 3
+var score = 0
+
+var fup   = -1
+var fright= 4
+var fleft = 2
+var fdown = 7
+var fon   = 3
+var monsterfour = '../monster4.gif'
+var monsterfourmove = 0
+
+var mup   = 137
+var mright= 153
+var mleft = 151
+var mdown = 167
+var mon = 152
+var monsterone = '../monster1.gif'
+
+var tup   = 138
+var tright= 154
+var tleft = 152
+var tdown = 168
+var ton = 153
+var monstertwo = '../monster2.gif'
+var monstertwomove = 0
+
+var thup   = 139
+var thright= 155
+var thleft = 153
+var thdown = 169
+var thon = 154
+var monsterthree = '../monster3.gif'
+var monsterthreemove = 0
+
+var bigblob1 = 0
+var bigblob2 = 0
+var bigblob3 = 0
+var bigblob4 = 0
+var blobs = 0
+var timeleft = ""
+
+var moverabbit = 0
+var movemonsters = 0
+// -->
+</script>
+<script type="text/javascript">
+<!--
+// functions that refresh things
+function refresh()
+{document.images[ton].src=document.images[ton].name , document.images[153].src='../monster2.gif' , document.images[mon].src=document.images[mon].name , document.images[152].src='../monster1.gif' , 
+ton=153 , tdown=168 , tleft=152 , tright=154 , tup=138 , mon=152 , mdown=167 , mleft=151 , mright=153 , mup=137 ,  document.images[on].src=document.images[on].name , on=98 , right=99 , left=97 , down=113 , up=83 , document.images[on].src='../pac.gif' , 
+document.images[thon].src=document.images[thon].name , document.images[154].src='../monster3.gif' , thon=154 , thdown=169 , thleft=153 , thright=155 , thup=139 , monsterthree='../monster3.gif' , monsterthreemove=0 , monstertwomove=0 , monsteronemove=0}
+
+function refreshmonone()
+{document.images[mon].src=document.images[mon].name , document.images[152].src='../monster1.gif' , mon=152 , mdown=167 , mleft=151 , mright=153 , mup=137 , document.images[on].src='../rab.gif' , monsterone='../monster1.gif' , monsteronemove=0}
+
+function refreshmontwo()
+{document.images[ton].src=document.images[ton].name , document.images[153].src='../monster2.gif' , document.images[on].src='../rab.gif' , ton=153 , tdown=168 , tleft=152 , tright=154 , tup=138 , monstertwo='../monster2.gif' , monstertwomove=0}
+
+function refreshmonthree()
+{document.images[thon].src=document.images[thon].name , document.images[154].src='../monster3.gif' , document.images[on].src='../rab.gif' , thon=154 , thdown=169 , thleft=153 , thright=155 , thup=139 , monsterthree='../monster3.gif' , monsterthreemove=0}
+
+// blob functions
+function removeblobs()
+{if (blobs !== 0){blobs=blobs-1}else{monsterone = '../monster1.gif' , monstertwo = '../monster2.gif' , monsterthree = '../monster3.gif'}
+if (blobs == 4){monsterone = '../monster1.gif' , monstertwo = '../monster2.gif' , monsterthree = '../monster3.gif'}
+if (blobs == 3){monsterone = '../blackmonster.gif' , monstertwo = '../blackmonster.gif' , monsterthree = '../blackmonster.gif'}
+if (blobs == 2){monsterone = '../monster1.gif' , monstertwo = '../monster2.gif' , monsterthree = '../monster3.gif'}
+if (blobs == 1){monsterone = '../blackmonster.gif' , monstertwo = '../blackmonster.gif' , monsterthree = '../blackmonster.gif'}}
+function bigblob()
+{if (document.images[on].src == document.images[34].src){if (bigblob1 == 0){score=score+10 , bigblob1 = 1 , blobs=15 , monsterone='../blackmonster.gif' , monstertwo='../blackmonster.gif' , monsterthree='../blackmonster.gif'}}
+if (document.images[on].src == document.images[40].src){if (bigblob2 == 0){score=score+10 , bigblob2 = 1 , blobs=15 , monsterone='../blackmonster.gif' , monstertwo='../blackmonster.gif' , monsterthree='../blackmonster.gif'}}
+if (document.images[on].src == document.images[120].src){if (bigblob3 == 0){score=score+10 , bigblob3 = 1 , blobs=15 , monsterone='../blackmonster.gif' , monstertwo='../blackmonster.gif' , monsterthree='../blackmonster.gif'}}
+if (document.images[on].src == document.images[194].src){if (bigblob4 == 0){score=score+10 , bigblob4 = 1 , blobs=15 , monsterone='../blackmonster.gif' , monstertwo='../blackmonster.gif' , monsterthree='../blackmonster.gif'}}}
+// scoreing functions
+function life()
+{if (lives == 2){document.life3.src="../white.gif"}
+if (lives == 1){document.life2.src="../white.gif"}
+if (lives == 0){document.life1.src="../white.gif" , alert("You are dead!") , history.go( 0)}}
+// eating functions
+function eatyouupthree()
+{if (thon == on)
+{if (blobs == 0){score=score-50 , rabbitmovev = 'stop' , refresh() , lives=lives-1 , life()}else{score=score+100 , refreshmonthree()}}}
+function eatyouuptwo()
+{if (ton == on)
+{if (blobs == 0){score=score-50 , rabbitmovev = 'stop' , refresh() , lives=lives-1 , life()}else{score=score+100 , refreshmontwo()}}}
+function eatyouup()
+{if (mon == on)
+{if (blobs == 0){score=score-50 , rabbitmovev = 'stop' , refresh() , lives=lives-1 , life()}else{score=score+100 , refreshmonone()}}}
+function eatblob()
+{if (document.images[on].name == "../blob.gif")
+{blob=blob+1 , score=score+1}
+if (blob == 95)
+{alert("You have eaten all the blobs!") , window.open('win.htm','hungry_bunny','width=400 height=450')}}
+// -->
+</script>
+<script type="text/javascript">
+<!--
+//here are the funtions for moving around
+function monsteroneleft()
+{document.images[mleft].src=monsterone , mleft=mleft-1 , mup=mup-1 , mdown=mdown-1 , mright=mright-1 , mon=mon-1 , document.images[mright].src=document.images[mright].name , eatyouup()}
+function monsteronedown()
+{document.images[mdown].src=monsterone , mleft=mleft+15 , mup=mup+15 , mdown=mdown+15 , mright=mright+15 , mon=mon+15 , document.images[mup].src=document.images[mup].name , eatyouup()}
+function monsteroneup()
+{document.images[mup].src=monsterone , mleft=mleft-15 , mup=mup-15 , mdown=mdown-15 , mright=mright-15 , mon=mon-15 , document.images[mdown].src=document.images[mdown].name , eatyouup()}
+function monsteroneright()
+{document.images[mright].src=monsterone , mleft=mleft+1 , mup=mup+1 , mdown=mdown+1 , mright=mright+1 , mon=mon+1 , document.images[mleft].src=document.images[mleft].name , eatyouup()}
+
+function monstertwoup()
+{if (tup < 0){refreshmontwo()}else{document.images[tup].src=monstertwo , tleft=tleft-15 , tup=tup-15 , tdown=tdown-15 , tright=tright-15 , ton=ton-15 , document.images[tdown].src=document.images[tdown].name , eatyouuptwo()}}
+function monstertwoleft()
+{document.images[tleft].src=monstertwo , tleft=tleft-1 , tup=tup-1 , tdown=tdown-1 , tright=tright-1 , ton=ton-1 , document.images[tright].src=document.images[tright].name , eatyouuptwo()}
+function monstertwodown()
+{document.images[tdown].src=monstertwo , tleft=tleft+15 , tup=tup+15 , tdown=tdown+15 , tright=tright+15 , ton=ton+15 , document.images[tup].src=document.images[tup].name , eatyouuptwo()}
+function monstertworight()
+{document.images[tright].src=monstertwo , tleft=tleft+1 , tup=tup+1 , tdown=tdown+1 , tright=tright+1 , ton=ton+1 , document.images[tleft].src=document.images[tleft].name , eatyouuptwo()}
+
+function monsterthreeup()
+{document.images[thup].src=monsterthree , thleft=thleft-15 , thup=thup-15 , thdown=thdown-15 , thright=thright-15 , thon=thon-15 , document.images[thdown].src=document.images[thdown].name , eatyouupthree()}
+function monsterthreeleft()
+{document.images[thleft].src=monsterthree , thleft=thleft-1 , thup=thup-1 , thdown=thdown-1 , thright=thright-1 , thon=thon-1 , document.images[thright].src=document.images[thright].name , eatyouupthree()}
+function monsterthreedown()
+{document.images[thdown].src=monsterthree , thleft=thleft+15 , thup=thup+15 , thdown=thdown+15 , thright=thright+15 , thon=thon+15 , document.images[thup].src=document.images[thup].name , eatyouupthree()}
+function monsterthreeright()
+{document.images[thright].src=monsterthree , thleft=thleft+1 , thup=thup+1 , thdown=thdown+1 , thright=thright+1 , thon=thon+1 , document.images[thleft].src=document.images[thleft].name , eatyouupthree()}
+
+function go_up()
+{document.images[up].src='../up.gif' , right=right-15 , left=left-15 , down=down-15 , up=up-15 , on=on-15 , document.images[down].src="../blank.gif" , document.images[down].name="../blank.gif" , eatblob();}
+function go_right()
+{document.images[right].src='../right.gif' , right=right+1 , left=left+1 , down=down+1 , up=up+1 , on=on+1 , document.images[left].src="../blank.gif" , document.images[left].name="../blank.gif" , eatblob();}
+function go_left()
+{document.images[left].src='../left.gif' , right=right-1 , left=left-1 , down=down-1 , up=up-1 , on=on-1 , document.images[right].src="../blank.gif" , document.images[right].name="../blank.gif" , eatblob();}
+function go_down()
+{document.images[down].src='../down.gif' , right=right+15 , left=left+15 , down=down+15 , up=up+15 , on=on+15 , document.images[up].src="../blank.gif" , document.images[up].name="../blank.gif" , eatblob();}
+// -->
+</script>
+<script type="text/javascript">
+<!--
+//here are all the funtions  for 'can you go down?'
+function canugodownbase15()
+{if (on !== 194){go_down()}}
+function canugodownbase14()
+{if (on !== 193){canugodownbase15()}}
+function canugodownbase13()
+{if (on !== 192){canugodownbase14()}}
+function canugodownbase12()
+{if (on !== 191){canugodownbase13()}}
+function canugodownbase11()
+{if (on !== 190){canugodownbase12()}}
+function canugodownbase10()
+{if (on !== 189){canugodownbase11()}}
+function canugodownbase9()
+{if (on !== 188){canugodownbase10()}}
+function canugodownbase8()
+{if (on !== 187){canugodownbase9()}}
+function canugodownbase7()
+{if (on !== 186){canugodownbase8()}}
+function canugodownbase6()
+{if (on !== 185){canugodownbase7()}}
+function canugodownbase5()
+{if (on !== 184){canugodownbase6()}}
+function canugodownbase4()
+{if (on !== 183){canugodownbase5()}}
+function canugodownbase3()
+{if (on !== 182){canugodownbase4()}}
+function canugodownbase2()
+{if (on !== 181){canugodownbase3()}}
+function canugodownbase1()
+{if (on !== 180){canugodownbase2()}}
+
+function canugodown38()
+{if (on !== 1){canugodownbase1()}}
+function canugodown37()
+{if (on !== 2){canugodown38()}}
+function canugodown36()
+{if (on !== 3){canugodown37()}}
+function canugodown35()
+{if (on !== 13){canugodown36()}}
+function canugodown34()
+{if (on !== 12){canugodown35()}}
+function canugodown33()
+{if (on !== 11){canugodown34()}}
+function canugodown32()
+{if (on !== 20){canugodown33()}}
+function canugodown31()
+{if (on !== 21){canugodown32()}}
+function canugodown30()
+{if (on !== 22){canugodown31()}}
+function canugodown29()
+{if (on !== 23){canugodown30()}}
+function canugodown28()
+{if (on !== 24){canugodown29()}}
+function canugodown27()
+{if (on !== 55){canugodown28()}}
+function canugodown26()
+{if (on !== 75){canugodown27()}}
+function canugodown25()
+{if (on !== 77){canugodown26()}}
+function canugodown24()
+{if (on !== 78){canugodown25()}}
+function canugodown23()
+{if (on !== 79){canugodown24()}}
+function canugodown22()
+{if (on !== 98){canugodown23()}}
+function canugodown21()
+{if (on !== 100){canugodown22()}}
+function canugodown20()
+{if (on !== 101){canugodown21()}}
+function canugodown19()
+{if (on !== 102){canugodown20()}}
+function canugodown18()
+{if (on !== 103){canugodown19()}}
+function canugodown17()
+{if (on !== 121){canugodown18()}}
+function canugodown16()
+{if (on !== 122){canugodown17()}}
+function canugodown15()
+{if (on !== 124){canugodown16()}}
+function canugodown14()
+{if (on !== 125){canugodown15()}}
+function canugodown13()
+{if (on !== 127){canugodown14()}}
+function canugodown12()
+{if (on !== 152){canugodown13()}}
+function canugodown11()
+{if (on !== 153){canugodown12()}}
+function canugodown10()
+{if (on !== 154){canugodown11()}}
+function canugodown9()
+{if (on !== 161){canugodown10()}}
+function canugodown8()
+{if (on !== 162){canugodown9()}}
+function canugodown7()
+{if (on !== 163){canugodown8()}}
+function canugodown6()
+{if (on !== 163){canugodown7()}}
+function canugodown5()
+{if (on !== 163){canugodown6()}}
+function canugodown4()
+{if (on !== 163){canugodown5()}}
+function canugodown3()
+{if (on !== 163){canugodown4()}}
+function canugodown2()
+{if (on !== 163){canugodown3()}}
+function canugodown1()
+{if (on !== 51){canugodown2()}}
+function canugodown()
+{if (on !== 50){canugodown1()}}
+// -->
+</script>
+<script type="text/javascript">
+<!--
+//here are all the funtions for 'can you go left?'
+function canugoleftedge13()
+{if (on !== 90){go_left()}}
+function canugoleftedge12()
+{if (on !== 180){canugoleftedge13()}}
+function canugoleftedge11()
+{if (on !== 165){canugoleftedge12()}}
+function canugoleftedge10()
+{if (on !== 150){canugoleftedge11()}}
+function canugoleftedge9()
+{if (on !== 135){canugoleftedge10()}}
+function canugoleftedge8()
+{if (on !== 120){canugoleftedge9()}}
+function canugoleftedge7()
+{if (on !== 105){canugoleftedge8()}}
+function canugoleftedge6()
+{if (on !== 75){canugoleftedge7()}}
+function canugoleftedge5()
+{if (on !== 60){canugoleftedge6()}}
+function canugoleftedge4()
+{if (on !== 45){canugoleftedge5()}}
+function canugoleftedge3()
+{if (on !== 30){canugoleftedge4()}}
+function canugoleftedge2()
+{if (on !== 15){canugoleftedge3()}}
+function canugoleftedge1()
+{if (on !== 0){canugoleftedge2()}}
+
+function canugoleft31()
+{if (on !== 10){canugoleftedge1()}}
+function canugoleft30()
+{if (on !== 19){canugoleft31()}}
+function canugoleft29()
+{if (on !== 29){canugoleft30()}}
+function canugoleft28()
+{if (on !== 34){canugoleft29()}}
+function canugoleft27()
+{if (on !== 40){canugoleft28()}}
+function canugoleft26()
+{if (on !== 44){canugoleft27()}}
+function canugoleft25()
+{if (on !== 64){canugoleft26()}}
+function canugoleft24()
+{if (on !== 67){canugoleft25()}}
+function canugoleft23()
+{if (on !== 69){canugoleft24()}}
+function canugoleft22()
+{if (on !== 74){canugoleft23()}}
+function canugoleft21()
+{if (on !== 82){canugoleft22()}}
+function canugoleft20()
+{if (on !== 84){canugoleft21()}}
+function canugoleft19()
+{if (on !== 89){canugoleft20()}}
+function canugoleft18()
+{if (on !== 91){canugoleft19()}}
+function canugoleft17()
+{if (on !== 97){canugoleft18()}}
+function canugoleft16()
+{if (on !== 106){canugoleft17()}}
+function canugoleft15()
+{if (on !== 112){canugoleft16()}}
+function canugoleft14()
+{if (on !== 114){canugoleft15()}}
+function canugoleft13()
+{if (on !== 119){canugoleft14()}}
+function canugoleft12()
+{if (on !== 129){canugoleft13()}}
+function canugoleft11()
+{if (on !== 131){canugoleft12()}}
+function canugoleft10()
+{if (on !== 134){canugoleft11()}}
+function canugoleft9()
+{if (on !== 138){canugoleft10()}}
+function canugoleft8()
+{if (on !== 141){canugoleft9()}}
+function canugoleft7()
+{if (on !== 144){canugoleft8()}}
+function canugoleft6()
+{if (on !== 146){canugoleft7()}}
+function canugoleft5()
+{if (on !== 149){canugoleft6()}}
+function canugoleft4()
+{if (on !== 152){canugoleft5()}}
+function canugoleft3()
+{if (on !== 156){canugoleft4()}}
+function canugoleft2()
+{if (on !== 159){canugoleft3()}}
+function canugoleft1()
+{if (on !== 161){canugoleft2()}}
+function canugoleftd()
+{if (on !== 49){canugoleft1()}}
+function canugoleftc()
+{if (on !== 54){canugoleftd()}}
+function canugoleftb()
+{if (on !== 171){canugoleftc()}}
+function canugolefta()
+{if (on !== 174){canugoleftb()}}
+function canugoleft()
+{if (on !== 179){canugolefta()}}
+// -->
+</script>
+<script type="text/javascript">
+<!--
+//here are all the funtions for 'can you go right?'
+function canugorightedge13()
+{if (on !== 194){go_right()}}
+function canugorightedge12()
+{if (on !== 179){canugorightedge13()}}
+function canugorightedge11()
+{if (on !== 164){canugorightedge12()}}
+function canugorightedge10()
+{if (on !== 149){canugorightedge11()}}
+function canugorightedge9()
+{if (on !== 134){canugorightedge10()}}
+function canugorightedge8()
+{if (on !== 119){canugorightedge9()}}
+function canugorightedge7()
+{if (on !== 104){canugorightedge8()}}
+function canugorightedge6()
+{if (on !== 89){canugorightedge7()}}
+function canugorightedge5()
+{if (on !== 74){canugorightedge6()}}
+function canugorightedge4()
+{if (on !== 59){canugorightedge5()}}
+function canugorightedge3()
+{if (on !== 44){canugorightedge4()}}
+function canugorightedge2()
+{if (on !== 29){canugorightedge3()}}
+function canugorightedge1()
+{if (on !== 14){canugorightedge2()}}
+function canugoright32()
+{if (on !== 4){canugorightedge1()}}
+function canugoright31()
+{if (on !== 15){canugoright32()}}
+function canugoright30()
+{if (on !== 25){canugoright31()}}
+function canugoright29()
+{if (on !== 30){canugoright30()}}
+function canugoright28()
+{if (on !== 34){canugoright29()}}
+function canugoright27()
+{if (on !== 40){canugoright28()}}
+function canugoright26()
+{if (on !== 45){canugoright27()}}
+function canugoright25()
+{if (on !== 52){canugoright26()}}
+function canugoright24()
+{if (on !== 55){canugoright25()}}
+function canugoright23()
+{if (on !== 60){canugoright24()}}
+function canugoright22()
+{if (on !== 64){canugoright23()}}
+function canugoright21()
+{if (on !== 67){canugoright22()}}
+function canugoright20()
+{if (on !== 69){canugoright21()}}
+function canugoright19()
+{if (on !== 79){canugoright20()}}
+function canugoright18()
+{if (on !== 82){canugoright19()}}
+function canugoright17()
+{if (on !== 84){canugoright18()}}
+function canugoright16()
+{if (on !== 91){canugoright17()}}
+function canugoright15()
+{if (on !== 106){canugoright16()}}
+function canugoright14()
+{if (on !== 112){canugoright15()}}
+function canugoright12()
+{if (on !== 114){canugoright14()}}
+function canugoright11()
+{if (on !== 127){canugoright12()}}
+function canugoright10()
+{if (on !== 129){canugoright11()}}
+function canugoright9()
+{if (on !== 132){canugoright10()}}
+function canugoright8()
+{if (on !== 135){canugoright9()}}
+function canugoright7()
+{if (on !== 138){canugoright8()}}
+function canugoright6()
+{if (on !== 141){canugoright7()}}
+function canugoright5()
+{if (on !== 144){canugoright6()}}
+function canugoright4()
+{if (on !== 147){canugoright5()}}
+function canugoright3()
+{if (on !== 150){canugoright4()}}
+function canugoright2()
+{if (on !== 154){canugoright3()}}
+function canugoright1()
+{if (on !== 156){canugoright2()}}
+function canugorightc()
+{if (on !== 159){canugoright1()}}
+function canugorightb()
+{if (on !== 165){canugorightc()}}
+function canugorighta()
+{if (on !== 171){canugorightb()}}
+function canugoright()
+{if (on !== 174){canugorighta()}}
+// -->
+</script>
+<script type="text/javascript">
+<!--
+// here are all the funtions for 'can you go up?'
+
+function canugouptop14()
+{if (on !== 14){go_up()}}
+function canugouptop13()
+{if (on !== 13){canugouptop14()}}
+function canugouptop12()
+{if (on !== 12){canugouptop13()}}
+function canugouptop11()
+{if (on !== 11){canugouptop12()}}
+function canugouptop10()
+{if (on !== 10){canugouptop11()}}
+function canugouptop9()
+{if (on !== 9){canugouptop10()}}
+function canugouptop8()
+{if (on !== 8){canugouptop9()}}
+function canugouptop7()
+{if (on !== 7){canugouptop8()}}
+function canugouptop6()
+{if (on !== 6){canugouptop7()}}
+function canugouptop5()
+{if (on !== 5){canugouptop6()}}
+function canugouptop4()
+{if (on !== 4){canugouptop5()}}
+function canugouptop3()
+{if (on !== 3){canugouptop4()}}
+function canugouptop2()
+{if (on !== 2){canugouptop3()}}
+function canugouptop1()
+{if (on !== 1){canugouptop2()}}
+function canugouptop()
+{if (on !== 0){canugouptop1()}}
+function canugoup41()
+{if (on !== 20){canugouptop()}}
+function canugoup40()
+{if (on !== 21){canugoup41()}}
+function canugoup39()
+{if (on !== 22){canugoup40()}}
+function canugoup38()
+{if (on !== 23){canugoup39()}}
+function canugoup37()
+{if (on !== 24){canugoup38()}}
+function canugoup36()
+{if (on !== 50){canugoup37()}}
+function canugoup35()
+{if (on !== 51){canugoup36()}}
+function canugoup34()
+{if (on !== 52){canugoup35()}}
+function canugoup33()
+{if (on !== 54){canugoup34()}}
+function canugoup32()
+{if (on !== 76){canugoup33()}}
+function canugoup31()
+{if (on !== 77){canugoup32()}}
+function canugoup30()
+{if (on !== 78){canugoup31()}}
+function canugoup29()
+{if (on !== 98){canugoup30()}}
+function canugoup28()
+{if (on !== 100){canugoup29()}}
+function canugoup27()
+{if (on !== 101){canugoup28()}}
+function canugoup26()
+{if (on !== 102){canugoup27()}}
+function canugoup25()
+{if (on !== 103){canugoup26()}}
+function canugoup24()
+{if (on !== 120){canugoup25()}}
+function canugoup23()
+{if (on !== 122){canugoup24()}}
+function canugoup22()
+{if (on !== 123){canugoup23()}}
+function canugoup21()
+{if (on !== 124){canugoup22()}}
+function canugoup20()
+{if (on !== 125){canugoup21()}}
+function canugoup19()
+{if (on !== 126){canugoup20()}}
+function canugoup18()
+{if (on !== 131){canugoup19()}}
+function canugoup17()
+{if (on !== 132){canugoup18()}}
+function canugoup16()
+{if (on !== 152){canugoup17()}}
+function canugoup15b()
+{if (on !== 154){canugoup16()}}
+function canugoup15c()
+{if (on !== 181){canugoup15b()}}
+function canugoup15()
+{if (on !== 182){canugoup15c()}}
+function canugoup14b()
+{if (on !== 183){canugoup15()}}
+function canugoup14()
+{if (on !== 184){canugoup14b()}}
+function canugoup13()
+{if (on !== 185){canugoup14()}}
+function canugoup12()
+{if (on !== 187){canugoup13()}}
+function canugoup11()
+{if (on !== 188){canugoup12()}}
+function canugoup10()
+{if (on !== 190){canugoup11()}}
+function canugoup9()
+{if (on !== 191){canugoup10()}}
+function canugoup8()
+{if (on !== 192){canugoup9()}}
+function canugoup7()
+{if (on !== 193){canugoup8()}}
+function canugoup6()
+{if (on !== 193){canugoup7()}}
+function canugoup5()
+{if (on !== 193){canugoup6()}}
+function canugoup4()
+{if (on !== 193){canugoup5()}}
+function canugoup3()
+{if (on !== 193){canugoup4()}}
+function canugoup2()
+{if (on !== 193){canugoup3()}}
+function canugoup1()
+{if (on !== 193){canugoup2()}}
+function canugoup()
+{if (on !== 193){canugoup1()}}
+// -->
+</script>
+<script type="text/javascript">
+<!--
+// movements for the monsters
+// monster3
+
+
+function monsterthreemove35()
+{if (thon == 124){monsterthreeleft()}else{}}
+function monsterthreemove34()
+{if (thon == 125){monsterthreeleft()}else{monsterthreemove35()}}
+function monsterthreemove33()
+{if (thon == 126){monsterthreeleft()}else{monsterthreemove34()}}
+function monsterthreemove32()
+{if (thon == 127){monsterthreeleft()}else{monsterthreemove33()}}
+function monsterthreemove31()
+{if (thon == 112){monsterthreedown()}else{monsterthreemove32()}}
+function monsterthreemove30()
+{if (thon == 97){monsterthreedown()}else{monsterthreemove31()}}
+function monsterthreemove29()
+{if (thon == 98){monsterthreeleft()}else{monsterthreemove30()}}
+function monsterthreemove28()
+{if (thon == 99){monsterthreeleft()}else{monsterthreemove29()}}
+function monsterthreemove27()
+{if (thon == 84){monsterthreedown()}else{monsterthreemove28()}}
+function monsterthreemove26()
+{if (thon == 69){monsterthreedown()}else{monsterthreemove27()}}
+function monsterthreemove25()
+{if (thon == 54){monsterthreedown()}else{monsterthreemove26()}}
+function monsterthreemove24()
+{if (thon == 55){monsterthreeleft()}else{monsterthreemove25()}}
+function monsterthreemove23()
+{if (thon == 40){monsterthreedown()}else{monsterthreemove24()}}
+function monsterthreemove22()
+{if (thon == 25){monsterthreedown()}else{monsterthreemove23()}}
+function monsterthreemove21()
+{if (thon == 24){monsterthreeright()}else{monsterthreemove22()}}
+function monsterthreemove20()
+{if (thon == 23){monsterthreeright()}else{monsterthreemove21()}}
+function monsterthreemove19()
+{if (thon == 22){monsterthreeright()}else{monsterthreemove20()}}
+function monsterthreemove18()
+{if (thon == 21){monsterthreeright()}else{monsterthreemove19()}}
+function monsterthreemove17()
+{if (thon == 20){monsterthreeright()}else{monsterthreemove18()}}
+function monsterthreemove16()
+{if (thon == 19){monsterthreeright()}else{monsterthreemove17()}}
+function monsterthreemove15()
+{if (thon == 34){monsterthreeup()}else{monsterthreemove16()}}
+function monsterthreemove14()
+{if (thon == 49){monsterthreeup()}else{monsterthreemove15()}}
+function monsterthreemove13()
+{if (thon == 64){monsterthreeup()}else{monsterthreemove14()}}
+function monsterthreemove12()
+{if (thon == 79){monsterthreeup()}else{monsterthreemove13()}}
+function monsterthreemove11()
+{if (thon == 78){monsterthreeright()}else{monsterthreemove12()}}
+function monsterthreemove10()
+{if (thon == 77){monsterthreeright()}else{monsterthreemove11()}}
+function monsterthreemove9()
+{if (thon == 76){monsterthreeright()}else{monsterthreemove10()}}
+function monsterthreemove8()
+{if (thon == 91){monsterthreeup()}else{monsterthreemove9()}}
+function monsterthreemove7()
+{if (thon == 106){monsterthreeup()}else{monsterthreemove8()}}
+function monsterthreemove6()
+{if (thon == 121){monsterthreeup()}else{monsterthreemove7()}}
+function monsterthreemove5()
+{if (thon == 122){monsterthreeleft()}else{monsterthreemove6()}}
+function monsterthreemove4()
+{if (thon == 123){monsterthreeleft()}else{monsterthreemove5()}}
+function monsterthreemove3()
+{if (thon == 138){monsterthreeup()}else{monsterthreemove4()}}
+function monsterthreemove2()
+{if (thon == 153){monsterthreeup()}else{monsterthreemove3()}}
+function monsterthreemove2a()
+{if (thon == 154){monsterthreeleft()}else{monsterthreemove2()}}
+
+function monsterthreemove1()
+{if (monsterthreemove !== 7){monsterthreemove++}else{monsterthreemove2a()}}
+// -->
+</script>
+<script type="text/javascript">
+<!--
+// --------monster2-------------------------------------------------------------
+function monstertwomove79()
+{if (ton == 74){monstertwodown()}else{}}
+function monstertwomove78()
+{if (ton == 59){monstertwodown()}else{monstertwomove79()}}
+function monstertwomove77()
+{if (ton == 44){monstertwodown()}else{monstertwomove78()}}
+function monstertwomove76()
+{if (ton == 29){monstertwodown()}else{monstertwomove77()}}
+function monstertwomove75()
+{if (ton == 14){monstertwodown()}else{monstertwomove76()}}
+function monstertwomove74()
+{if (ton == 13){monstertworight()}else{monstertwomove75()}}
+function monstertwomove73()
+{if (ton == 12){monstertworight()}else{monstertwomove74()}}
+function monstertwomove72()
+{if (ton == 11){monstertworight()}else{monstertwomove73()}}
+function monstertwomove71()
+{if (ton == 10){monstertworight()}else{monstertwomove72()}}
+function monstertwomove70()
+{if (ton == 89){monstertwodown()}else{}}
+function monstertwomove69()
+{if (ton == 74){monstertwodown()}else{monstertwomove70()}}
+function monstertwomove68()
+{if (ton == 59){monstertwodown()}else{monstertwomove69()}}
+function monstertwomove67()
+{if (ton == 44){monstertwodown()}else{monstertwomove68()}}
+function monstertwomove66()
+{if (ton == 29){monstertwodown()}else{monstertwomove67()}}
+function monstertwomove65()
+{if (ton == 14){monstertwodown()}else{monstertwomove66()}}
+function monstertwomove64()
+{if (ton == 13){monstertworight()}else{monstertwomove65()}}
+function monstertwomove63()
+{if (ton == 12){monstertworight()}else{monstertwomove64()}}
+function monstertwomove62()
+{if (ton == 11){monstertworight()}else{monstertwomove63()}}
+function monstertwomove61()
+{if (ton == 10){monstertworight()}else{monstertwomove62()}}
+function monstertwomove60()
+{if (ton == 25){monstertwoup()}else{monstertwomove61()}}
+function monstertwomove59()
+{if (ton == 24){monstertworight()}else{monstertwomove60()}}
+function monstertwomove58()
+{if (ton == 23){monstertworight()}else{monstertwomove59()}}
+function monstertwomove57()
+{if (ton == 22){monstertworight()}else{monstertwomove58()}}
+function monstertwomove56()
+{if (ton == 21){monstertworight()}else{monstertwomove57()}}
+function monstertwomove55()
+{if (ton == 20){monstertworight()}else{monstertwomove56()}}
+function monstertwomove54()
+{if (ton == 19){monstertworight()}else{monstertwomove55()}}
+function monstertwomove53()
+{if (ton == 4){monstertwodown()}else{monstertwomove54()}}
+function monstertwomove52()
+{if (ton == 3){monstertworight()}else{monstertwomove53()}}
+function monstertwomove51()
+{if (ton == 2){monstertworight()}else{monstertwomove52()}}
+function monstertwomove50()
+{if (ton == 1){monstertworight()}else{monstertwomove51()}}
+function monstertwomove49()
+{if (ton == 0){monstertworight()}else{monstertwomove50()}}
+function monstertwomove48()
+{if (ton == 15){monstertwoup()}else{monstertwomove49()}}
+function monstertwomove47()
+{if (ton == 30){monstertwoup()}else{monstertwomove48()}}
+function monstertwomove46()
+{if (ton == 45){monstertwoup()}else{monstertwomove47()}}
+function monstertwomove45()
+{if (ton == 60){monstertwoup()}else{monstertwomove46()}}
+function monstertwomove44()
+{if (ton == 75){monstertwoup()}else{monstertwomove45()}}
+function monstertwomove43()
+{if (ton == 76){monstertwoleft()}else{monstertwomove44()}}
+function monstertwomove42()
+{if (ton == 91){monstertwoup()}else{monstertwomove43()}}
+function monstertwomove41()
+{if (ton == 106){monstertwoup()}else{monstertwomove42()}}
+function monstertwomove40()
+{if (ton == 121){monstertwoup()}else{monstertwomove41()}}
+function monstertwomove39()
+{if (ton == 120){monstertworight()}else{monstertwomove40()}}
+function monstertwomove38()
+{if (ton == 135){monstertwoup()}else{monstertwomove39()}}
+function monstertwomove37()
+{if (ton == 150){monstertwoup()}else{monstertwomove38()}}
+function monstertwomove36()
+{if (ton == 165){monstertwoup()}else{monstertwomove37()}}
+function monstertwomove35()
+{if (ton == 180){monstertwoup()}else{monstertwomove36()}}
+function monstertwomove34()
+{if (ton == 181){monstertwoleft()}else{monstertwomove35()}}
+function monstertwomove33()
+{if (ton == 182){monstertwoleft()}else{monstertwomove34()}}
+function monstertwomove32()
+{if (ton == 183){monstertwoleft()}else{monstertwomove33()}}
+function monstertwomove31()
+{if (ton == 184){monstertwoleft()}else{monstertwomove32()}}
+function monstertwomove30()
+{if (ton == 185){monstertwoleft()}else{monstertwomove31()}}
+function monstertwomove29()
+{if (ton == 186){monstertwoleft()}else{monstertwomove30()}}
+function monstertwomove28()
+{if (ton == 187){monstertwoleft()}else{monstertwomove29()}}
+function monstertwomove27()
+{if (ton == 188){monstertwoleft()}else{monstertwomove28()}}
+function monstertwomove26()
+{if (ton == 189){monstertwoleft()}else{monstertwomove27()}}
+function monstertwomove25()
+{if (ton == 190){monstertwoleft()}else{monstertwomove26()}}
+function monstertwomove24()
+{if (ton == 191){monstertwoleft()}else{monstertwomove25()}}
+function monstertwomove23()
+{if (ton == 192){monstertwoleft()}else{monstertwomove24()}}
+function monstertwomove22()
+{if (ton == 193){monstertwoleft()}else{monstertwomove23()}}
+function monstertwomove21()
+{if (ton == 194){monstertwoleft()}else{monstertwomove22()}}
+function monstertwomove20a()
+{if (ton == 179){monstertwodown()}else{monstertwomove21()}}
+function monstertwomove20()
+{if (ton == 164){monstertwodown()}else{monstertwomove20a()}}
+function monstertwomove19()
+{if (ton == 149){monstertwodown()}else{monstertwomove20()}}
+function monstertwomove18()
+{if (ton == 134){monstertwodown()}else{monstertwomove19()}}
+function monstertwomove17()
+{if (ton == 119){monstertwodown()}else{monstertwomove18()}}
+function monstertwomove16()
+{if (ton == 104){monstertwodown()}else{monstertwomove17()}}
+function monstertwomove15()
+{if (ton == 103){monstertworight()}else{monstertwomove16()}}
+function monstertwomove14()
+{if (ton == 102){monstertworight()}else{monstertwomove15()}}
+function monstertwomove13()
+{if (ton == 101){monstertworight()}else{monstertwomove14()}}
+function monstertwomove12()
+{if (ton == 100){monstertworight()}else{monstertwomove13()}}
+function monstertwomove11()
+{if (ton == 99){monstertworight()}else{monstertwomove12()}}
+function monstertwomove10()
+{if (ton == 98){monstertworight()}else{monstertwomove11()}}
+function monstertwomove9()
+{if (ton == 97){monstertworight()}else{monstertwomove10()}}
+function monstertwomove8()
+{if (ton == 112){monstertwoup()}else{monstertwomove9()}}
+function monstertwomove7()
+{if (ton == 127){monstertwoup()}else{monstertwomove8()}}
+function monstertwomove6()
+{if (ton == 126){monstertworight()}else{monstertwomove7()}}
+function monstertwomove5()
+{if (ton == 125){monstertworight()}else{monstertwomove6()}}
+function monstertwomove4()
+{if (ton == 124){monstertworight()}else{monstertwomove5()}}
+function monstertwomove3()
+{if (ton == 123){monstertworight()}else{monstertwomove4()}}
+function monstertwomove2()
+{if (ton == 138){monstertwoup()}else{monstertwomove3()}}
+
+function monstertwomove1()
+{if (ton == 153){monstertwoup()}else{monstertwomove2()}}
+//if (monstertwomove !== 5){monstertwomove++}else{monstertwomove2()}}
+
+// -->
+</script>
+<script type="text/javascript">
+<!--
+// ---------monster1--------------------------------------
+function monsteronemove65()
+{if (mon == 38){monsteroneleft()}else{refreshmonone()}}
+function monsteronemove64()
+{if (mon == 39){monsteroneleft()}else{monsteronemove65()}}
+function monsteronemove63()
+{if (mon == 40){monsteroneleft()}else{monsteronemove64()}}
+function monsteronemove62()
+{if (mon == 25){monsteronedown()}else{monsteronemove63()}}
+function monsteronemove61()
+{if (mon == 10){monsteronedown()}else{monsteronemove62()}}
+function monsteronemove60()
+{if (mon == 11){monsteroneleft()}else{monsteronemove61()}}
+function monsteronemove59()
+{if (mon == 12){monsteroneleft()}else{monsteronemove60()}}
+function monsteronemove58()
+{if (mon == 13){monsteroneleft()}else{monsteronemove59()}}
+function monsteronemove57()
+{if (mon == 14){monsteroneleft()}else{monsteronemove58()}}
+function monsteronemove56()
+{if (mon == 29){monsteroneup()}else{monsteronemove57()}}
+function monsteronemove55()
+{if (mon == 44){monsteroneup()}else{monsteronemove56()}}
+function monsteronemove54()
+{if (mon == 59){monsteroneup()}else{monsteronemove55()}}
+function monsteronemove53()
+{if (mon == 74){monsteroneup()}else{monsteronemove54()}}
+function monsteronemove52()
+{if (mon == 89){monsteroneup()}else{monsteronemove53()}}
+function monsteronemove51()
+{if (mon == 88){monsteroneright()}else{monsteronemove52()}}
+function monsteronemove50()
+{if (mon == 87){monsteroneright()}else{monsteronemove51()}}
+function monsteronemove49()
+{if (mon == 86){monsteroneright()}else{monsteronemove50()}}
+function monsteronemove48()
+{if (mon == 85){monsteroneright()}else{monsteronemove49()}}
+function monsteronemove47()
+{if (mon == 100){monsteroneup()}else{monsteronemove48()}}
+function monsteronemove46()
+{if (mon == 97){monsteroneup()}else{monsteronemove47()}}
+function monsteronemove45()
+{if (mon == 98){monsteroneleft()}else{monsteronemove46()}}
+function monsteronemove44()
+{if (mon == 1){monsteroneup()}else{monsteronemove45()}}
+function monsteronemove43()
+{if (mon == 144){monsteroneup()}else{monsteronemove44()}}
+function monsteronemove42()
+{if (mon == 12){monsteroneup()}else{monsteronemove43()}}
+function monsteronemove41()
+{if (mon == 12){monsteroneright()}else{monsteronemove42()}}
+function monsteronemove40()
+{if (mon == 106){monsteronedown()}else{}}
+function monsteronemove39()
+{if (mon == 91){monsteronedown()}else{monsteronemove40()}}
+function monsteronemove38()
+{if (mon == 76){monsteronedown()}else{monsteronemove39()}}
+function monsteronemove37()
+{if (mon == 77){monsteroneleft()}else{monsteronemove38()}}
+function monsteronemove36()
+{if (mon == 78){monsteroneleft()}else{monsteronemove37()}}
+function monsteronemove35()
+{if (mon == 79){monsteroneleft()}else{monsteronemove36()}}
+function monsteronemove34()
+{if (mon == 64){monsteronedown()}else{monsteronemove35()}}
+function monsteronemove33()
+{if (mon == 49){monsteronedown()}else{monsteronemove34()}}
+function monsteronemove32()
+{if (mon == 50){monsteroneleft()}else{monsteronemove33()}}
+function monsteronemove31()
+{if (mon == 51){monsteroneleft()}else{monsteronemove32()}}
+function monsteronemove30()
+{if (mon == 52){monsteroneleft()}else{monsteronemove31()}}
+function monsteronemove29()
+{if (mon == 67){monsteroneup()}else{monsteronemove30()}}
+function monsteronemove28()
+{if (mon == 82){monsteroneup()}else{monsteronemove29()}}
+function monsteronemove27()
+{if (mon == 97){monsteroneup()}else{monsteronemove28()}}
+function monsteronemove26()
+{if (mon == 98){monsteroneleft()}else{monsteronemove27()}}
+function monsteronemove25()
+{if (mon == 99){monsteroneleft()}else{monsteronemove26()}}
+function monsteronemove24()
+{if (mon == 114){monsteroneup()}else{monsteronemove25()}}
+function monsteronemove23()
+{if (mon == 129){monsteroneup()}else{monsteronemove24()}}
+function monsteronemove22()
+{if (mon == 144){monsteroneup()}else{monsteronemove23()}}
+function monsteronemove21()
+{if (mon == 159){monsteroneup()}else{monsteronemove22()}}
+function monsteronemove20()
+{if (mon == 174){monsteroneup()}else{monsteronemove21()}}
+function monsteronemove19()
+{if (mon == 190){monsteroneup()}else{monsteronemove20()}}
+function monsteronemove18a()
+{if (mon == 189){monsteroneup()}else{monsteronemove20()}}
+function monsteronemove18()
+{if (mon == 188){monsteroneright()}else{monsteronemove18a()}}
+function monsteronemove17()
+{if (mon == 187){monsteroneright()}else{monsteronemove18()}}
+function monsteronemove16b()
+{if (mon == 186){monsteroneright()}else{monsteronemove17()}}
+function monsteronemove16()
+{if (mon == 185){monsteroneright()}else{monsteronemove16b()}}
+function monsteronemove15()
+{if (mon == 184){monsteroneright()}else{monsteronemove16()}}
+function monsteronemove14()
+{if (mon == 183){monsteroneright()}else{monsteronemove15()}}
+function monsteronemove13()
+{if (mon == 182){monsteroneright()}else{monsteronemove14()}}
+function monsteronemove12()
+{if (mon == 181){monsteroneright()}else{monsteronemove13()}}
+function monsteronemove11()
+{if (mon == 180){monsteroneright()}else{monsteronemove12()}}
+function monsteronemove10()
+{if (mon == 165){monsteronedown()}else{monsteronemove11()}}
+function monsteronemove9()
+{if (mon == 150){monsteronedown()}else{monsteronemove10()}}
+function monsteronemove8()
+{if (mon == 135){monsteronedown()}else{monsteronemove9()}}
+function monsteronemove7()
+{if (mon == 120){monsteronedown()}else{monsteronemove8()}}
+function monsteronemove6()
+{if (mon == 121){monsteroneleft()}else{monsteronemove7()}}
+function monsteronemove5()
+{if (mon == 122){monsteroneleft()}else{monsteronemove6()}}
+function monsteronemove4()
+{if (mon == 123){monsteroneleft()}else{monsteronemove5()}}
+function monsteronemove3()
+{if (mon == 138){monsteroneup()}else{monsteronemove4()}}
+function monsteronemove2()
+{if (mon == 153){monsteroneup()}else{monsteronemove3()}}
+function monsteronemove1a()
+{if (mon == 152){monsteroneright()}else{monsteronemove2()}}
+
+var monsteronemove=0
+
+function monsteronemove1()
+{if (monsteronemove !== 10){monsteronemove++}else{monsteronemove1a()}}
+
+function recordscore()
+{
+if (blobs !==0){timeleft=", timeleft is:"+blobs}else{timeleft=""}
+window.status="your score is: "+score+timeleft
+}
+function rabbitmove()
+{
+if (rabbitmovev == "stop")
+{}else
+{
+if (rabbitmovev == "up"){canugoup() , eatyouup()  , eatyouuptwo() , eatyouupthree() , bigblob() , removeblobs() , recordscore()}
+if (rabbitmovev == "left"){canugoleft() , eatyouup() , eatyouuptwo() , eatyouupthree() , bigblob() , removeblobs() , recordscore()}
+if (rabbitmovev == "down"){canugodown() , eatyouup() , eatyouuptwo() , eatyouupthree() , bigblob() , removeblobs() , recordscore()}
+if (rabbitmovev == "right"){canugoright() , eatyouup() , eatyouuptwo() , eatyouupthree() , bigblob() , removeblobs() , recordscore()}
+
+}
+}
+
+function whatdo()
+{
+if (movemonsters !== 8){movemonsters++}else{monstertwomove1() , monsteronemove1() , monsterthreemove1() , movemonsters=0}
+
+if (blobs !== 0){if (moverabbit !== 7){moverabbit++}else{rabbitmove() , moverabbit=0}}else{if (moverabbit !== 10){moverabbit++}else{rabbitmove() , moverabbit=0}}
+}
+
+// -->
+</script>
+</head>
+<BODY onkeydown="javascript:keyDown()" onLoad="timerId = setInterval('whatdo()', 50)">
+<script language="javascript">
+<!--
+
+//onkeydown="javascript:keyDown()"
+function FFkeyDown(e)
+{
+if(e.which == 39){rabbitmovev = 'right'}
+else
+if(e.which == 37){rabbitmovev = 'left'}
+else
+if(e.which == 38){rabbitmovev = 'up'}
+else
+if(e.which == 40){rabbitmovev = 'down'};
+else
+if(e.which == 27){self.close()};
+}
+
+function IEkeyDown()
+{
+if(event.keyCode == 39){rabbitmovev = "right"}
+else
+if(event.keyCode == 37){rabbitmovev = "left"}
+else
+if(event.keyCode == 38){rabbitmovev = "up"}
+else
+if(event.keyCode == 40){rabbitmovev = "down"};
+else
+if(event.keyCode == 80){alert("paused")};
+else
+if(even.keyCode == 27){self.close()};
+}
+//-->
+</script>
+<script language="JavaScript" type="text/javascript">
+<!--
+var endofscript = '</script>'
+var fforie;
+if (navigator.appName == "Microsoft Internet Explorer")
+{fforie = true}
+if (fforie == true){
+document.writeln('<script>')
+document.writeln('function keyDown()')
+document.writeln('{')
+document.writeln('if(event.keyCode == 39){rabbitmovev = "right"}')
+document.writeln('else')
+document.writeln('if(event.keyCode == 37){rabbitmovev = "left"}')
+document.writeln('else')
+document.writeln('if(event.keyCode == 40){rabbitmovev = "down"}')
+document.writeln('else')
+document.writeln('if(event.keyCode == 38){rabbitmovev = "up"}')
+document.writeln('else')
+document.writeln('if(event.keyCode == 80){alert("paused")};')
+document.writeln('else')
+document.writeln('if(even.keyCode == 27){self.close()};')
+document.writeln('}')
+document.writeln(endofscript)
+}
+else
+{document.writeln('<script>')
+document.writeln('function keyDown(e)')
+document.writeln('{')
+document.writeln('if(e.which == 39){rabbitmovev = "right"}')
+document.writeln('if(e.which == 37){rabbitmovev = "left"}')
+document.writeln('if(e.which == 40){rabbitmovev = "down"}')
+document.writeln('if(e.which == 38){rabbitmovev = "up"}')
+document.writeln('if(e.which == 27){self.close()};')
+document.writeln('}')
+document.writeln('document.onkeydown=keyDown;')
+document.writeln(endofscript)}
+//-->
+</script>
+<center>
+
+<img src="../blob.gif" name="../blob.gif" width="25" height="25" alt=""><img src="../blob.gif" name="../blob.gif" width="25" height="25" alt=""><img src="../blob.gif" name="../blob.gif" width="25" height="25" alt=""><img src="../blob.gif" name="../blob.gif" width="25" height="25" alt=""><img src="../blob.gif" name="../blob.gif" width="25" height="25" alt=""><img src="../wupright.gif" name="../wupright.gif" width="25" height="25" alt=""><img src="../wrightleft.gif" name="../wrightleft.gif" width="25" height="25" alt=""><img src="../wrightleft.gif" name="../wrightleft.gif" width="25" height="25" alt=""><img src="../wrightleft.gif" name="../wrightleft.gif" width="25" height="25" alt=""><img src="../wupleft.gif" name="../wupleft.gif" width="25" height="25" alt=""><img src="../blob.gif" name="../blob.gif" width="25" height="25" alt=""><img src="../blob.gif" name="../blob.gif" width="25" height="25" alt=""><img src="../blob.gif" name="../blob.gif" width="25" height="25" alt=""><img src="../blob.gif" name="../blob.gif" width="25" height="25" alt=""><img src="../blob.gif" name="../blob.gif" width="25" height="25" alt=""><br>
+<img src="../blob.gif" name='../blob.gif' width="25" height="25" alt=""><img src="../wrightdown.gif" name="../wrightdown.gif" width="25" height="25" alt=""><img src="../wrightleft.gif" name="../wrightleft.gif" width="25" height="25" alt=""><img src="../wdownleft.gif" name="../blob.gif" width="25" height="25" alt=""><img src="../blob.gif" name="../blob.gif" width="25" height="25" alt=""><img src="../blob.gif" name="../blob.gif" width="25" height="25" alt=""><img src="../blob.gif" name="../blob.gif" width="25" height="25" alt=""><img src="../blob.gif" name="../blob.gif" width="25" height="25" alt=""><img src="../blob.gif" name="../blob.gif" width="25" height="25" alt=""><img src="../blob.gif" name="../blob.gif" width="25" height="25" alt=""><img src="../blob.gif" name="../blob.gif" width="25" height="25" alt=""><img src="../wrightdown.gif" name="../wrightdown.gif" width="25" height="25" alt=""><img src="../wrightleft.gif" name="../wrightleft.gif" width="25" height="25" alt=""><img src="../wdownleft.gif" name="../wdownleft.gif" width="25" height="25" alt=""><img src="../blob.gif" name="../blob.gif" width="25" height="25" alt=""><br>
+<img src="../blob.gif" name="../blob.gif" width="25" height="25" alt=""><img src="../wupdown.gif" name="../wupdown.gif" width="25" height="25" alt=""><img src="../blank.gif" name="../blank.gif" width="25" height="25" alt=""><img src="../wupdown.gif" name="../wupdown.gif" width="25" height="25" alt=""><img src="../bigblob.gif" name="../bigblob.gif" width="25" height="25" alt=""><img src="../wright.gif" name="../wright.gif" width="25" height="25" alt=""><img src="../wrightleft.gif" name="../wrightleft.gif" width="25" height="25" alt=""><img src="../wrightleft.gif" name="../wrightleft.gif" width="25" height="25" alt=""><img src="../wrightdownleft.gif" name="../wrightdownleft.gif" width="25" height="25" alt=""><img src="../wleft.gif" name="../wleft.gif" width="25" height="25" alt=""><img src="../bigblob.gif" name="../bigblob.gif" width="25" height="25" alt=""><img src="../wupdown.gif" name="../wupdown.gif" width="25" height="25" alt=""><img src="../blank.gif" name="../blank.gif" width="25" height="25" alt=""><img src="../wupdown.gif" name="../wupdown.gif" width="25" height="25" alt=""><img src="../blob.gif" name="../blob.gif" width="25" height="25" alt=""><br>
+<img src="../blob.gif" name="../blob.gif" width="25" height="25" alt=""><img src="../wupdown.gif" name="../wupdown.gif" width="25" height="25" alt=""><img src="../blank.gif" name="../blank.gif" width="25" height="25" alt=""><img src="../wupdown.gif" name="../wupdown.gif" width="25" height="25" alt=""><img src="../blob.gif" name="../blob.gif" width="25" height="25" alt=""><img src="../blob.gif" name="../blob.gif" width="25" height="25" alt=""><img src="../blob.gif" name="../blob.gif" width="25" height="25" alt=""><img src="../blob.gif" name="../blob.gif" width="25" height="25" alt=""><img src="../wupdown.gif" name="../wupdown.gif" width="25" height="25" alt=""><img src="../blob.gif" name="../blob.gif" width="25" height="25" alt=""><img src="../blob.gif" name="../blob.gif" width="25" height="25" alt=""><img src="../wupdown.gif" name="../blob.gif" width="25" height="25" alt=""><img src="../blank.gif" name="../blank.gif" width="25" height="25" alt=""><img src="../wupdown.gif" name="../wupdown.gif" width="25" height="25" alt=""><img src="../blob.gif" name="../blob.gif" width="25" height="25" alt=""><br>
+<img src="../blob.gif" name="../blob.gif" width="25" height="25" alt=""><img src="../wupright.gif" name="../wupright.gif" width="25" height="25" alt=""><img src="../wrightleft.gif" name="../wrightleft.gif" width="25" height="25" alt=""><img src="../wupleft.gif" name="../wupleft.gif" width="25" height="25" alt=""><img src="../blob.gif" name="../blob.gif" width="25" height="25" alt=""><img src="../wrightdown.gif" name="../wrightdown.gif" width="25" height="25" alt=""><img src="../wdownleft.gif" name="../wdownleft.gif" width="25" height="25" alt=""><img src="../blob.gif" name="../blob.gif" width="25" height="25" alt=""><img src="../wupdown.gif" name="../wupdown.gif" width="25" height="25" alt=""><img src="../blob.gif" name="../blob.gif" width="25" height="25" alt=""><img src="../wrightdown.gif" name="../wrightdown.gif" width="25" height="25" alt=""><img src="../wupleft.gif" name="../wupleft.gif" width="25" height="25" alt=""><img src="../blank.gif" name="../blank.gif" width="25" height="25" alt=""><img src="../wupdown.gif" name="../wupdown.gif" width="25" height="25" alt=""><img src="../blob.gif" name="../blob.gif" width="25" height="25" alt=""><br>
+<img src="../blob.gif" name="../blob.gif" width="25" height="25" alt=""><img src="../blob.gif" name="../blob.gif" width="25" height="25" alt=""><img src="../blob.gif" name="../blob.gif" width="25" height="25" alt=""><img src="../blob.gif" name="../blob.gif" width="25" height="25" alt=""><img src="../blob.gif" name="../blob.gif" width="25" height="25" alt=""><img src="../wupdown.gif" name="../wupdown.gif" width="25" height="25" alt=""><img src="../wupdown.gif" name="../wupdown.gif" width="25" height="25" alt=""><img src="../blob.gif" name="../blob.gif" width="25" height="25" alt=""><img src="../wup.gif" name="../wup.gif" width="25" height="25" alt=""><img src="../blob.gif" name="../blob.gif" width="25" height="25" alt=""><img src="../wupright.gif" name="../wupright.gif" width="25" height="25" alt=""><img src="../wrightleft.gif" name="../wrightleft.gif" width="25" height="25" alt=""><img src="../wrightleft.gif" name="../wrightleft.gif" width="25" height="25" alt=""><img src="../wupleft.gif" name="../wupleft.gif" width="25" height="25" alt=""><img src="../blob.gif" name="../blob.gif" width="25" height="25" alt=""><br>
+<img src="../wdownleft.gif" name="../wdownleft.gif" width="25" height="25" alt=""><img src="../blob.gif" name="../blob.gif" width="25" height="25" alt=""><img src="../wrightdown.gif" name="../wrightdown.gif" width="25" height="25" alt=""><img src="../wrightleft.gif" name="../wrightleft.gif" width="25" height="25" alt=""><img src="../wrightleft.gif" name="../wrightleft.gif" width="25" height="25" alt=""><img src="../wupleft.gif"    name="../wupleft.gif" width="25" height="25" alt=""><img src="../wupdown.gif" name="../wupdown.gif" width="25" height="25" alt=""><img    src="../blob.gif" name="../blob.gif" width="25" height="25" alt=""><img src="../pac.gif"   name="../blank.gif" width="25" height="25" alt=""><img src="../blob.gif" name="../blob.gif" width="25" height="25" alt=""><img src="../blob.gif" name="../blob.gif" width="25" height="25" alt=""><img src="../blob.gif" name="../blob.gif" width="25" height="25" alt=""><img src="../blob.gif" name="../blob.gif" width="25" height="25" alt=""><img src="../blob.gif" name="../blob.gif" width="25" height="25" alt=""><img src="../blob.gif" name="../blob.gif" width="25" height="25" alt=""><br>
+<img src="../wupleft.gif" name="../wupleft.gif" width="25" height="25" alt=""><img src="../blob.gif" name="../blob.gif"     width="25" height="25" alt=""><img src="../wupright.gif"   name="../wupright.gif" width="25" height="25" alt=""><img   src="../wrightleft.gif" name="../wrightleft.gif" width="25" height="25" alt=""><img src="../wrightleft.gif" name="../wrightleft.gif" width="25" height="25" alt=""><img src="../wrightleft.gif" name="../wrightleft.gif" width="25" height="25" alt=""><img src="../wupleft.gif" name="../wupleft.gif" width="25" height="25" alt=""><img src="../blob.gif" name="../blob.gif" width="25" height="25" alt=""><img src="../wdown.gif" name="../wdown.gif" width="25" height="25" alt=""><img src="../blob.gif" name="../blob.gif" width="25" height="25" alt=""><img src="../wrightdown.gif" name="../wrightdown.gif" width="25" height="25" alt=""><img src="../wrightleft.gif" name="../wrightleft.gif" width="25" height="25" alt=""><img src="../wrightleft.gif" name="../wrightleft.gif" width="25" height="25" alt=""><img src="../wdownleft.gif" name="../wdownleft.gif" width="25" height="25" alt=""><img src="../blob.gif" name="../blob.gif" width="25" height="25" alt=""><br>
+<img src="../bigblob.gif" name="../bigblob.gif" width="25" height="25" alt=""><img src="../blob.gif" name="../blob.gif" width="25" height="25" alt=""><img src="../blob.gif" name="../blob.gif" width="25" height="25" alt=""><img src="../blob.gif" name="../blob.gif" width="25" height="25" alt=""><img src="../blob.gif" name="../blob.gif" width="25" height="25" alt=""><img src="../blob.gif" name="../blob.gif" width="25" height="25" alt=""><img src="../blob.gif" name="../blob.gif" width="25" height="25" alt=""><img src="../blob.gif" name="../blob.gif" width="25" height="25" alt=""><img src="../wupdown.gif" name="../wupdown.gif" width="25" height="25" alt=""><img src="../blob.gif" name="../blob.gif" width="25" height="25" alt=""><img src="../wupdown.gif" name="../wupdown.gif" width="25" height="25" alt=""><img src="../blob.gif" name="../blob.gif" width="25" height="25" alt=""><img src="../blob.gif" name="../blob.gif" width="25" height="25" alt=""><img src="../wupdown.gif" name="../wupdown.gif" width="25" height="25" alt=""><img src="../blob.gif" name="../blob.gif" width="25" height="25" alt=""><br>
+<img src="../blob.gif" name="../blob.gif" width="25" height="25" alt=""><img src="../wrightdown.gif" name="../wrightdown.gif" width="25" height="25" alt=""><img src="../wleft.gif" name="../wleft.gif" width="25" height="25" alt=""><img src="../blank.gif" name="../blank.gif" width="25" height="25" alt=""><img src="../wright.gif" name="../wright.gif" width="25" height="25" alt=""><img src="../wdownleft.gif" name="../wdownleft.gif" width="25" height="25" alt=""><img src="../blob.gif" name="../blob.gif" width="25" height="25" alt=""><img src="../wrightdown.gif" name="../wrightdown.gif" width="25" height="25" alt=""><img src="../wupdownleft.gif" name="../wupdownleft.gif" width="25" height="25" alt=""><img src="../blob.gif" name="../blob.gif" width="25" height="25" alt=""><img src="../wupdown.gif" name="../wupdown.gif" width="25" height="25" alt=""><img src="../blob.gif" name="../blob.gif" width="25" height="25" alt=""><img src="../blob.gif" name="../blob.gif" width="25" height="25" alt=""><img src="../wupdown.gif" name="../wupdown.gif" width="25" height="25" alt=""><img src="../blob.gif" name="../blob.gif" width="25" height="25" alt=""><br>
+<img src="../blob.gif" name="../blob.gif" width="25" height="25" alt=""><img src="../wupdown.gif" name="../wupdown.gif" width="25" height="25" alt=""><img src="../monster1.gif" name="../blank.gif" width="25" height="25" alt=""><img src="../monster2.gif" name="../blank.gif" width="25" height="25" alt=""><img src="../monster3.gif" name="../blank.gif" width="25" height="25" alt=""><img src="../wupdown.gif" name="../wupleft.gif" width="25" height="25" alt=""><img src="../blob.gif" name="../blob.gif" width="25" height="25" alt=""><img src="../wupdown.gif" name="../wupdown.gif" width="25" height="25" alt=""><img src="../wupdown.gif" name="../wupdown.gif" width="25" height="25" alt=""><img src="../blob.gif" name="../blob.gif" width="25" height="25" alt=""><img src="../wupdown.gif" name="../wupdown.gif" width="25" height="25" alt=""><img src="../blob.gif" name="../blob.gif" width="25" height="25" alt=""><img src="../blob.gif" name="../blob.gif" width="25" height="25" alt=""><img src="../blank.gif" name="../blank.gif" width="25" height="25" alt=""><img src="../blob.gif" name="../blob.gif" width="25" height="25" alt=""><br>
+<img src="../blob.gif" name="../blob.gif" width="25" height="25" alt=""><img src="../wupright.gif" name="../wupright.gif" width="25" height="25" alt=""><img src="../wrightleft.gif" name="../wrightleft.gif" width="25" height="25" alt=""><img src="../wrightleft.gif" name="../wrightleft.gif" width="25" height="25" alt=""><img src="../wrightleft.gif" name="../wrightleft.gif" width="25" height="25" alt=""><img src="../wupleft.gif" name="../wupleft.gif" width="25" height="25" alt=""><img src="../blob.gif" name="../blob.gif" width="25" height="25" alt=""><img src="../wupright.gif" name="../wupright.gif" width="25" height="25" alt=""><img src="../wupleft.gif" name="../wupleft.gif" width="25" height="25" alt=""><img src="../blob.gif" name="../blob.gif" width="25" height="25" alt=""><img src="../wupright.gif" name="../wupright.gif" width="25" height="25" alt=""><img src="../wrightleft.gif" name="../wrightleft.gif" width="25" height="25" alt=""><img src="../wrightleft.gif" name="../wrightleft.gif" width="25" height="25" alt=""><img src="../wupleft.gif" name="../wupleft.gif" width="25" height="25" alt=""><img src="../blob.gif" name="../blob.gif" width="25" height="25" alt=""><br>
+<img src="../blob.gif" name="../blob.gif" width="25" height="25" alt=""><img src="../blob.gif" name="../blob.gif" width="25" height="25" alt=""><img src="../blob.gif" name="../blob.gif" width="25" height="25" alt=""><img src="../blob.gif" name="../blob.gif" width="25" height="25" alt=""><img src="../blob.gif" name="../blob.gif" width="25" height="25" alt=""><img src="../blob.gif" name="../blob.gif" width="25" height="25" alt=""><img src="../blob.gif" name="../blob.gif" width="25" height="25" alt=""><img src="../blob.gif" name="../blob.gif" width="25" height="25" alt=""><img src="../blob.gif" name="../blob.gif" width="25" height="25" alt=""><img src="../blob.gif" name="../blob.gif" width="25" height="25" alt=""><img src="../blob.gif" name="../blob.gif" width="25" height="25" alt=""><img src="../blob.gif" name="../blob.gif" width="25" height="25" alt=""><img src="../blob.gif" name="../blob.gif" width="25" height="25" alt=""><img src="../blob.gif" name="../blob.gif" width="25" height="25" alt=""><img src="../bigblob.gif" name="../bigblob.gif" width="25" height="25" alt=""><br>
+<img src="../life.gif" name="life1" width="25" height="25"><img src="../life.gif" name="life2" width="25" height="25"><img src="../life.gif" name="life3" width="25" height="25"><br>
+</center>
+</body>
+</html>

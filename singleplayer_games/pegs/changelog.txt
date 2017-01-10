@@ -1,0 +1,91 @@
+0.01 (16-08-08)
+-got cross browser implementation working (finally works in IE :P)
+-planning to have only one global var called pegs.  So far so good.
+-will be easy to add to a page.  Not quite as easy as flash, but hopefully near.
+
+0.02 (16-08-08)
+-menu function working
+-managed to get menu divs able to be re-alined inside game div.
+
+0.03 (16-08-08)
+-text non-selection working (to make game feel more like flash)
+
+0.04 (17-08-08)
+-menu dimensions sizes added
+
+0.05 (17-08-08)
+-added seperate text function.
+-fixed 'pegsdiv' span stopping mouse having right cursor (it overlaps the canvas)
+-realised future problem of not knowing where the mouse will be relative to top left of div!
+
+0.06 (17-08-08)
+-mouse coords now relative to div.
+
+0.08 (17-08-08)
+-tidy and remove lots of commented script
+-fixed problem with adding a second menu - menus can now be opened and closed.
+-maybe a good base for an abstracted game system?
+
+0.10 (17/08/2008)
+-difficulty settings and colour generator working.
+
+0.13 (18/08/2008)
+-drawPeg function added
+-drawHole function added
+-board and pegs and holes all able to be drawn.
+
+0.14 (19/08/2008)
+-clickMe function added.
+
+0.16 (19/08/2008)
+-mouse movement detection now from main contaning div, rather than the span.
+-fixed bug with distance calcuation.
+
+0.18 (19/08/2008)
+-can add colours to holes.
+-to change colour, choose new colour and click on top.
+-system to select pegs in holes is now redundant.
+-check to see if row is full working.
+-fixed problems with text object
+
+0.19 (19/08/2008)
+-marking function works, but not implemented tidily yet.
+
+0.20 (19/08/2008)
+-black and white marking pegs drawn correctly
+-marking function implemented properly
+-can't end game yet.
+
+0.21 (19/08/2008)
+-added arrow pointing to activeRow
+-end game function working
+-See My Solution added
+-fixed problems with overlapping divs for text stopping onClick working.
+
+0.22 (19/08/2008)
+-fixed bug where if you finished on the last row it wouldn't count
+-there might still be a bug with drawing the real pegs after finishing occasionally - not sure if this was fixed with above or not.
+
+0.23 (19/08/2008)
+-Finished writing Help.
+-hopefully fixed not drawing red at end of game bug, just added parseFloat.
+-fixed occasional yellow arrow bug.
+-added more to Help
+
+0.24 (21/08/2008)
+-added mastermind difficulty back, but re-done difficulty levels:
+  -easy + medium: as before
+  -hard: 8 colours, no repetitions
+  -mastermind: as old hard, 8 colours and reptitions.
+-re-written help accordingly, and made other clarifications.
+-peg outline thickness now the same in IE as all other browsers.
+-IE can no longer highlight the canvas (easily).  I added an empty div over the top.
+
+0.25 (23/08/08)
+-failed attempting at adding a canvas on the fly
+
+0.26 (24/08/2008)
+-succeeded!  IE needs a span with text in (can be display:none;) before the canvas tag in order to recognise it.
+-now the html needed to be added is only a div with an id and size!
+(09/09/2008)
+-changed link to www.lukewallin.co.uk/?go=pegs

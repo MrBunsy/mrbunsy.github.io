@@ -1,0 +1,4 @@
+/**
+ * @author Luke
+ */
+thisIsIE=true;

@@ -1,0 +1,23 @@
+L-system thing
+
+
+the system was adapted so that:
+
+	each branch gradually elongates over time.
+	each branch droops slightly by a force each iteration - could specify direction
+	total thickness of each height of tree must equal thickenss of trunk below them
+-do this by working out how many brances are at each iteration or by branching structure?
+
+
+
+
+
+my idea:
+
+
+each branch has:
+	
+	high chance of continuing another branch straight
+	moderate chance of growing anothe branch at an angle
+
+and also implement top ideas of growing and drooping, with thickness

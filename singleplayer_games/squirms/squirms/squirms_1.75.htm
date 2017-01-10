@@ -1,0 +1,1790 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html>
+<head>
+<title>Squirms on Luke's 2D JavaScript Engine version 1.62</title>
+<script src="keysnew.js" type="text/javascript"></script>
+<script src="canvas.js" type="text/javascript"></script>
+</head>
+<body onkeydown="keydown(event)" onkeyup="keyup(event)">
+<!--you MUST pre-load all images used in the game like this, as some browsers do very weird things when new images are called up by javascript.  Also helps stop problems with images not loaidng in time
+Also, make sure you have a background div of some sort, over the top, to hide them. (display:none; will also do weird things in my experience in IE)
+//-->
+<img src="squirms/boom.gif" alt=""><img src="squirms/aim.gif" alt=""><img src="squirms/grave.gif" alt=""><img src="squirms/die.gif" alt="">
+<img src="squirms/squirmright.gif" alt=""><img src="squirms/squirmleft.gif" alt="">
+<img src="squirms/rocketright.gif" alt=""><img src="squirms/rocketleft.gif" alt=""><img src="squirms/rocket.gif" alt="">
+<img src="squirms/grenaderight.gif" alt=""><img src="squirms/grenadeleft.gif" alt=""><img src="squirms/grenade.gif" alt="">
+<img src="squirms/gunright.gif" alt=""><img src="squirms/gunleft.gif" alt=""><img src="squirms/bullet.gif" alt="">
+<span id="worldspan"></span>
+<span id="canvasspan"></span>
+
+
+<div id="greyoutdiv" style="filter:alpha(opacity=70);-moz-opacity:.70;opacity:.70;background-color:gray; position:absolute;top:50;left:50;height:550;width:750; z-index:7;display:none;"></div>
+<div id="messagediv" style="position:absolute;top:200;left:325;height:200;width:200;border:solid black 2px;z-index:8;display:none;background-color:white"></div>
+<!--
+<div id="testspan" style="position:relative; z-index:5;" onClick="startgame()">start game</div>
+<div id="testspan2" style="position:relative; z-index:5;" onclick="suddendeath()">sudden death</div>
+//-->
+
+<div id="mainmenu" style="background-color:white;position:absolute;width:800;height:600;border:solid black 2px;top:10;left:10;z-index:1;">
+<center>
+<h2>Squirms!</h2>
+<span style="cursor:hand;cursor:pointer;" onclick="document.getElementById('mainmenu').style.display='none';document.getElementById('aimenu').style.display='block';"><b>Against AI</b></span>
+<p>
+<span style="cursor:hand;cursor:pointer;" onclick="document.getElementById('mainmenu').style.display='none';document.getElementById('multiplayermenu').style.display='block';"><b>Local Multiplayer</b></span>
+<p>
+<span style="cursor:hand;cursor:pointer;" onclick="document.getElementById('mainmenu').style.display='none';document.getElementById('squirmnetmain').style.display='block';"><b>SquirmNet</b></span>
+</center>
+</div>
+
+<div id="aimenu" style="background-color:white;position:absolute;width:800;height:600;border:solid black 2px;top:10;left:10;z-index:1;display:none;">
+<center>
+<h2>Play VS AI</h2>
+<span style="cursor:hand;cursor:pointer;" onclick="document.getElementById('aimenu').style.display='none';document.getElementById('mainmenu').style.display='block';"><b>Back to Main Menu</b></span>
+<p>
+This isn't finished yet.
+</center>
+</div>
+
+<div id="multiplayermenu" style="background-color:white;position:absolute;width:800;height:600;border:solid black 2px;top:10;left:10;z-index:1;display:none;">
+<center>
+<h2>Multiplayer Setup</h2>
+<span style="cursor:hand;cursor:pointer;" onclick="document.getElementById('multiplayermenu').style.display='none';document.getElementById('mainmenu').style.display='block';"><b>Back to Main Menu</b></span>
+<p>
+<form name="multiplayersetup">
+Number of Teams:
+<select name="teams"><option value=2>2</option><option value=3>3</option><option value=4>4</option></select>
+<br>
+Worms per Team:
+<select name="worms"><option value=1>1</option><option value=2>2</option><option value=3>3</option><option value=4>4</option></select>
+<br>
+Hotseat time (wait between goes):
+<select name="wait"><option value=0.1>0</option><option value=2>2</option><option value=5>5</option><option value=10>10</option></select> Seconds
+<br>
+Turn time:
+<select name="turn"><option value=15>15</option><option value=30>30</option><option value=45>45</option><option value=60>60</option><option value=90>90</option></select> Seconds
+<br>
+Sudden Death:
+<select name="death"><option value=60>1</option><option value=300>5</option><option value=600>10</option><option value=900>15</option><option value=1800>30</option></select> Minutes
+<br>
+Health:
+<select name="health"><option value=50>50</option><option value=100>100</option><option value=150>150</option><option value=200>200</option><option value=90>90</option></select>
+
+</form>
+
+<span style="cursor:hand;cursor:pointer;" onclick="document.getElementById('multiplayermenu').style.display='none';startgame();"><b>Play!</b></span>
+
+</center>
+</div>
+
+<div id="squirmnetmain" style="background-color:white;position:absolute;width:800;height:600;border:solid black 2px;top:10;left:10;z-index:1;display:none;">
+<center>
+<h2>Welcome To SquirmNet</h2>
+<span style="cursor:hand;cursor:pointer;" onclick="document.getElementById('squirmnetmain').style.display='none';document.getElementById('mainmenu').style.display='block';"><b>Back to Main Menu</b></span>
+<p>
+This isn't finished yet.
+</center>
+</div>
+
+<div id="gameoverdiv" style="background-color:white;position:absolute;width:800;height:600;border:solid black 2px;top:10;left:10;z-index:3;display:none;">
+<center>
+<h2>Game Over</h2>
+
+<span style="cursor:hand;cursor:pointer;" onclick="history.go(0);"><b>Back to Main Menu</b></span>
+<p>
+<span id='debriefspan'></span>
+</center>
+</div>
+
+<div id="infodiv" style="position:absolute; z-index:5; left:810;top:50;border:solid black 1px; width:200;height:200;display:none;"></div>
+<script language="JavaScript" type="text/javascript">
+<!--
+
+
+//version 1.41 was the first to have working mathematical collision detectiob for circles as well as squares for polygons, 1.42 should be my attempt to optimise this new system
+
+//by version 1.45 I found an odd bug with colliding again, couldn;t fix it, so fell back to version 1.41 and started optimising again
+
+var wholeworld= new Array()
+
+//General variables used to define major things in the world
+
+var world=document.getElementById('worldspan');
+//gravity, and in which direction (could be used as a cheap wind, like Worms 1)  100 seems to be a nice value
+var gravityY=100;
+var gravityX=Math.round((Math.random()-0.5)*100)
+var friction=0.1
+//time/s per refresh
+var timeperloop= 0.02
+//essentially fps
+var refreshrate;
+if (document.all){var IE=true}else{var IE = false}
+if(IE){refreshrate=timeperloop*800;}else{refreshrate=timeperloop*1000;}
+//velocity retained during collision (as fraction), set to 1 for inelastic collisions
+var dampen=1
+//most force the user can apply to 'us'
+var maxuserforce=20000
+var incriment=maxuserforce/10
+
+//the minimum speed anything can have before it's stopped (set to 0 for no min speed)
+var minspeed=10
+
+var commandssystem=true
+
+var addtoworld;
+
+function testnameinarray(thisname)
+{for (var i5=0;i5<wholeworld.length;i5++)
+{if(wholeworld[i5].name == thisname){return i5;}}
+return false;}
+
+function entity(state,name,x,y,width,height,mass,image,type,vx,vy,fx,fy,hard,sticky,shape,divoptions,gametype,elastic)
+{
+var testarray=testnameinarray(name)
+if(testarray == false)
+{//if this entity isn't already in the world array, add it.....
+this.name=name;this.x=x;this.y=y;this.width=width;this.height=height;this.mass=mass;this.image=image;
+this.div=name+'div';
+//consider using documenty.gEtelkememtbyid?
+this.img=name+'img';
+//types 0 =moveable entitiy, 1= still object
+this.type=type;
+//v=veloctity,f=force
+this.vx=vx;this.vy=vy;this.fx=fx;this.fy=fy;
+//state is used for wether it's alive or dead (out of the world) or whatever 0=dead, 1=alive (in the world), 2= waiting to be brought back, 3 = due for destruction, 4 = due to be reset (white ball)
+this.state=state
+//sticky types: false means elastic collision, true means all momentum is lost
+this.sticky=sticky;
+//shapes, 1= rectangle, 0=circle, 2=square/rectangle, but collide as circle, 3 = polygon
+this.shape=shape
+//can it collide?
+this.hard=hard
+//game types.  0=border, 1=land, 2=worm, 3=explode on contact, 4=not part of game, 5=explode after timer, 6=explosion 7=gravestone
+this.gametype=gametype
+if(gametype==2){this.walk=0;this.direction='right';this.health=healthperworm;this.aimangle=0;this.weapon='rocket';}
+//how elastic the collisions are 1=fully, 0.5=partially
+this.elastic=elastic
+//enter our object into the world array
+this.arraypos=wholeworld.length
+wholeworld.push(this)
+this.divoptions=divoptions
+
+if(!testfordiv(this.div) && this.shape!==3)
+{addtoworld="<div id=\'"+this.div+"' style='position:absolute;  width:"+this.width+";"+this.divoptions+" height:"+this.height+";  top:"+this.y+"; left:"+this.x+';'
+if(this.state!==1){addtoworld+="display:none;"}else{addtoworld+="display:block;"}
+addtoworld+="'>";
+if(this.image!==false){addtoworld+="<img id='"+this.name+"img' src='"+this.image+"'>";}
+addtoworld+="</div>"
+world.innerHTML+=addtoworld}
+
+else{//polygon time! :D
+this.linelength=new Array();
+
+for(var i=0;i<this.x.length;i++)
+{var i2=i+1
+if(i2==this.x.length){i2=0;}
+//height = z-index, image = colour, width = thickness
+DrawLine(this.x[i],this.y[i],this.x[i2],this.y[i2],this.height,this.image,this.width,this.name+'class')
+//linelength is the line length squared, because this saves slower square root calculations later on
+this.linelength[i]=(this.x[i2]-this.x[i])*(this.x[i2]-this.x[i])+(this.y[i2]-this.y[i])*(this.y[i2]-this.y[i])
+}
+
+}
+
+}else{
+//....the worldarray already contains something by this name, so update it
+wholeworld[testarray].name=name;wholeworld[testarray].x=x*1;wholeworld[testarray].y=y*1;wholeworld[testarray].width=width*1;wholeworld[testarray].height=height*1;wholeworld[testarray].mass=mass*1;wholeworld[testarray].image=image;
+wholeworld[testarray].div=name+'div';
+wholeworld[testarray].img=name+'img';
+wholeworld[testarray].type=type;
+wholeworld[testarray].vx=vx;wholeworld[testarray].vy=vy;wholeworld[testarray].fx=fx;wholeworld[testarray].fy=fy;
+wholeworld[testarray].state=state
+wholeworld[testarray].sticky=sticky;
+wholeworld[testarray].shape=shape
+wholeworld[testarray].hard=hard
+wholeworld[testarray].gametype=gametype
+wholeworld[testarray].elastic=elastic
+wholeworld[testarray].divoptions=divoptions
+if(gametype==2){wholeworld[testarray].walk=0;wholeworld[testarray].direction='right';wholeworld[testarray].health=healthperworm;wholeworld[testarray].aimangle=0;wholeworld[testarray].weapon='rocket';}
+wholeworld[testarray].updatediv();
+}
+//functions
+this.kill=kill
+this.unkill=unkill
+this.plotme=plotme
+this.updatediv=updatediv
+this.updatediv2=updatediv2
+this.destroy=destroy
+}
+
+function testfordiv(id)
+{var testme=document.getElementById(id);
+if(testme){return true;}else{return false;}}
+
+//here are where objects are created
+//NAMES MUST BE UNIQUE
+
+//entity(state,name,x,y,width,height,mass,image,type,vx,vy,fx,fy,hard,sticky,shape,divoptions,gametype,elastic)
+
+//x,y co-ords are for the top left hand corner, div options are standard HTML bits and bobs for the style of the div
+
+//these are for the borders, you'll always want some kind of border (even if invisible) to stop anything being able to leave the screen
+
+var loopme;
+
+//whether the team is alive or not, and if it is, how the worms inside the team are
+var teamstates=new Array(numteams)
+//the last worm in the team who had a go
+var lastwormonteam=new Array(numteams)
+
+var waittime=5;
+var hotseat=waittime;
+var turntime=45
+
+var roundtime=300//time till sudden death
+
+//set options to defaults:
+
+document.multiplayersetup.teams.value=2
+document.multiplayersetup.wait.value=2
+document.multiplayersetup.worms.value=2
+document.multiplayersetup.turn.value=45
+document.multiplayersetup.death.value=300
+document.multiplayersetup.health.value=100
+
+
+function startgame()
+{
+
+numteams=document.multiplayersetup.teams.value;
+waittime=document.multiplayersetup.wait.value;
+wormsperteam=document.multiplayersetup.worms.value;
+turntime=document.multiplayersetup.turn.value;
+turntime=document.multiplayersetup.death.value;
+healthperworm=document.multiplayersetup.health.value;
+
+numworms=numteams*wormsperteam
+
+//set each number in the array to 0
+for(var k=0;k<numteams;k++)
+{lastwormonteam[k]=0;
+teamstates[k]=new Array()
+for(var k2=0;k2<wormsperteam;k2++)
+{teamstates[k][k2]=true}}
+
+
+createworms();
+document.getElementById('infodiv').style.display='block';
+loopme=setInterval('loop()',refreshrate)
+
+} 
+
+var numteams=2
+var wormsperteam=2
+var healthperworm=100
+
+
+var player=0
+
+
+
+function teamcolour(thisteam)
+{
+switch(thisteam)
+{
+case 0:return 'red';break;
+case 1:return 'blue';break;
+case 2:return 'green';break;
+case 3:return 'orange';break;
+default:return 'black';break;
+}
+}
+
+
+var worms=new Array();
+var healths=new Array();
+var healthsbg=new Array();
+var numworms=numteams*wormsperteam
+/*
+for(var w=0;w<numworms;w++)
+{
+worms[w]=new entity(1,'worms['+w+']',200+w*50,100,30,50,100,'squirms/squirmright.gif',0,0,0,0,0,true,false,1,'z-index:1;',2,0);
+healths[w]=new entity(0,'healths['+w+']',50,20,30,18,0,false,1,0,0,0,0,false,false,1,'border:solid black 1px;z-index:1;background-color:white;',4,1);
+}
+*/
+
+function createworms()
+{
+//this cycles through the teams and worms per team to produce the desired number of teams each with the same number of worms
+var w=0;
+for(var t=0;t<numteams;t++)
+{
+
+for(var p=0;p<wormsperteam;p++)
+{
+worms[w]=new entity(1,'worms['+w+']',200+w*50,100,27,50,100,'squirms/squirmright.gif',0,0,0,0,0,true,false,1,'z-index:1;',2,0);
+worms[w].team=t
+worms[w].wormpos=p;//which worm in the team this is
+healthsbg[w]=new entity(0,'healthsbg['+w+']',50,20,27,18,0,false,1,0,0,0,0,false,false,1,'z-index:1;background-color:'+teamcolour(t)+'; filter:alpha(opacity=70);-moz-opacity:.70;opacity:.70;',4,1);
+healths[w]=new entity(0,'healths['+w+']',50,20,26,17,0,false,1,0,0,0,0,false,false,1,'border:solid black 1px;z-index:2;',4,1);
+w++;
+}
+}
+
+}
+
+var arrow=new entity(0,'arrow',50,20,30,40,0,'squirms/arrow.gif',1,0,0,0,0,false,false,1,'z-index:1;',4,1);
+
+
+var borderpoly=new entity(1,'borderpoly',[50,800,800,50],[600,600,50,50],1,1,10,'black',1,0,0,0,0,true,false,3,'',0,1);
+
+var bg=new entity(1,'bg',00,00,800,600,0,false,1,0,0,0,0,false,false,1,'background-color:white;',4,1);
+
+var aimthing=new entity(0,'aimthing',30,30,3,10,0,'squirms/aim.gif',1,0,0,0,0,false,false,1,'',4,1);
+
+var wepimg=new entity(0,'wepimg',50,50,40,20,0,'squirms/rocketright.gif',1,0,0,0,0,false,false,1,'z-index:4;',4,1);
+
+var weps=new Array()
+var numweps=1
+for(var w=0;w<numweps;w++)
+{weps[w]=new entity(0,'weps['+w+']',300,275,20,20,100,'squirms/rocket.gif',0,0,0,0,0,true,false,1,'',2,1);}
+
+var booms=new Array()
+var numbooms=1
+for(var w=0;w<numbooms;w++)
+{booms[w]=new entity(0,'booms['+w+']',300,275,20,20,0,'squirms/boom.gif',1,0,0,0,0,false,false,1,'',2,1);}
+
+var aproxmass=100
+var giveortake=5
+/*
+var balls=new Array()
+for(var ballnum=0;ballnum<0;ballnum++)
+{balls[ballnum]=new entity(1,'balls['+ballnum+']',80+ballnum*51,200,50,50,100,'balls/green.gif',0,0,0,0,0,true,false,0,'',3,0.9);}
+*/
+//for polygons entity(state,name,x array,y array,thickness,z-index,mass,colour,type,vx,vy,fx,fy,hard,sticky,shape,ignore,gametype,elastic)
+
+//var polytest=new entity(1,'polytest',[700,500,500,700],[300,300,500,500],1,1,10,'blue',1,0,0,0,0,true,false,3,'',3,1);
+
+
+//var leftshape=new entity(1,'leftshape',[90,290,290,90],[250,400,600,250],1,1,10,'black',1,0,0,0,0,true,false,3,'',3,1);
+//var rightshape=new entity(1,'rightshape',[560,360,360,560],[250,400,600,250],1,1,10,'black',1,0,0,0,0,true,false,3,'',3,1);
+
+var genxs=new Array()
+var genys=new Array()
+
+function randompoly()
+{
+var avglength=100
+
+var startx=50
+var finishx=800
+
+var starty=400
+var finishy=400
+
+//var genxs=[startx]
+//var genys=[starty]
+
+var y=starty
+
+for(var x=startx;x<finishx;x+=Math.random()*avglength)
+{
+genxs.push(Math.round(x))
+genys.push(Math.round(y))
+y+=Math.random()*avglength-(avglength*(starty/finishy))/2
+}
+
+genxs.push(finishx)
+genys.push(finishy)
+
+genxs.push(finishx)
+genys.push(600)
+
+genxs.push(startx)
+genys.push(600)
+
+}
+randompoly()
+
+
+var polytest=new entity(1,'polytest',genxs,genys,1,1,10,'blue',1,0,0,0,0,true,false,3,'',1,1);
+
+//random mass - specically designed for pool, but can be used anywhere.  Attempt to remove complete uniformness to create a bit more realism
+function randommass(aprox,leeway)
+{var themass=aprox+(Math.random()-1)*2*leeway
+return Math.round(themass)}
+
+
+var needredraw=false
+
+
+function redrawworld()
+{world.innerHTML='';
+for (i4=0;i4<wholeworld.length;i4++)
+{wholeworld[i4].plotme()}}
+
+function updatediv()
+{document.getElementById(this.div).style.left=this.x
+document.getElementById(this.div).style.top=this.y
+document.getElementById(this.div).style.width=this.width
+document.getElementById(this.div).style.height=this.height}
+
+function updatediv2()
+{document.getElementById(this.div).style.left=this.x
+document.getElementById(this.div).style.top=this.y}
+
+
+function kill()
+{this.state=0;
+document.getElementById(this.div).style.display='none';}
+
+//brings entity back
+function unkill()
+{
+if(this.shape!==3){
+canwepopout=checkforanycollide(this)
+if (canwepopout !==false){this.state=2;if(this.name=='us'){canwepopout.vx=100}}else{this.state=1;document.getElementById(this.div).style.display='block';}
+this.updatediv();
+}
+}
+
+function destroy()
+{
+if(this.shape!==3){
+document.getElementById(this.div).style.display='none';
+var destroywhom;
+for (var i9=0;i9<wholeworld.length;i9++)
+{if(wholeworld[i9].name==this.name){destroywhom=i9}}
+wholeworld.splice(destroywhom, 1)
+}
+}
+
+
+function plotme()
+{
+if(this.shape!==3){
+if(!testfordiv(this.div))
+{addtoworld="<div id=\'"+this.div+"' style='position:absolute;  width:"+this.width+";"+this.divoptions+" height:"+this.height+";  top:"+this.y+"; left:"+this.x+";";
+if(this.state!==1){addtoworld+="display:none;"}else{addtoworld+="display:block;"}
+addtoworld+="'>";
+if(this.image!==false){addtoworld+="<img id='"+this.name+"img' src='"+this.image+"'>";}
+addtoworld+="</div>"
+world.innerHTML+=addtoworld}
+}
+}
+
+
+function nomovement()
+{
+var moving=0
+for(var h=0;h<numworms;h++)
+{
+if(worms[h].vx!==0 || worms[h].vy!==0 || worms[h].walk!==0){moving++}
+}
+if(moving==0){return true}else{return false;}
+}
+
+var counter=0;
+//loop stuff
+
+var stilltime=0;
+
+function loop()
+{
+
+
+if(hotseat>0){hotseat-=timeperloop;canmove=false;}else if(hotseat<0){endgo();hotseat=0;}
+
+if(nomovement() && canmove){stilltime+=timeperloop;if(stilltime>5){showarrow();stilltime=0;}}else{stilltime=0;}
+
+if(movetime>0){movetime-=timeperloop}
+else if(canmove){endgo()}//if time has run out and the player hasn't fired a weapon (is still able to move), then end the go.
+
+
+
+
+
+//document.getElementById('testspan').innerHTML="player vx="+Math.round(wholeworld[player].vx*10)/10+" player vy="+Math.round(wholeworld[player].vy*10)/10
+
+if(counter==10)
+{
+if(nomovement() && waitforstill){waitforstill=false;hotseat=waittime;}
+
+if(nomovement()){showhealths();}else{hidehealths()}
+
+
+
+document.getElementById('infodiv').innerHTML="Wind: "+gravityX+" <br>Turn Time: "+Math.ceil(movetime)+" <br><font color="+teamcolour(teamsgo)+">Team "+(teamsgo+1)+"'s Turn</font>"+"<br>Sudden Death: "+Math.ceil(roundtime/60)+' mins'
+if(weaponout){document.getElementById('infodiv').innerHTML+="<br>Power: "+power}
+if(hotseat>0){document.getElementById('infodiv').innerHTML="Waiting for "+Math.ceil(hotseat)+" secs"}
+}
+
+//moveus()
+switch(commandssystem)
+{
+case true:
+if(counter==20){counter=0;findcommands();currentcommand++;runcommands();
+
+
+
+}
+break;
+case false:
+moveus()
+break;
+}
+
+replotentities()
+/*
+switch(needredraw)
+{
+case true:
+redrawworld()
+needredraw=false
+break;
+}
+*/
+counter++
+roundtime-=timeperloop
+}
+
+/*
+list of commands:
+
+0=no command
+1=walk left
+2=walk right
+3=stop walking
+4=jump
+5(=backflip?)
+6=small jump
+
+7=aim up
+8=aim down
+
+9=select rocket
+10=select grenade
+11=select gun
+
+12=fire weapon
+13=increase weapon power
+
+weapons:
+rocket
+grenade
+gun
+*/
+
+var movetime=45
+
+
+var commands=new Array();
+
+function canpowerup()
+{
+if(power>=10){return false;}
+
+switch(weapon)
+{
+case 'rocket':return true;break;
+case 'gun':return false;break;
+case 'grenade':return true;break;
+}
+return false
+}
+
+var poweringup=false
+
+function findcommands()
+{
+//alert(lastkeypressed)
+if(lastkeypressed==13 && canmove){commands.push(4)}//enter - jump
+else if(lastkeypressed==8 && canmove){commands.push(6)}//backspace - high jump
+else if(!moveright && !moveleft && wholeworld[player].walk!==0){commands.push(3)}//stop moving
+else if(!canmove && wholeworld[player].walk!==0){commands.push(3)}//shouldn't be able to move and still moving
+else if(lastkeypressed==49 && canmove && wholeworld[player].vx==0 && wholeworld[player].vy==0){commands.push(9)}//number 1
+else if(lastkeypressed==50 && canmove && wholeworld[player].vx==0 && wholeworld[player].vy==0){commands.push(10)}//number 2
+else if(lastkeypressed==51 && canmove && wholeworld[player].vx==0 && wholeworld[player].vy==0){commands.push(11)}//number 2
+else if(lastkeypressed==37 && canmove){commands.push(1)}//left
+else if(lastkeypressed==39 && canmove){commands.push(2)}//right
+else if(lastkeypressed==38 && canmove && wholeworld[player].vx==0 && wholeworld[player].vy==0){commands.push(7)}//up
+else if(lastkeypressed==40 && canmove && wholeworld[player].vx==0 && wholeworld[player].vy==0){commands.push(8)}//down
+
+else if(lastkeypressed==32 && canpowerup() && canmove && wholeworld[player].vx==0 && wholeworld[player].vy==0){commands.push(13);poweringup=true;}//space pressed + power up
+else if(spacedown && canpowerup() && canmove && wholeworld[player].vx==0 && wholeworld[player].vy==0){commands.push(13);poweringup=true;}//space pressed + power up
+else if(lastkeypressed==32 && !canpowerup() && canmove  && wholeworld[player].vx==0 && wholeworld[player].vy==0){commands.push(12);poweringup=false;}//space pressed + fire weapon
+else if(spacedown && !canpowerup() && canmove  && wholeworld[player].vx==0 && wholeworld[player].vy==0){commands.push(12);poweringup=false;}//space pressed + fire weapon
+else if(poweringup && canmove && wholeworld[player].vx==0 && wholeworld[player].vy==0){commands.push(12);poweringup=false}
+else{commands.push(0)}
+
+lastkeypressed=false;
+
+}
+
+var currentcommand=-1
+var weaponout=false
+var weapon='rocket'
+var power=1;
+
+var smallangle=-Math.PI/2+Math.PI/15
+var bigangle=Math.PI/2-Math.PI/15
+
+function runcommands()
+{
+
+switch(commands[currentcommand])
+{
+case 1:hidearrow();hideweps();hidehealths();if(checkspecifics(wholeworld[player].x,wholeworld[player].y+1,wholeworld[player].width,wholeworld[player].height,wholeworld[player].shape,wholeworld[player].name,wholeworld[player])!==false){if(wholeworld[player].direction=='right'){wholeworld[player].direction='left';document.getElementById(wholeworld[player].img).src="squirms/squirmleft.gif";}else{wholeworld[player].walk=-100}};break;
+case 2:hidearrow();hideweps();hidehealths();if(checkspecifics(wholeworld[player].x,wholeworld[player].y+1,wholeworld[player].width,wholeworld[player].height,wholeworld[player].shape,wholeworld[player].name,wholeworld[player])!==false){if(wholeworld[player].direction=='left'){wholeworld[player].direction='right';document.getElementById(wholeworld[player].img).src="squirms/squirmright.gif";}else{wholeworld[player].walk=100}};break;
+case 3:hideweps();wholeworld[player].walk=0;break;
+case 4:hidearrow();hideweps();if(checkspecifics(wholeworld[player].x,wholeworld[player].y+1,wholeworld[player].width,wholeworld[player].height,wholeworld[player].shape,wholeworld[player].name,wholeworld[player])!==false){if(wholeworld[player].direction=='right'){wholeworld[player].vx=50;wholeworld[player].vy=-100;}else{wholeworld[player].vx=-50;wholeworld[player].vy=-100;}};break;
+
+case 6:hidearrow();hideweps();if(checkspecifics(wholeworld[player].x,wholeworld[player].y+1,wholeworld[player].width,wholeworld[player].height,wholeworld[player].shape,wholeworld[player].name,wholeworld[player])!==false){if(wholeworld[player].direction=='right'){wholeworld[player].vx=20;wholeworld[player].vy=-130;}else{wholeworld[player].vx=-20;wholeworld[player].vy=-130;}};break;
+
+
+case 7:hidearrow();if(aimangle>smallangle){aimangle-=Math.PI/15;updateweps()};break;
+case 8:hidearrow();if(aimangle<bigangle){aimangle+=Math.PI/15;updateweps()};break;
+
+case 9:hidearrow();weapon='rocket';power=1;updateweps();break;
+case 10:hidearrow();weapon='grenade';power=1;updateweps();break;
+case 11:hidearrow();weapon='gun';power=10;updateweps();break;
+
+case 12:hidearrow();fire();hideweps();break;
+case 13:hidearrow();power+=2;updateweps();break;
+
+default:break;
+}
+
+
+//if(currentcommand==40){alert(commands)}
+
+}
+
+
+
+var canmove=true
+var whosgo=0; 
+var turns=0
+
+
+
+function greyout(onoff,message)
+{
+switch(onoff)
+{
+case true:
+document.getElementById('messagediv').innerHTML=message
+document.getElementById('greyoutdiv').style.display='block';
+document.getElementById('messagediv').style.display='block';
+break;
+case false:
+document.getElementById('greyoutdiv').style.display='none';
+document.getElementById('messagediv').style.display='none';
+break;
+}
+}
+
+function suddendeath()
+{healthsout=false
+greyout(true,'<center><h1>Sudden Death</h1></center>')
+for(var w=0;w<numworms;w++)
+{//turns animated deaths into gravestones
+if(worms[w].gametype==2){worms[w].health=1}
+}
+setTimeout("greyout(false)",1000)
+}
+
+var teamsgo=0
+
+var wormsgo=0;
+
+var suddendeathgone=false;
+
+function endgo()
+{
+hidearrow();
+hideweps();
+healthsout=false;
+
+wholeworld[player].aimangle=aimangle;
+wholeworld[player].weapon=weapon;
+
+for(var w=0;w<numworms;w++)
+{//turns animated deaths into gravestones
+if(worms[w].gametype!==7 && worms[w].health<=0){document.getElementById(worms[w].img).src='squirms/grave.gif';worms[w].height=33;worms[w].y+=17;worms[w].width=26;worms[w].updatediv();worms[w].gametype=7}
+}
+
+
+if(roundtime<=0 && !suddendeathgone){suddendeath();suddendeathgone=true;}
+
+/*
+turns++
+teamsgo=turns%numteams
+lastwormonteam[teamsgo]++;
+player=(lastwormonteam[teamsgo]%wormsperteam+teamsgo*wormsperteam)*3//times three because there are two health divs per worm
+*/
+
+turns++
+var oldteamsgo=teamsgo
+
+teamsgo=turns%numteams
+
+var infiniteloop=0
+while(teamstates[teamsgo]==false && infiniteloop<=numteams)
+{
+turns++
+teamsgo=turns%numteams
+infiniteloop++
+}
+
+var liveteams=0
+for(var k=0;k<teamstates.length;k++)
+{
+if(teamstates[k]!==false){liveteams++}
+}
+if(liveteams==0){endgame('draw')}
+else if(liveteams==1){endgame('win')}
+
+
+lastwormonteam[teamsgo]++;
+
+wormsgo=lastwormonteam[teamsgo]%wormsperteam
+
+while(teamstates[teamsgo][wormsgo]==false)
+{
+lastwormonteam[teamsgo]++;
+wormsgo=lastwormonteam[teamsgo]%wormsperteam
+}
+
+//alert('team='+teamsgo+" worm="+wormsgo)
+
+//player=(wormsgo+teamsgo*wormsperteam)*3//times three because there are two health divs per worm
+
+player=worms[wormsgo+teamsgo*wormsperteam].arraypos
+
+showarrow()
+
+canmove=true;
+movetime=turntime
+aimangle=wholeworld[player].aimangle
+weapon=wholeworld[player].weapon
+//aimangle=0;
+
+weapon='rocket';
+gravityX=Math.round((Math.random()-0.5)*100)
+
+showhealths();
+}
+
+
+
+function endgame(state)
+{
+clearInterval(loopme)
+document.getElementById('gameoverdiv').style.display='block';
+
+hidehealths();
+
+document.getElementById('infodiv').style.display='none';
+
+switch(state)
+{
+case 'draw':
+document.getElementById('debriefspan').innerHTML='Draw - no winners.'
+break;
+
+case 'win':
+
+var winningteam
+for(var k=0;k<teamstates.length;k++)
+{
+if(teamstates[k]!==false){winningteam=k+1}
+}
+
+document.getElementById('debriefspan').innerHTML='<font color="'+teamcolour(winningteam-1)+'">Team '+winningteam+' </font>wins!'
+break;
+
+}
+
+}
+
+
+
+
+
+function findsparewep()
+{
+for(var wepnum=0;wepnum<numweps;wepnum++)
+{
+if(weps[wepnum].state!==1){return wepnum;}
+}
+return 0;
+}
+
+
+function fire()
+{
+var whichwep=findsparewep()
+//weaponout=false;
+canmove=false;
+movetime=0;
+switch(weapon)
+{
+case 'rocket':
+weps[whichwep].state=1;
+weps[whichwep].boom=50
+weps[whichwep].mass=10;
+weps[whichwep].fy=0;
+weps[whichwep].fx=0;
+weps[whichwep].shape=0;weps[whichwep].width=20;weps[whichwep].height=20;weps[whichwep].gametype=3
+
+if(wholeworld[player].direction=='right'){weps[whichwep].x=wholeworld[player].x+wholeworld[player].width}else{weps[whichwep].x=wholeworld[player].x-20;}
+weps[whichwep].y=wholeworld[player].y+wholeworld[player].height/2-10;
+document.getElementById(weps[whichwep].img).src='squirms/rocket.gif'
+document.getElementById(weps[whichwep].div).style.display='block';
+var wepspeed=100+20*power
+power=1;
+weps[whichwep].updatediv();
+if(wholeworld[player].direction=='right'){weps[whichwep].vx=Math.cos(aimangle)*wepspeed;weps[whichwep].vy=Math.sin(aimangle)*wepspeed}else{weps[whichwep].vx=Math.cos(aimangle*(-1)-Math.PI)*wepspeed;weps[whichwep].vy=Math.sin(aimangle*(-1)-Math.PI)*wepspeed}
+break;
+
+case 'grenade':
+weps[whichwep].mass=10;
+weps[whichwep].boom=40
+weps[whichwep].fy=0;
+weps[whichwep].fx=-weps[whichwep].mass*gravityX
+weps[whichwep].elastic=0.8;
+weps[whichwep].state=1;
+weps[whichwep].shape=0;weps[whichwep].width=20;weps[whichwep].height=20;weps[whichwep].gametype=5
+
+weps[whichwep].fuse=5
+
+if(wholeworld[player].direction=='right'){weps[whichwep].x=wholeworld[player].x+wholeworld[player].width}else{weps[whichwep].x=wholeworld[player].x-20;}
+weps[whichwep].y=wholeworld[player].y+wholeworld[player].height/2-10;
+document.getElementById(weps[whichwep].img).src='squirms/grenade.gif'
+document.getElementById(weps[whichwep].div).style.display='block';
+var wepspeed=100+20*power
+power=1;
+weps[whichwep].updatediv();
+if(wholeworld[player].direction=='right'){weps[whichwep].vx=Math.cos(aimangle)*wepspeed;weps[whichwep].vy=Math.sin(aimangle)*wepspeed}else{weps[whichwep].vx=Math.cos(aimangle*(-1)-Math.PI)*wepspeed;weps[whichwep].vy=Math.sin(aimangle*(-1)-Math.PI)*wepspeed}
+break;
+
+case 'gun':
+weps[whichwep].boom=25
+weps[whichwep].state=1;
+weps[whichwep].mass=10;
+weps[whichwep].fx=-weps[whichwep].mass*gravityX
+weps[whichwep].fy=-weps[whichwep].mass*gravityY
+weps[whichwep].shape=0;weps[whichwep].width=4;weps[whichwep].height=4;weps[whichwep].gametype=3;weps[whichwep].fy=-weps[whichwep].mass*gravityY;
+
+if(wholeworld[player].direction=='right'){weps[whichwep].x=wholeworld[player].x+wholeworld[player].width}else{weps[whichwep].x=wholeworld[player].x-20;}
+weps[whichwep].y=wholeworld[player].y+wholeworld[player].height/2-10;
+document.getElementById(weps[whichwep].img).src='squirms/bullet.gif'
+weps[whichwep].updatediv();
+document.getElementById(weps[whichwep].div).style.display='block';
+var wepspeed=200;
+power=1;
+if(wholeworld[player].direction=='right'){weps[whichwep].vx=Math.cos(aimangle)*wepspeed;weps[whichwep].vy=Math.sin(aimangle)*wepspeed}else{weps[whichwep].vx=Math.cos(aimangle*(-1)-Math.PI)*wepspeed;weps[whichwep].vy=Math.sin(aimangle*(-1)-Math.PI)*wepspeed}
+
+
+
+break;
+}
+
+}
+
+function findspareboom()
+{
+for(var boomnum=0;boomnum<numbooms;boomnum++)
+{
+if(booms[boomnum].state!==1){return boomnum;}
+}
+return 0;
+}
+
+var waitforstill=false
+ 
+function explosion(whom)
+{
+var centrex=whom.x+whom.width/2
+var centrey=whom.y+whom.height/2
+var radius=whom.boom
+
+var thisboom=findspareboom()
+
+booms[thisboom].state=1;
+document.getElementById(booms[thisboom].div).style.display='block';
+document.getElementById(booms[thisboom].div).style.zIndex=2;
+booms[thisboom].x=centrex-radius
+booms[thisboom].y=centrey-radius
+booms[thisboom].width=whom.boom*2
+booms[thisboom].height=whom.boom*2
+document.getElementById(booms[thisboom].img).src="squirms/boom.gif"
+document.getElementById(booms[thisboom].img).width=whom.boom*2;
+document.getElementById(booms[thisboom].img).height=whom.boom*2;
+booms[thisboom].updatediv();
+whom.kill()
+
+var waitfor=0
+
+
+for(var i9=thisboom;i9<wholeworld.length;i9++)
+{
+
+if(wholeworld[i9].state==1 && wholeworld[i9].hard && booms[thisboom].name!==wholeworld[i9].name && wholeworld[i9].gametype==2)
+{
+if(checkcollide(booms[thisboom].x,booms[thisboom].y,booms[thisboom].width,booms[thisboom].height,booms[thisboom].shape,wholeworld[i9].x,wholeworld[i9].y,wholeworld[i9].width,wholeworld[i9].height,wholeworld[i9].shape,booms[thisboom],wholeworld[i9]))
+{
+//this has been caught in the explosion
+
+var dx=(wholeworld[i9].x+wholeworld[i9].width/2)-centrex
+var dy=(wholeworld[i9].y+wholeworld[i9].height/2)-centrey
+
+//angle between centre of explosion and centre of squirm
+var boomangle=getangle(dx,dy)
+
+var distance=Math.sqrt(dx*dx+dy*dy)-20
+
+//this works out how much of the damage to give the worm depening on how far away it was from the centre of the explosion
+if(distance<0){distance=0;}
+if(distance>radius){radius=distance}
+var fraction=(radius-distance)/radius
+
+wholeworld[i9].vx=Math.cos(boomangle)*200*fraction
+wholeworld[i9].vy=Math.sin(boomangle)*200*fraction
+
+//alert(fraction+' radius='+radius+' distance='+distance)
+wholeworld[i9].health-=Math.round(fraction*whom.boom)
+
+if(wholeworld[i9].health<=0)
+{
+document.getElementById(wholeworld[i9+1].div).style.display='none';
+document.getElementById(wholeworld[i9+2].div).style.display='none';
+//kill this worm
+document.getElementById(wholeworld[i9].img).src='squirms/die.gif';//wholeworld[i9].type=1;
+//wholeworld[i9].gametype=7;
+wholeworld[i9].vx=0;wholeworld[i9].vy=0;
+wholeworld[i9].type=1;
+wholeworld[i9].hard=false
+
+
+//var whichworm=i9/3
+var worminteam=wholeworld[i9].wormpos;
+//alert(worminteam)
+//alert(wormsgo)
+teamstates[wholeworld[i9].team][worminteam]=false;
+
+var deadworms=0
+for(var k=0;k<wormsperteam;k++)
+{
+if(teamstates[wholeworld[i9].team][k]==false){deadworms++;}
+}
+if(deadworms==wormsperteam){teamstates[wholeworld[i9].team]=false}
+
+
+}
+
+
+
+waitfor++
+}
+}
+
+}
+
+setTimeout('booms[0].kill()',500)
+if(waitfor==0){hotseat=waittime;}else{waitforstill=true}
+
+}
+
+var aimangle=0;
+
+function updateweps()
+{weaponout=true;
+document.getElementById(wepimg.div).style.display='block'
+document.getElementById(aimthing.div).style.display='block'
+
+
+wepimg.x=Math.round(wholeworld[player].x)-5;
+wepimg.y=Math.round(wholeworld[player].y)+15;
+document.getElementById(wepimg.img).src='squirms/'+weapon+wholeworld[player].direction+'.gif';
+wepimg.updatediv2();
+
+
+if(wholeworld[player].direction=='right'){aimthing.x=Math.round(wholeworld[player].x+wholeworld[player].width/2+Math.cos(aimangle)*50)-15}else{aimthing.x=Math.round(wholeworld[player].x+wholeworld[player].width/2-Math.cos(aimangle)*50)-15}
+aimthing.y=Math.round(wholeworld[player].y+wholeworld[player].height/2+Math.sin(aimangle)*50)-15
+
+aimthing.updatediv2()
+}
+
+function hideweps()
+{weaponout=false
+document.getElementById(wepimg.div).style.display='none'
+document.getElementById(aimthing.div).style.display='none'
+}
+
+
+
+
+
+
+function showhealths()
+{
+
+for (var h=0;h<numworms;h++)
+{
+
+if(worms[h].health>0 && worms[h].arraypos!==player)
+{
+document.getElementById(healths[h].div).innerHTML=worms[h].health
+if(!healthsout){
+healths[h].x=worms[h].x;
+healths[h].y=worms[h].y-20;
+healths[h].updatediv2()
+healthsbg[h].x=worms[h].x;
+healthsbg[h].y=worms[h].y-20;
+healthsbg[h].updatediv2()
+document.getElementById(healths[h].div).style.display='block';
+document.getElementById(healthsbg[h].div).style.display='block';
+}
+}
+}
+healthsout=true
+
+
+}
+
+function showarrow()
+{if(!arrowout)
+{
+arrow.x=wholeworld[player].x
+arrow.y=wholeworld[player].y-70
+arrow.updatediv2();
+document.getElementById(arrow.div).style.display='block';
+arrowout=true;
+}
+}
+//showarrow();
+function hidearrow()
+{if(arrowout){
+document.getElementById(arrow.div).style.display='none';
+arrowout=false
+}
+}
+
+var healthsout=false;
+var arrowout=false;
+
+function hidehealths()
+{
+//hidearrow()
+if(healthsout)
+{
+for (var h=0;h<numworms;h++)
+{document.getElementById(healths[h].div).style.display='none';document.getElementById(healthsbg[h].div).style.display='none';}
+healthsout=false
+}
+}
+
+//var player=worms[0]
+
+//var player=ball
+
+
+function moveus()
+{
+if (moveright){wholeworld[player].fx+=incriment; if (wholeworld[player].fx>maxuserforce){wholeworld[player].fx=maxuserforce};}
+if (moveleft){wholeworld[player].fx-=incriment; if (wholeworld[player].fx<-maxuserforce){wholeworld[player].fx=-maxuserforce}}
+if(!moveright && !moveleft){if (wholeworld[player].fx>0){wholeworld[player].fx-=incriment};if (wholeworld[player].fx<0){wholeworld[player].fx+=incriment}}
+if (moveup){wholeworld[player].fy-=incriment; if (wholeworld[player].fy < -maxuserforce){wholeworld[player].fy=-maxuserforce}}
+if (movedown){wholeworld[player].fy+=incriment; if (wholeworld[player].fy > maxuserforce){wholeworld[player].fy=maxuserforce}}
+if (!moveup && !movedown){wholeworld[player].fy+=incriment*2; if (wholeworld[player].fy > 0){wholeworld[player].fy=0}}
+//document.getElementById('testspan').innerHTML="ourfx ="+us.fx+" ourfx ="+us.fy+" ourvx ="+us.vx+" ourvy ="+us.vy
+}
+
+function updatefps()
+{if (timeperloop!==(1/document.gameform.fpsselect.value)){timeperloop=1/document.gameform.fpsselect.value;refreshrate=1000/document.gameform.fpsselect.value;clearInterval(loopme);loopme=setInterval('loop()',refreshrate)}}
+
+
+var typecounter
+
+//counts how many of a certain type of peice are are in a certain state
+function counttype(thistype,thisstate)
+{typecounter=0;
+for (var k=0;k<wholeworld.length;k++)
+{if(wholeworld[k].type == thistype && wholeworld[k].state == thisstate){typecounter++}}
+return typecounter;}
+
+
+//displacement
+var currentleft;
+var currenttop;
+//velocity
+var currentvx;
+var currentvy;
+var newvx
+var newvy
+//force
+var currentfx;
+var currentfy;
+//acceleration
+var ax
+var ay
+
+//seconds per loop
+
+var collide;
+var collide2;
+var ourvx;
+var theirvx;
+var ourvy;
+var theirvy;
+
+var whichdiv;
+var ournewvx;
+var ournewvy;
+var theirnewvx;
+var theirnewvy;
+
+var ourleft
+var ourright
+var ourtop
+var ourbottom
+var theirleft
+var theirright
+var theirtop
+var theirbottom
+var dontcontinue
+
+var diffinx
+var diffiny
+var collisionangle
+var theirspeed
+var ourspeed
+
+var ourperpendicularv;
+var ourparellelv;
+var theirperpendicularv;
+var theirparellelv;
+
+var ournewperpendicularv;
+var ournewparellelv;
+var theirnewperpendicularv;
+var theirnewparellelv;
+
+var ouranglebelowx
+var theiranglebelowx
+
+var currentlycolliding
+
+
+function findacceleration(tempforce,tempmass,tempvelocity,tempfriction)
+{
+var tempa = (tempforce)/tempmass
+//attempt at moddeling friction
+if(tempvelocity>1){tempa-=tempfriction}
+if(tempvelocity<(-1)){tempa+=tempfriction}
+return tempa
+}
+
+
+
+function checkpockets(whattocheck)
+{
+var testcollide2=checkcollide(whattocheck.x,whattocheck.y,whattocheck.width,whattocheck.height,whattocheck.shape,pocket.x,pocket.y,pocket.width,pocket.height,pocket.shape)
+if(testcollide2 == true){
+
+if(whattocheck.name=='us')
+{//you've sunk the white
+whattocheck.kill()
+whattocheck.x=100
+whattocheck.y=275
+whattocheck.fx=0
+whattocheck.fy=0
+whattocheck.vx=0
+whattocheck.vy=0
+whattocheck.unkill()
+}else{
+//you've sunk something else
+whattocheck.kill()
+}
+}
+
+}
+
+
+function getangle(x,y)
+{
+if(x<0){theangle=(Math.PI)+(Math.atan(y/x))}
+else if(x>0 && y>=0){theangle=Math.atan(y/x)}
+else if(x>0 && y < 0){theangle=2*(Math.PI)+Math.atan(y/x)}
+else if(x==0 && y == 0){theangle=0}
+else if(x==0 && y>=0){theangle=(Math.PI)/2}
+else{theangle=3*(Math.PI)/2}
+
+return theangle;
+}
+
+
+//IDEA FOR FRICITON, ADD FRICTION TO SPEED, THEN RESLOVE FOR X AND Y VELOCITIES
+
+function replotentities()
+{
+for (i=0;i<wholeworld.length;i++)
+{
+if(wholeworld[i].type == 0 && wholeworld[i].state==1)
+{
+//if type=0 then we're a entity and thus need to be replotted, and we're not dead
+ourspeed=Math.sqrt(wholeworld[i].vx*wholeworld[i].vx+wholeworld[i].vy*wholeworld[i].vy)
+
+
+//if(apressed){alert(wholeworld[player].vx+'replot')}
+
+var ourangle=getangle(wholeworld[i].vx,wholeworld[i].vy)
+
+var ourspeedfriction=ourspeed-ourspeed*friction*timeperloop
+
+//acceleration of object to be updated; f=ma therefore a=f/m
+
+if(wholeworld[i].gametype!==2){ax=(wholeworld[i].fx+gravityX*wholeworld[i].mass)/wholeworld[i].mass}else{ax=wholeworld[i].fx}
+ay=(wholeworld[i].fy+gravityY*wholeworld[i].mass)/wholeworld[i].mass
+//v=u+at
+newvy=Math.sin(ourangle)*ourspeedfriction+ay*timeperloop
+newvx=Math.cos(ourangle)*ourspeedfriction+ax*timeperloop
+//wholeworld[i].vy=newvy
+//wholeworld[i].vx=newvx
+//optimisation, if we're not moving, don't faff about re-plotting our position
+if(newvy!==0 || newvx!==0){
+// if we're moving really slowly, and there's no force on us, then stop moving.
+if(ourspeedfriction <=minspeed && wholeworld[i].fx==0 && wholeworld[i].fy==0 && ax==0 && ay==0){newvx=0;newvy=0;}
+//s=ut + 0.5at^2 therefore, new position = old position + ut+1/2at^2
+newx=(wholeworld[i].vx*timeperloop+1/2*ax*timeperloop*timeperloop)+wholeworld[i].x
+newy=(wholeworld[i].vy*timeperloop+1/2*ay*timeperloop*timeperloop)+wholeworld[i].y
+
+if(wholeworld[i].hard || wholeworld[i].gametype==7){
+
+for (i2=0;i2<wholeworld.length;i2++)
+{
+if(wholeworld[i2].hard && i!==i2 && wholeworld[i2].state==1)
+{
+if(checkcollide(newx,newy,wholeworld[i].width,wholeworld[i].height,wholeworld[i].shape,wholeworld[i2].x,wholeworld[i2].y,wholeworld[i2].width,wholeworld[i2].height,wholeworld[i2].shape,wholeworld[i],wholeworld[i2]))
+{//if there is a collision
+
+
+
+//if(wholeworld[i2].name!=='polytest'){alert(wholeworld[i].name+' '+wholeworld[i2].name)}
+
+if(wholeworld[i].sticky==false)
+{
+if(wholeworld[i].shape==0 && wholeworld[i2].shape==0)
+{
+wholeworld[i].vx=newvx
+wholeworld[i].vy=newvy
+collideascircles(wholeworld[i],wholeworld[i2])
+
+}else if(wholeworld[i].shape==3|| wholeworld[i2].shape==3){collidewithpoly(wholeworld[i],wholeworld[i2])}
+else
+{
+collideassquares(wholeworld[i],wholeworld[i2])
+}
+
+if(wholeworld[i2].type==0){wholeworld[i2].vx=theirnewvx;wholeworld[i2].vy=theirnewvy}
+
+//this bit is new (v1.48), the idea is to solve problems when a ball is stuck between two plates, or similar.
+var dx=newx-wholeworld[i].x
+var dy=newy-wholeworld[i].y
+if(checkcollide((newx-dx/4),(newy-dy/4),wholeworld[i].width,wholeworld[i].height,wholeworld[i].shape,wholeworld[i2].x,wholeworld[i2].y,wholeworld[i2].width,wholeworld[i2].height,wholeworld[i2].shape,wholeworld[i],wholeworld[i2])!==true){newx-=dx/4;newy-=dy/4;}
+else if(checkcollide((newx-dx/2),(newy-dy/2),wholeworld[i].width,wholeworld[i].height,wholeworld[i].shape,wholeworld[i2].x,wholeworld[i2].y,wholeworld[i2].width,wholeworld[i2].height,wholeworld[i2].shape,wholeworld[i],wholeworld[i2])!==true){newx-=dx/2;newy-=dy/2;}
+else if(checkcollide((newx-(dx/4)*3),(newy-(dy/4)*3),wholeworld[i].width,wholeworld[i].height,wholeworld[i].shape,wholeworld[i2].x,wholeworld[i2].y,wholeworld[i2].width,wholeworld[i2].height,wholeworld[i2].shape,wholeworld[i],wholeworld[i2])!==true){newx-=(dx/4)*3;newy-=(dy/4)*3;}
+else{newx=wholeworld[i].x;newy=wholeworld[i].y;}
+
+
+wholeworld[i].vx=newvx
+wholeworld[i].vy=newvy
+//end of if sticky
+}
+
+//newvx*=(wholeworld[i].elastic+wholeworld[i2].elastic)/2
+//newvy*=(wholeworld[i].elastic+wholeworld[i2].elastic)/2
+
+newvy*=wholeworld[i].elastic
+newvx*=wholeworld[i].elastic
+
+
+switch(wholeworld[i].gametype)
+{
+case 3:explosion(wholeworld[i]);break;
+//use this to detect stuff
+}
+if(apressed){alert(wholeworld[player].vx+'aftercheck')}
+//end of there is a collision
+}
+//end of collidable if statement
+}
+//end of i2 (collision) loop
+}
+//end of if [i] is hard
+}
+
+if(wholeworld[i].gametype==2 && wholeworld[i].walk!==0)//if this is a worm and it's walking
+{
+if(checkspecifics(wholeworld[i].x,wholeworld[i].y+1,wholeworld[i].width,wholeworld[i].height,wholeworld[i].shape,wholeworld[i].name,wholeworld[i])!==false && Math.abs(wholeworld[i].vx)<=1 && Math.abs(wholeworld[i].vy)<=1)
+{
+var loops=0
+var walkangle=Math.PI/2//directly down
+var howfar=Math.abs(wholeworld[i].walk*timeperloop)
+//if(wholeworld[i].walk<0){walkangle+=Math.PI/90}else{walkangle-=Math.PI/90}
+while(checkspecifics(wholeworld[i].x+Math.cos(walkangle)*howfar,wholeworld[i].y+Math.sin(walkangle)*howfar,wholeworld[i].width,wholeworld[i].height,wholeworld[i].shape,wholeworld[i].name,wholeworld[i])!==false && loops<45)
+{
+loops++
+if(wholeworld[i].walk<0){walkangle+=Math.PI/45;}else{walkangle-=Math.PI/45;}
+}
+if(loops<45 && angleinrange(walkangle))
+{newx=wholeworld[i].x+Math.cos(walkangle)*howfar
+newy=wholeworld[i].y+Math.sin(walkangle)*howfar}
+
+if(wholeworld[i].walk>0){wholeworld[i].direction='right';}else{wholeworld[i].direction='left';}
+
+document.getElementById(wholeworld[i].img).src="squirms/squirm"+wholeworld[i].direction+".gif"
+
+}
+}
+
+
+//if(i==player){if(newx!==wholeworld[i].x || newy!==wholeworld[i].y){updateweps()}}
+
+//update the div only if it's moved
+if(newx!==wholeworld[i].x || newy!==wholeworld[i].y){whichdiv=document.getElementById(wholeworld[i].div);whichdiv.style.left=Math.round(newx);whichdiv.style.top=Math.round(newy);}
+
+wholeworld[i].vx=newvx
+wholeworld[i].vy=newvy
+wholeworld[i].x=newx
+wholeworld[i].y=newy
+
+
+
+//end of if we're moving statement
+}
+
+
+switch(wholeworld[i].gametype)
+{
+case 5:
+if(wholeworld[i].fuse>0){wholeworld[i].fuse-=timeperloop}else{explosion(wholeworld[i])}
+break;
+}
+
+//end of if entity statement
+}
+//this will attempt to bring back to life anything which couldn't come back because somehting was in the way 
+else if(wholeworld[i].state==2){wholeworld[i].unkill()}
+else if(wholeworld[i].state==3){wholeworld[i].destroy();}
+else if(wholeworld[i].state==4){wholeworld[i].kill();wholeworld[i].x=100;wholeworld[i].y=275;wholeworld[i].fx=0;wholeworld[i].fy=0;wholeworld[i].vx=0;wholeworld[i].vy=0;wholeworld[i].unkill();}
+//end of wholeworld loop 
+}
+//end of replotentities()
+}
+
+function angleinrange(testangle)
+{
+var testthis=testangle/Math.PI*180
+
+if(-60<testthis && testthis<90){return true;}
+else if(90<testthis && testthis<240){return true;}
+
+return false;
+}
+
+
+//the 'collide as' functions collide the two objects given to them, 'us' and 'them', and sets the global variables newvy, newvx, theirnewvy and theirnewvx
+
+
+function collidewithpoly(us,them)
+{
+//atm all polys are objects so they can't be 'us'
+
+var k=polyline
+var k2=k+1
+if(k2==them.x.length){k2=0;}
+
+var dy=(them.y[k2]-them.y[k])
+var dx=(them.x[k2]-them.x[k])
+
+var ourangle=getangle(us.vx,us.vy)
+//ourangle is the angle the direction of the ball makes with the x axis, measured in a clockwise direction, where the angle is between 0 and 360
+
+var lineangle=getangle(dx,dy)
+//ourangle is the angle the line makes with the x axis, measured in a clockwise direction, where the angle is between 0 and 360
+
+vectorangle=lineangle-ourangle
+//don't ask how long this took to work out.
+newvx=Math.cos(ourangle+vectorangle*2)*ourspeed
+newvy=Math.sin(ourangle+vectorangle*2)*ourspeed;
+}
+
+function collideassquares(us,them)
+{
+
+//from an equation I found on the internet (elastic collisons, re-arrangement of the above two equations)
+if(them.type == 0){//we're colliding with an entity, so it can also move
+
+//1D collision equations dervived from kinetic energy and conservation of momentum, probably incorrectly applied in a 2D context
+newvx=( (us.mass-them.mass)/(us.mass+them.mass))*us.vx+( (2*them.mass)/(us.mass+them.mass) )*them.vx
+newvy=( (us.mass-them.mass)/(us.mass+them.mass))*us.vy+( (2*them.mass)/(us.mass+them.mass) )*them.vy
+theirnewvx=( (them.mass-us.mass)/(them.mass+us.mass))*them.vx+( (2*us.mass)/(them.mass+us.mass) )*us.vx
+theirnewvy=( (them.mass-us.mass)/(them.mass+us.mass))*them.vy+( (2*us.mass)/(them.mass+us.mass) )*us.vy
+}else{//they're an object
+
+dontcontinue=0
+theirleft=them.x
+theirright=them.x+them.width
+theirtop=them.y
+theirbottom=them.y+them.height
+if(us.y>theirtop && us.y<theirbottom && dontcontinue==0  && us.shape !==3){newvx=us.vx*(-1);newvy=us.vy;dontcontinue++;}
+if(us.x>theirleft &&us.x<theirright && dontcontinue==0 && us.shape !==3){newvy=us.vy*(-1);newvx=us.vx;dontcontinue++}
+if(us.y+us.height>theirtop && us.y+us.height<theirbottom && dontcontinue==0 && us.shape !==3){newvx=us.vx*(-1);newvy=us.vy;dontcontinue++;}
+if(us.x+us.width>theirleft && us.x+us.width<theirright && dontcontinue==0 && us.shape !==3){newvy=us.vy*(-1);newvx=us.vx;dontcontinue++}
+
+if(dontcontinue==0 || us.shape ==3)
+{
+collideascircles()
+//alert('inside squares - circles')
+}
+
+}
+
+}
+
+
+
+
+function collideascircles(us,them)
+{
+ourcentrex=us.x+us.width/2
+ourcentrey=us.y+us.height/2
+theircentrex=them.x+them.width/2
+theircentrey=them.y+them.height/2
+diffinx=theircentrex-ourcentrex
+diffiny=theircentrey-ourcentrey
+
+if(diffinx == 0){collisionangle=0}else{collisionangle=Math.atan(diffiny/diffinx)}
+
+//essentially, momentum is conserved parrellel and perpendicular to the angle of collision
+//http://director-online.com/buildArticle.php?id=532 proved immensly useful, and in actual fact, rendered most of 
+//my previous work at collisions wasted as I re-wrote a lot of it
+if(us.vx<0){ouranglebelowx=(Math.PI)+(Math.atan(us.vy/us.vx))}
+else if(us.vx>0 && us.vy>=0){ouranglebelowx=Math.atan(us.vy/us.vx)}
+else if(us.vx>0 && us.vy < 0){ouranglebelowx=2*(Math.PI)+(Math.atan(us.vy/us.vx))}
+else if(us.vx==0 && us.vy == 0){ouranglebelowx=0}
+else if(us.vx==0 && us.vy>=0){ouranglebelowx=(Math.PI)/2}
+else{ouranglebelowx=3*(Math.PI)/2}
+if(them.vx<0){theiranglebelowx=(Math.PI)+(Math.atan(them.vy/them.vx))}
+else if(them.vx>0 && them.vy>=0){theiranglebelowx=Math.atan(them.vy/them.vx)}
+else if(them.vx>0 && them.vy < 0){theiranglebelowx=2*(Math.PI)+(Math.atan(them.vy/them.vx))}
+else if(them.vx==0 && them.vy == 0){theiranglebelowx=0}
+else if(them.vx==0 && them.vy>=0){theiranglebelowx=(Math.PI)/2}
+else{theiranglebelowx=3*(Math.PI)/2}
+
+//ourspeed is set earlier
+theirspeed=Math.sqrt(them.vx*them.vx+them.vy*them.vy)
+ourparellelv=ourspeed*(Math.cos(ouranglebelowx-collisionangle))
+ourperpendicularv=ourspeed*(Math.sin(ouranglebelowx-collisionangle))
+theirparellelv=theirspeed*(Math.cos(theiranglebelowx-collisionangle))
+theirperpendicularv=theirspeed*(Math.sin(theiranglebelowx-collisionangle))
+if(them.type == 0){//we're colliding with an entity, so it can also move
+
+ournewparellelv=( (us.mass-them.mass)/(us.mass+them.mass))*ourparellelv+( (2*them.mass)/(us.mass+them.mass) )*theirparellelv
+theirnewparellelv=( (them.mass-us.mass)/(them.mass+us.mass))*theirparellelv+( (2*us.mass)/(them.mass+us.mass) )*ourparellelv
+newvx=ournewparellelv*(Math.cos(collisionangle))+ourperpendicularv*(Math.cos(collisionangle+(Math.PI/2)))
+newvy=ournewparellelv*(Math.sin(collisionangle))+ourperpendicularv*(Math.sin(collisionangle+(Math.PI/2)))
+theirnewvx=theirnewparellelv*(Math.cos(collisionangle))+theirperpendicularv*(Math.cos(collisionangle+(Math.PI/2)))
+theirnewvy=theirnewparellelv*(Math.sin(collisionangle))+theirperpendicularv*(Math.sin(collisionangle+(Math.PI/2)))
+
+}else{//we're colliding with an object, so it can't move
+
+ournewparellelv=ourparellelv*(-1)
+newvx=ournewparellelv*(Math.cos(collisionangle))+ourperpendicularv*(Math.cos(collisionangle+(Math.PI/2)))
+newvy=ournewparellelv*(Math.sin(collisionangle))+ourperpendicularv*(Math.sin(collisionangle+(Math.PI/2)))
+
+}
+}
+
+
+function checkforanycollide(collidee)
+{//checks to see if specific shape is currently in a collision
+for(i5=0;i5<wholeworld.length;i5++)
+{
+
+if(wholeworld[i5].type==0 && wholeworld[i5].state==1)
+{
+var testcollide=checkcollide(collidee.x,collidee.y,collidee.width,collidee.height,collidee.shape,wholeworld[i5].x,wholeworld[i5].y,wholeworld[i5].width,wholeworld[i5].height,wholeworld[i5].shape)
+if(testcollide == true){return wholeworld[i5]}
+}
+
+}
+return false;
+}
+
+function checkspecifics(testx,testy,testwidth,testheight,testshape,testname,testobject)
+{//checks if a given theoretical shape would collide
+for(i5=0;i5<wholeworld.length;i5++)
+{
+//wholeworld[i5].type==0 && 
+if(wholeworld[i5].state==1 && wholeworld[i5].hard && testname!==wholeworld[i5].name)
+{
+if(checkcollide(testx,testy,testwidth,testheight,testshape,wholeworld[i5].x,wholeworld[i5].y,wholeworld[i5].width,wholeworld[i5].height,wholeworld[i5].shape,testobject,wholeworld[i5]) == true){return wholeworld[i5]}
+}
+
+}
+return false;
+}
+
+
+
+var polycollide;
+
+//x,y=topleft coords, w=width,h=height,s=shape
+function checkcollide(x1,y1,w1,h1,s1,x2,y2,w2,h2,s2,us,them)
+{
+rightx1=x1+w1
+rightx2=x2+w2
+bottomy1=y1+h1
+bottomy2=y2+h2
+centrex1=x1+w1/2
+centrex2=x2+w2/2
+centrey1=y1+h1/2
+centrey2=y2+h2/2
+rad1=h1/2
+rad2=h2/2
+if(s1==0 && s2==0)
+{
+//both are circles
+radii=Math.pow((rad1+rad2),2);
+//pythagoras - this was pythag, but since square roots are slow maths, I've just decided to compare the squares.
+var circledistance= (centrex1-centrex2)*(centrex1-centrex2)+(centrey1-centrey2)*(centrey1-centrey2) 
+//alert(circledistance) 
+//if the distance between the two circles is less than or equal to the sum of their two radii then they'll collide
+if(circledistance<radii){return true}
+}
+
+//shapes, 1= rectangle, 0=circle, 2=square/rectangle, but collide as circle, 3 = polygon
+
+else if(s1==3 || s2==3)//involves a polygon
+{
+if(s1==3)
+{polycollide=polyandshape(us,x2,y2,them)}
+else{polycollide=polyandshape(them,x1,y1,us)}
+
+if(polycollide!==false){return true;}
+
+}
+else
+{
+//circle + rectangle combo
+if(rightx1 > x2 && x1 < (x2+w2) && y1 < (y2+h2) && bottomy1 > y2){return true}
+}
+return false;
+}
+
+var polyline
+
+function polyandshape(poly,theirx,theiry,notpoly)
+{//detects if there's a collision with a polygon
+
+//this is the third version of this function, the first used vector equations to detect when it will collide, but this never worked.
+//the second was very simple, it measured the distance from the shape to each end of the line, and if these two lengths 
+//were nearly the same as the length of the line, then it would count as a collisison.  however, this whilst it did work, wasn't very good
+//it didn't properly detect collisisons with 'spikey' polygons and left a large buffer for some reason
+
+//this current, hopefully last, version uses an algebraic technicue to find were lines, or circles and lines will intersect.  After some problems with 
+//horizontal and vertical line gradients, it was proved very reliable. 
+
+theircentrex=theirx+notpoly.width/2
+theircentrey=theiry+notpoly.height/2
+
+for(var k=0;k<poly.x.length;k++)
+{//loop through each line of the polygon
+k2=k+1
+if(k2==poly.x.length){k2=0;}
+
+var linelength=distance(poly.x[k2],poly.y[k2],poly.x[k],poly.y[k])+0.5
+
+var dy=poly.y[k2]-poly.y[k]
+var dx=poly.x[k2]-poly.x[k]
+
+//minus one unit vector from the second pair of co-ords to try and avoid problems on spikey bits
+
+var polyx1=poly.x[k]//+dx*2/linelength
+var polyy1=poly.y[k]//+dy*2/linelength
+var polyx2=poly.x[k2]//-dx*2/linelength
+var polyy2=poly.y[k2]//-dy*2/linelength
+
+if(polyx1<polyx2){var testpolyx1=polyx1;var testpolyx2=polyx2}else{var testpolyx1=polyx2;var testpolyx2=polyx1}
+if(polyy1<polyy2){var testpolyy1=polyy1;var testpolyy2=polyy2}else{var testpolyy1=polyy2;var testpolyy2=polyy1}
+
+//alert(poly.x[k2]+' '+polyx2+' '+(dx/linelength))
+
+//check to see if we're even vaguely near first.  if we are *then* check thoroughly
+
+//this actually compares the squares of the lengths, as this is much faster to execute.
+if((theircentrex-polyx2)*(theircentrex-polyx2)+(theircentrey-polyy2)*(theircentrey-polyy2)+(theircentrex-polyx1)*(theircentrex-polyx1)+(theircentrey-polyy1)*(theircentrey-polyy1) <= poly.linelength[k]+(notpoly.width+notpoly.height)*(notpoly.width+notpoly.height))
+{
+
+
+if(notpoly.shape!==0)//check all four corners of rectangle
+{
+var leftx=theirx
+var topy=theiry
+var rightx=theirx+notpoly.width
+var bottomy=theiry+notpoly.height
+//top line of square
+if(linesintersect(leftx,topy,rightx,topy,polyx1,polyy1,polyx2,polyy2)!==false){polyline=k;return true}
+//right hand side
+if(linesintersect(rightx,topy,rightx,bottomy,polyx1,polyy1,polyx2,polyy2)!==false){polyline=k;return true}
+//bottom line
+if(linesintersect(leftx,bottomy,rightx,bottomy,polyx1,polyy1,polyx2,polyy2)!==false){polyline=k;return true}
+//left had side
+if(linesintersect(leftx,topy,leftx,bottomy,polyx1,polyy1,polyx2,polyy2)!==false){polyline=k;return true}
+}else{//circle intersecting with a line
+var r=notpoly.width/2
+var a=theircentrex
+var b=theircentrey
+var x1=polyx1
+var y1=polyy1
+//gradient of poly line
+var m=dy/dx
+
+switch(m)
+{
+
+case Infinity:
+case -Infinity:
+//vertical line - we know x, but have potentially two possible Ys
+var x=x1
+//b^2 - 4ac
+var discrim=Math.pow((-2*b),2)-4*(b*b+(x-a)*(x-a)-r*r)
+if(discrim>=0)
+{//minus
+var y=(-(-2*b)-Math.sqrt(discrim))/2
+if(testpolyx1<=x && x<= testpolyx2 && testpolyy1<=y && y<=testpolyy2){polyline=k;return true}
+//plus
+var y=(-(-2*b)+Math.sqrt(discrim))/2
+if(testpolyx1<=x && x<= testpolyx2 && testpolyy1<=y && y<=testpolyy2){polyline=k;return true}
+}
+
+break;
+case 0:
+//horizontal line, two potential Xs
+var y=y1
+var discrim=Math.pow((-2*a),2)-4*(a*a+(y-b)*(y-b)-r*r)
+if(discrim>=0)
+{//minus
+var x=(-(-2*a)-Math.sqrt(discrim))/2
+if(testpolyx1<=x && x<= testpolyx2 && testpolyy1<=y && y<=testpolyy2){polyline=k;return true}
+//plus
+var y=(-(-2*a)+Math.sqrt(discrim))/2
+if(testpolyx1<=x && x<= testpolyx2 && testpolyy1<=y && y<=testpolyy2){polyline=k;return true}
+}
+
+break;
+
+default:
+//re-arrangement of the equation of a circle and the equation of a straight line to find the x co-ordinate of an intersection
+var discrim=Math.pow((-2*a-2*m*m*x1+2*y1*m-2*b*m),2)-4*(1+m*m)*(-2*m*x1*y1+2*m*x1*b+m*m*x1*x1-r*r+a*a+(y1-b)*(y1-b))
+//if discriminant is less than zero then there are no real roots and :. no interesction
+if(discrim>=0)
+{//circle intersects line, but where?
+//minus first
+var x=(-(-2*a-2*m*m*x1+2*y1*m-2*b*m)-Math.sqrt(discrim))/(2*(1+m*m))
+var y=m*(x-x1)+y1
+if(testpolyx1<=x && x<= testpolyx2 && testpolyy1<=y && y<=testpolyy2){polyline=k;return true}
+//then plus
+x=(-(-2*a-2*m*m*x1+2*y1*m-2*b*m)+Math.sqrt(discrim))/(2*(1+m*m))
+y=m*(x-x1)+y1
+if(testpolyx1<=x && x<= testpolyx2 && testpolyy1<=y && y<=testpolyy2){polyline=k;return true}
+//end of discrim if
+}
+
+break;
+//end of m switch
+}
+
+
+
+
+//end of circle if
+}
+//end of optimisation if
+}
+//end of loop
+}
+return false
+}
+
+function linesintersect(sx1,sy1,sx2,sy2,px1,py1,px2,py2)
+{
+var sdx=sx2-sx1
+var sdy=sy2-sy1
+var pdx=px2-px1
+var pdy=py2-py1
+//gradients
+var sm=sdy/sdx
+var pm=pdy/pdx
+//alert('sm='+sm+' pm='+pm)
+
+if(sx1<sx2){var sx1test=sx1;var sx2test=sx2}else{var sx1test=sx2;var sx2test=sx1;}
+if(sy1<sy2){var sy1test=sy1;var sy2test=sy2}else{var sy1test=sy2;var sy2test=sy1;}
+if(px1<px2){var px1test=px1;var px2test=px2}else{var px1test=px2;var px2test=px1;}
+if(py1<py2){var py1test=py1;var py2test=py2}else{var py1test=py2;var py2test=py1;}
+
+//gradients not equal :. not parallel and will intersect in 2D
+
+//if(sm==Infinity){alert(sm)}
+
+if(sm!==pm && sm!==Infinity && pm!==Infinity && sm!==0 && pm!==0)
+{
+//co-ords of intersection
+var x=(sx1*sm-px1*pm+py1-sy1)/(sm-pm)
+var y=pm*(x-px1)+py1
+
+
+}else{
+//an infinite gradient means a vertical line
+if(sm==-Infinity){sm=Infinity}
+if(pm==-Infinity){pm=Infinity}
+//a gradient of zero means a horizontal line
+
+if(sm==Infinity && pm==Infinity){if(sy2test>=py1test && sy1test<=py2test && sx1==px1){return true}}
+else if(sm==0 && pm==0){if(sx2test>=px1test && sx1test<=px2test && py1==sy1){return true}}
+else if(sm==Infinity && pm==0){var x=sx1;var y=py1;}
+else if(sm==0 && pm==Infinity){var y=sy1;var x=px1;}
+else if(sm==Infinity){var x=sx1;var y=pm*(x-px1)+py1}
+else if(pm==Infinity){var x=px1;var y=sm*(x-sx1)+sy1}
+else if(sm==0){var y=sy1;var x=(y-py1)/pm+px1}
+else if(pm==0){var y=py1;var x=(y-sy1)/sm+sx1}
+
+}
+
+//alert(Math.round(x)+','+Math.round(y))
+if(sx1test<=x && x<=sx2test && px1test<= x && x<=px2test && sy1test<=y && y<=sy2test && py1test<=y && y<=py2test){return true}
+
+return false;
+}
+
+function toradians(degrees)
+{return ((Math.PI/180)*degrees)}
+
+function distance(dx1,dy1,dx2,dy2)
+{
+
+var dx=dx2-dx1
+var dy=dy2-dy1
+
+return Math.sqrt(dx*dx+dy*dy)
+}
+//-->
+</script>
+
+</body>
+</html>
+

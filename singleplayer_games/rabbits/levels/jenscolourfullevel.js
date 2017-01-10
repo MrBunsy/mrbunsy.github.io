@@ -1,0 +1,54 @@
+function loadlevel()
+{
+new warren(7,8,1,1); 
+new warren(6,7,1,2); 
+new warren(7,6,1,3); 
+new hutch(14,0,[0,1,2,3],[0,1,2,3,0],[false],0,1,20); 
+new hutch(14,14,[0,1,2,3],[0,1,2,3,0],[false],0,1,20); 
+new hutch(0,14,[0,1,2,3],[0,1,2,3,0],[false],4,1,20); 
+new hutch(0,0,[0,1,2,3],[0,1,2,3,0],[false],4,1,20); 
+new block(14,13,0); 
+new block(12,13,0); 
+new block(10,13,0); 
+new block(8,13,0); 
+new block(6,13,0); 
+new block(2,13,0); 
+new block(4,13,0); 
+new block(2,1,0); 
+new block(4,1,0); 
+new block(6,1,0); 
+new block(8,1,0); 
+new block(12,1,0); 
+new block(14,1,0); 
+new gate(13,13,1,3,1); 
+new block(10,1,0); 
+new gate(9,13,1,1,1); 
+new gate(5,1,1,0,1); 
+new gate(1,1,1,2,1); 
+new gate(13,1,2,3,1); 
+new gate(1,13,2,2,1); 
+new gate(9,1,2,1,1); 
+new gate(5,13,2,0,1); 
+new block(0,13,0); 
+new block(0,1,0); 
+new warren(8,8,2,0); 
+new warren(8,7,2,1); 
+new warren(8,6,2,2); 
+new warren(7,7,1,0); 
+new gate(7,13,1,0,0); 
+new gate(11,13,1,2,0); 
+new gate(3,1,1,1,0); 
+new gate(3,13,2,1,0); 
+new gate(7,1,2,0,0); 
+new gate(11,1,2,2,0); 
+gridcols=15;gridrows=15;gridsize=27;gridsides=6;
+new tool(0,0,16); 
+new tool(1,0,1); 
+new tool(1,1,1); 
+new tool(2,1,1); 
+new tool(2,0,1); 
+rabbitsWillWait=true;
+
+}
+loadlevel();
+finishloading();

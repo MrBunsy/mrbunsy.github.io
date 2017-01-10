@@ -1,0 +1,40 @@
+add a rod shape - just a line essentially
+-done!
+
+add springs like in old version, but allow them to be connected to positions other than the centre
+-when connecting to non centre use r + angle like with poly points
+-done!
+
+enable string with a series of rods with their ends connected by springs?
+-done!
+
+need lots of tweaking and careful thinking about how to handle hollow shapes - eg where does the contactNormal point?
+-note, contact normal seems to work fine as is for polygons, just need to actually add in proper detection for hollow/not hollow!
+-further note, have observed strange behaviour between large hollow circle with poly inside, need to investage further!
+
+
+RESTING CONTACT:
+In this case, we compute a force that prevents the particle from accelerating downwards; essentially, this force is the weight of the particle due to gravity (or whatever other external forces push on the particle). We call the force between the particle and the foor a contact force.
+
+re-do this for no force parallel to contact normal between resting shapes?
+
+NEED TO ADD VISIBILITY TO SPRINGS! - done
+
+add option for choosing between RK4 and Euler, euler uses less CPU, but is not stable with strong springs.
+
+some (thought through) way of dealing with shapes that are currently overlapping - in advance if colliding, check that current position is also colliding?
+-idea: maybe strong spring between them?  or force equivilant to a spring.
+
+For loading - take the loadObject.shapesArray, iterate through and build new shapes using the details of the old ones, rather than try to more directly place the json shapes array (which has lost all its methods) into the physics shapes array?
+
+system for selecting group of shapes in sandbox, perhaps drag a rectangle and then use border collision detection to find shapes inside it?  Can then use selected group for things like saving a section/making non-collidable with each other (useful for ragdolls :D )
+
+
+treat halfway along a spring as part of the shape - and then use rod collision detection and parrallel axis rule for colliadble springs?
+
+Give fixed shapes black outline or black cross in middle?  or a pin?
+
+PIN - fix a spring to a shape and a certain point on the border, may mess up with smallworld?
+or even find a way to fix a shape at a point without a spring
+
+For implementing in a screensaver type thing: total world energy and increasing friction when too high, and decreasing friction when too low.

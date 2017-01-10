@@ -1,0 +1,4 @@
+RK4 appears to be causing energy loss by strange mechanism - shapes fall under graity slightly faster than the should, and rise slightly slower, so lose height each bounce when there's no friction
+
+
+interesting problems arise when the velocity gets too high - accleration will go to Infinity and it all goes foobar thereonin

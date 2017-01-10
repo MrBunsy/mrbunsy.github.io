@@ -1,0 +1,1029 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<span id="keydownstuff">
+<html>
+<head>
+
+<title>Space Invaders</title>
+
+<script language="JavaScript" type="text/javascript">
+<!--
+var score = 0
+
+var needff = 'yes'
+
+var uoneup   = 0
+var uoneright= 16
+var uoneleft = 14
+var uonedown = 30
+var uoneon = 15
+var uonelive = "live"
+
+var moneup   = 15
+var moneright= 31
+var moneleft = 29
+var monedown = 45
+var moneon = 30
+var monelive = "live"
+
+var boneup   = 30
+var boneright= 46
+var boneleft = 44
+var bonedown = 60
+var boneon = 45
+var bonelive = "live"
+
+var utwoup   = 2
+var utworight= 18
+var utwoleft = 16
+var utwodown = 32
+var utwoon = 17
+var utwolive = "live"
+
+var mtwoup   = 17
+var mtworight= 33
+var mtwoleft = 31
+var mtwodown = 47
+var mtwoon = 32
+var mtwolive = "live"
+
+var btwoup   = 32
+var btworight= 48
+var btwoleft = 46
+var btwodown = 62
+var btwoon = 47
+var btwolive = "live"
+
+var uthreeup   = 4
+var uthreeright= 20
+var uthreeleft = 18
+var uthreedown = 34
+var uthreeon = 19
+var uthreelive = "live"
+
+var mthreeup   = 19
+var mthreeright= 35
+var mthreeleft = 33
+var mthreedown = 49
+var mthreeon = 34
+var mthreelive = "live"
+
+var bthreeup   = 34
+var bthreeright= 50
+var bthreeleft = 48
+var bthreedown = 64
+var bthreeon = 49
+var bthreelive = "live"
+
+var ufourup   = 6
+var ufourright= 22
+var ufourleft = 20
+var ufourdown = 36
+var ufouron = 21
+var ufourlive = "live"
+
+var mfourup   = 21
+var mfourright= 37
+var mfourleft = 35
+var mfourdown = 51
+var mfouron = 36
+var mfourlive = "live"
+
+var bfourup   = 36
+var bfourright= 52
+var bfourleft = 50
+var bfourdown = 66
+var bfouron = 51
+var bfourlive = "live"
+
+var ufiveup   = 8
+var ufiveright= 24
+var ufiveleft = 22
+var ufivedown = 38
+var ufiveon = 23
+var ufivelive = "live"
+
+var mfiveup   = 23
+var mfiveright= 39
+var mfiveleft = 37
+var mfivedown = 53
+var mfiveon = 38
+var mfivelive = "live"
+
+var bfiveup   = 38
+var bfiveright= 54
+var bfiveleft = 52
+var bfivedown = 68
+var bfiveon = 53
+var bfivelive = "live"
+
+var fup   = 150
+var fdown = 180
+var fon = 165
+var missile = "no"
+var themissile = "old"
+
+var roneup   = 25
+var ronedown = 35
+var roneon = 30
+var rocketone = "no"
+var therocketone = "old"
+
+
+var flyon = 0
+var flyleft = -1
+var flyright = 1
+
+var up   = 150
+var right= 166
+var left = 164
+var down = 180
+var on = 165
+
+var hitted = 0
+var goes = 1
+
+var blockone = "fine"
+var blocktwo = "fine"
+var blockthree = "fine"
+var blockfour = "fine"
+var blockfive = "fine"
+var blocksix = "fine"
+var blockseven = "fine"
+var blockeight = "fine"
+
+function uoneleftf()
+{document.images[uoneleft].src='triangle.gif' , uoneleft=uoneleft-1 , uoneup=uoneup-1 , uonedown=uonedown-1 , uoneright=uoneright-1 , uoneon=uoneon-1 , document.images[uoneright].src=document.images[uoneright].name}
+function uonedownf()
+{document.images[uonedown].src='triangle.gif' , uoneleft=uoneleft+15 , uoneup=uoneup+15 , uonedown=uonedown+15 , uoneright=uoneright+15 , uoneon=uoneon+15 , document.images[uoneup].src=document.images[uoneup].name}
+function uoneupf()
+{document.images[uoneup].src='triangle.gif' , uoneleft=uoneleft-15 , uoneup=uoneup-15 , uonedown=uonedown-15 , uoneright=uoneright-15 , uoneon=uoneon-15 , document.images[uonedown].src=document.images[uonedown].name}
+function uonerightf()
+{document.images[uoneright].src='triangle.gif' , uoneleft=uoneleft+1 , uoneup=uoneup+1 , uonedown=uonedown+1 , uoneright=uoneright+1 , uoneon=uoneon+1 , document.images[uoneleft].src=document.images[uoneleft].name}
+
+function moneupf()
+{document.images[moneup].src='blob.gif' , moneleft=moneleft-15 , moneup=moneup-15 , monedown=monedown-15 , moneright=moneright-15 , moneon=moneon-15 , document.images[monedown].src=document.images[monedown].name}
+function moneleftf()
+{document.images[moneleft].src='blob.gif' , moneleft=moneleft-1 , moneup=moneup-1 , monedown=monedown-1 , moneright=moneright-1 , moneon=moneon-1 , document.images[moneright].src=document.images[moneright].name}
+function monedownf()
+{document.images[monedown].src='blob.gif' , moneleft=moneleft+15 , moneup=moneup+15 , monedown=monedown+15 , moneright=moneright+15 , moneon=moneon+15 , document.images[moneup].src=document.images[moneup].name}
+function monerightf()
+{document.images[moneright].src='blob.gif' , moneleft=moneleft+1 , moneup=moneup+1 , monedown=monedown+1 , moneright=moneright+1 , moneon=moneon+1 , document.images[moneleft].src=document.images[moneleft].name}
+
+function boneupf()
+{document.images[boneup].src='square.gif' , boneleft=boneleft-15 , boneup=boneup-15 , bonedown=bonedown-15 , boneright=boneright-15 , boneon=boneon-15 , document.images[bonedown].src=document.images[bonedown].name}
+function boneleftf()
+{document.images[boneleft].src='square.gif' , boneleft=boneleft-1 , boneup=boneup-1 , bonedown=bonedown-1 , boneright=boneright-1 , boneon=boneon-1 , document.images[boneright].src=document.images[boneright].name}
+function bonedownf()
+{document.images[bonedown].src='square.gif' , boneleft=boneleft+15 , boneup=boneup+15 , bonedown=bonedown+15 , boneright=boneright+15 , boneon=boneon+15 , document.images[boneup].src=document.images[boneup].name}
+function bonerightf()
+{document.images[boneright].src='square.gif' , boneleft=boneleft+1 , boneup=boneup+1 , bonedown=bonedown+1 , boneright=boneright+1 , boneon=boneon+1 , document.images[boneleft].src=document.images[boneleft].name}
+
+
+
+function utwoleftf()
+{document.images[utwoleft].src='triangle.gif' , utwoleft=utwoleft-1 , utwoup=utwoup-1 , utwodown=utwodown-1 , utworight=utworight-1 , utwoon=utwoon-1 , document.images[utworight].src=document.images[utworight].name}
+function utwodownf()
+{document.images[utwodown].src='triangle.gif' , utwoleft=utwoleft+15 , utwoup=utwoup+15 , utwodown=utwodown+15 , utworight=utworight+15 , utwoon=utwoon+15 , document.images[utwoup].src=document.images[utwoup].name}
+function utwoupf()
+{document.images[utwoup].src='triangle.gif' , utwoleft=utwoleft-15 , utwoup=utwoup-15 , utwodown=utwodown-15 , utworight=utworight-15 , utwoon=utwoon-15 , document.images[utwodown].src=document.images[utwodown].name}
+function utworightf()
+{document.images[utworight].src='triangle.gif' , utwoleft=utwoleft+1 , utwoup=utwoup+1 , utwodown=utwodown+1 , utworight=utworight+1 , utwoon=utwoon+1 , document.images[utwoleft].src=document.images[utwoleft].name}
+
+function mtwoupf()
+{document.images[mtwoup].src='blob.gif' , mtwoleft=mtwoleft-15 , mtwoup=mtwoup-15 , mtwodown=mtwodown-15 , mtworight=mtworight-15 , mtwoon=mtwoon-15 , document.images[mtwodown].src=document.images[mtwodown].name}
+function mtwoleftf()
+{document.images[mtwoleft].src='blob.gif' , mtwoleft=mtwoleft-1 , mtwoup=mtwoup-1 , mtwodown=mtwodown-1 , mtworight=mtworight-1 , mtwoon=mtwoon-1 , document.images[mtworight].src=document.images[mtworight].name}
+function mtwodownf()
+{document.images[mtwodown].src='blob.gif' , mtwoleft=mtwoleft+15 , mtwoup=mtwoup+15 , mtwodown=mtwodown+15 , mtworight=mtworight+15 , mtwoon=mtwoon+15 , document.images[mtwoup].src=document.images[mtwoup].name}
+function mtworightf()
+{document.images[mtworight].src='blob.gif' , mtwoleft=mtwoleft+1 , mtwoup=mtwoup+1 , mtwodown=mtwodown+1 , mtworight=mtworight+1 , mtwoon=mtwoon+1 , document.images[mtwoleft].src=document.images[mtwoleft].name}
+
+function btwoupf()
+{document.images[btwoup].src='square.gif' , btwoleft=btwoleft-15 , btwoup=btwoup-15 , btwodown=btwodown-15 , btworight=btworight-15 , btwoon=btwoon-15 , document.images[btwodown].src=document.images[btwodown].name}
+function btwoleftf()
+{document.images[btwoleft].src='square.gif' , btwoleft=btwoleft-1 , btwoup=btwoup-1 , btwodown=btwodown-1 , btworight=btworight-1 , btwoon=btwoon-1 , document.images[btworight].src=document.images[btworight].name}
+function btwodownf()
+{document.images[btwodown].src='square.gif' , btwoleft=btwoleft+15 , btwoup=btwoup+15 , btwodown=btwodown+15 , btworight=btworight+15 , btwoon=btwoon+15 , document.images[btwoup].src=document.images[btwoup].name}
+function btworightf()
+{document.images[btworight].src='square.gif' , btwoleft=btwoleft+1 , btwoup=btwoup+1 , btwodown=btwodown+1 , btworight=btworight+1 , btwoon=btwoon+1 , document.images[btwoleft].src=document.images[btwoleft].name}
+
+
+function uthreeleftf()
+{document.images[uthreeleft].src='triangle.gif' , uthreeleft=uthreeleft-1 , uthreeup=uthreeup-1 , uthreedown=uthreedown-1 , uthreeright=uthreeright-1 , uthreeon=uthreeon-1 , document.images[uthreeright].src=document.images[uthreeright].name}
+function uthreedownf()
+{document.images[uthreedown].src='triangle.gif' , uthreeleft=uthreeleft+15 , uthreeup=uthreeup+15 , uthreedown=uthreedown+15 , uthreeright=uthreeright+15 , uthreeon=uthreeon+15 , document.images[uthreeup].src=document.images[uthreeup].name}
+function uthreeupf()
+{document.images[uthreeup].src='triangle.gif' , uthreeleft=uthreeleft-15 , uthreeup=uthreeup-15 , uthreedown=uthreedown-15 , uthreeright=uthreeright-15 , uthreeon=uthreeon-15 , document.images[uthreedown].src=document.images[uthreedown].name}
+function uthreerightf()
+{document.images[uthreeright].src='triangle.gif' , uthreeleft=uthreeleft+1 , uthreeup=uthreeup+1 , uthreedown=uthreedown+1 , uthreeright=uthreeright+1 , uthreeon=uthreeon+1 , document.images[uthreeleft].src=document.images[uthreeleft].name}
+
+function mthreeupf()
+{document.images[mthreeup].src='blob.gif' , mthreeleft=mthreeleft-15 , mthreeup=mthreeup-15 , mthreedown=mthreedown-15 , mthreeright=mthreeright-15 , mthreeon=mthreeon-15 , document.images[mthreedown].src=document.images[mthreedown].name}
+function mthreeleftf()
+{document.images[mthreeleft].src='blob.gif' , mthreeleft=mthreeleft-1 , mthreeup=mthreeup-1 , mthreedown=mthreedown-1 , mthreeright=mthreeright-1 , mthreeon=mthreeon-1 , document.images[mthreeright].src=document.images[mthreeright].name}
+function mthreedownf()
+{document.images[mthreedown].src='blob.gif' , mthreeleft=mthreeleft+15 , mthreeup=mthreeup+15 , mthreedown=mthreedown+15 , mthreeright=mthreeright+15 , mthreeon=mthreeon+15 , document.images[mthreeup].src=document.images[mthreeup].name}
+function mthreerightf()
+{document.images[mthreeright].src='blob.gif' , mthreeleft=mthreeleft+1 , mthreeup=mthreeup+1 , mthreedown=mthreedown+1 , mthreeright=mthreeright+1 , mthreeon=mthreeon+1 , document.images[mthreeleft].src=document.images[mthreeleft].name}
+
+function bthreeupf()
+{document.images[bthreeup].src='square.gif' , bthreeleft=bthreeleft-15 , bthreeup=bthreeup-15 , bthreedown=bthreedown-5 , bthreeright=bthreeright-15 , bthreeon=bthreeon-15 , document.images[bthreedown].src=document.images[bthreedown].name}
+function bthreeleftf()
+{document.images[bthreeleft].src='square.gif' , bthreeleft=bthreeleft-1 , bthreeup=bthreeup-1 , bthreedown=bthreedown-1 , bthreeright=bthreeright-1 , bthreeon=bthreeon-1 , document.images[bthreeright].src=document.images[bthreeright].name}
+function bthreedownf()
+{document.images[bthreedown].src='square.gif' , bthreeleft=bthreeleft+15 , bthreeup=bthreeup+15 , bthreedown=bthreedown+15 , bthreeright=bthreeright+15 , bthreeon=bthreeon+15 , document.images[bthreeup].src=document.images[bthreeup].name}
+function bthreerightf()
+{document.images[bthreeright].src='square.gif' , bthreeleft=bthreeleft+1 , bthreeup=bthreeup+1 , bthreedown=bthreedown+1 , bthreeright=bthreeright+1 , bthreeon=bthreeon+1 , document.images[bthreeleft].src=document.images[bthreeleft].name}
+
+
+function ufourleftf()
+{document.images[ufourleft].src='triangle.gif' , ufourleft=ufourleft-1 , ufourup=ufourup-1 , ufourdown=ufourdown-1 , ufourright=ufourright-1 , ufouron=ufouron-1 , document.images[ufourright].src=document.images[ufourright].name}
+function ufourdownf()
+{document.images[ufourdown].src='triangle.gif' , ufourleft=ufourleft+15 , ufourup=ufourup+15 , ufourdown=ufourdown+15 , ufourright=ufourright+15 , ufouron=ufouron+15 , document.images[ufourup].src=document.images[ufourup].name}
+function ufourupf()
+{document.images[ufourup].src='triangle.gif' , ufourleft=ufourleft-15 , ufourup=ufourup-15 , ufourdown=ufourdown-15 , ufourright=ufourright-15 , ufouron=ufouron-15 , document.images[ufourdown].src=document.images[ufourdown].name}
+function ufourrightf()
+{document.images[ufourright].src='triangle.gif' , ufourleft=ufourleft+1 , ufourup=ufourup+1 , ufourdown=ufourdown+1 , ufourright=ufourright+1 , ufouron=ufouron+1 , document.images[ufourleft].src=document.images[ufourleft].name}
+
+function mfourupf()
+{document.images[mfourup].src='blob.gif' , mfourleft=mfourleft-15 , mfourup=mfourup-15 , mfourdown=mfourdown-15 , mfourright=mfourright-15 , mfouron=mfouron-15 , document.images[mfourdown].src=document.images[mfourdown].name}
+function mfourleftf()
+{document.images[mfourleft].src='blob.gif' , mfourleft=mfourleft-1 , mfourup=mfourup-1 , mfourdown=mfourdown-1 , mfourright=mfourright-1 , mfouron=mfouron-1 , document.images[mfourright].src=document.images[mfourright].name}
+function mfourdownf()
+{document.images[mfourdown].src='blob.gif' , mfourleft=mfourleft+15 , mfourup=mfourup+15 , mfourdown=mfourdown+15 , mfourright=mfourright+15 , mfouron=mfouron+15 , document.images[mfourup].src=document.images[mfourup].name}
+function mfourrightf()
+{document.images[mfourright].src='blob.gif' , mfourleft=mfourleft+1 , mfourup=mfourup+1 , mfourdown=mfourdown+1 , mfourright=mfourright+1 , mfouron=mfouron+1 , document.images[mfourleft].src=document.images[mfourleft].name}
+
+function bfourupf()
+{document.images[bfourup].src='square.gif' , bfourleft=bfourleft-15 , bfourup=bfourup-15 , bfourdown=bfourdown-15 , bfourright=bfourright-15 , bfouron=bfouron-15 , document.images[bfourdown].src=document.images[bfourdown].name}
+function bfourleftf()
+{document.images[bfourleft].src='square.gif' , bfourleft=bfourleft-1 , bfourup=bfourup-1 , bfourdown=bfourdown-1 , bfourright=bfourright-1 , bfouron=bfouron-1 , document.images[bfourright].src=document.images[bfourright].name}
+function bfourdownf()
+{document.images[bfourdown].src='square.gif' , bfourleft=bfourleft+15 , bfourup=bfourup+15 , bfourdown=bfourdown+15 , bfourright=bfourright+15 , bfouron=bfouron+15 , document.images[bfourup].src=document.images[bfourup].name}
+function bfourrightf()
+{document.images[bfourright].src='square.gif' , bfourleft=bfourleft+1 , bfourup=bfourup+1 , bfourdown=bfourdown+1 , bfourright=bfourright+1 , bfouron=bfouron+1 , document.images[bfourleft].src=document.images[bfourleft].name}
+
+
+
+function ufiveleftf()
+{document.images[ufiveleft].src='triangle.gif' , ufiveleft=ufiveleft-1 , ufiveup=ufiveup-1 , ufivedown=ufivedown-1 , ufiveright=ufiveright-1 , ufiveon=ufiveon-1 , document.images[ufiveright].src=document.images[ufiveright].name}
+function ufivedownf()
+{document.images[ufivedown].src='triangle.gif' , ufiveleft=ufiveleft+15 , ufiveup=ufiveup+15 , ufivedown=ufivedown+15 , ufiveright=ufiveright+15 , ufiveon=ufiveon+15 , document.images[ufiveup].src=document.images[ufiveup].name}
+function ufiveupf()
+{document.images[ufiveup].src='triangle.gif' , ufiveleft=ufiveleft-5 , ufiveup=ufiveup-15 , ufivedown=ufivedown-15 , ufiveright=ufiveright-15 , ufiveon=ufiveon-15 , document.images[ufivedown].src=document.images[ufivedown].name}
+function ufiverightf()
+{document.images[ufiveright].src='triangle.gif' , ufiveleft=ufiveleft+1 , ufiveup=ufiveup+1 , ufivedown=ufivedown+1 , ufiveright=ufiveright+1 , ufiveon=ufiveon+1 , document.images[ufiveleft].src=document.images[ufiveleft].name}
+
+function mfiveupf()
+{document.images[mfiveup].src='blob.gif' , mfiveleft=mfiveleft-15 , mfiveup=mfiveup-15 , mfivedown=mfivedown-15 , mfiveright=mfiveright-15 , mfiveon=mfiveon-15 , document.images[mfivedown].src=document.images[mfivedown].name}
+function mfiveleftf()
+{document.images[mfiveleft].src='blob.gif' , mfiveleft=mfiveleft-1 , mfiveup=mfiveup-1 , mfivedown=mfivedown-1 , mfiveright=mfiveright-1 , mfiveon=mfiveon-1 , document.images[mfiveright].src=document.images[mfiveright].name}
+function mfivedownf()
+{document.images[mfivedown].src='blob.gif' , mfiveleft=mfiveleft+15 , mfiveup=mfiveup+15 , mfivedown=mfivedown+15 , mfiveright=mfiveright+15 , mfiveon=mfiveon+15 , document.images[mfiveup].src=document.images[mfiveup].name}
+function mfiverightf()
+{document.images[mfiveright].src='blob.gif' , mfiveleft=mfiveleft+1 , mfiveup=mfiveup+1 , mfivedown=mfivedown+1 , mfiveright=mfiveright+1 , mfiveon=mfiveon+1 , document.images[mfiveleft].src=document.images[mfiveleft].name}
+
+function bfiveupf()
+{document.images[bfiveup].src='square.gif' , bfiveleft=bfiveleft-15 , bfiveup=bfiveup-15 , bfivedown=bfivedown-15 , bfiveright=bfiveright-15 , bfiveon=bfiveon-15 , document.images[bfivedown].src=document.images[bfivedown].name}
+function bfiveleftf()
+{document.images[bfiveleft].src='square.gif' , bfiveleft=bfiveleft-1 , bfiveup=bfiveup-1 , bfivedown=bfivedown-1 , bfiveright=bfiveright-1 , bfiveon=bfiveon-1 , document.images[bfiveright].src=document.images[bfiveright].name}
+function bfivedownf()
+{document.images[bfivedown].src='square.gif' , bfiveleft=bfiveleft+15 , bfiveup=bfiveup+15 , bfivedown=bfivedown+15 , bfiveright=bfiveright+15 , bfiveon=bfiveon+15 , document.images[bfiveup].src=document.images[bfiveup].name}
+function bfiverightf()
+{document.images[bfiveright].src='square.gif' , bfiveleft=bfiveleft+1 , bfiveup=bfiveup+1 , bfivedown=bfivedown+1 , bfiveright=bfiveright+1 , bfiveon=bfiveon+1 , document.images[bfiveleft].src=document.images[bfiveleft].name}
+
+
+//function go_up()
+//{document.images[fup].src='up.gif' , fdown=fdown-15 , fup=fup-15 , fon=fon-15 , document.images[fdown].src=document.images[fdown].name}
+
+function rocketgo_down()
+{document.images[ronedown].src='down.gif' , ronedown=ronedown+15 , roneup=roneup+15 , roneon=roneon+15 , document.images[roneup].src = document.images[roneup].name}
+
+
+function fly_right()
+{document.images[flyright].src='flyover.gif' , flyright=flyright+1 , flyleft=flyleft+1 , flyon=flyon+1 , document.images[flyleft].src="blank.gif" , document.images[flyleft].name="blank.gif";}
+
+function firstgo_up()
+{document.images[fup].src="up.gif" , fup=fup-15 , fdown=fdown-15 , fon=fon-15 , themissile="old"}
+function go_up()
+{document.images[fup].src='up.gif' , document.images[fon].src = document.images[fon].name , fdown=fdown-15 , fup=fup-15 , fon=fon-15}
+function go_right()
+{document.images[right].src='ship.gif' , right=right+1 , left=left+1 , down=down+1 , up=up+1 , on=on+1 , document.images[left].src="blank.gif" , document.images[left].name="blank.gif";}
+function go_left()
+{document.images[left].src='ship.gif' , right=right-1 , left=left-1 , down=down-1 , up=up-1 , on=on-1 , document.images[right].src="blank.gif" , document.images[right].name="blank.gif";}
+function go_down()
+{document.images[rdown].src='down.gif' , rdown=rdown+15 , rup=rup+15 , ron=ron+15 , document.images[rup].src=document.images[rup].name;}
+
+//the functions that make the aliens move
+
+function allmoveleft()
+{
+if (uonelive !== "dead"){uoneleftf()}
+if (monelive !== "dead"){moneleftf()}
+if (bonelive !== "dead"){boneleftf()}
+if (utwolive !== "dead"){utwoleftf()}
+if (mtwolive !== "dead"){mtwoleftf()}
+if (btwolive !== "dead"){btwoleftf()}
+if (uthreelive !== "dead"){uthreeleftf()}
+if (mthreelive !== "dead"){mthreeleftf()}
+if (bthreelive !== "dead"){bthreeleftf()}
+if (ufourlive !== "dead"){ufourleftf()}
+if (mfourlive !== "dead"){mfourleftf()}
+if (bfourlive !== "dead"){bfourleftf()}
+if (ufivelive !== "dead"){ufiveleftf()}
+if (mfivelive !== "dead"){mfiveleftf()}
+if (bfivelive !== "dead"){bfiveleftf()}
+}
+
+function allmovedown()
+{
+if (bfivelive !== "dead"){bfivedownf()}
+if (bfourlive !== "dead"){bfourdownf()}
+if (bthreelive !== "dead"){bthreedownf()}
+if (btwolive !== "dead"){btwodownf()}
+if (bonelive !== "dead"){bonedownf()}
+if (mfivelive !== "dead"){mfivedownf()}
+if (mfourlive !== "dead"){mfourdownf()}
+if (mthreelive !== "dead"){mthreedownf()}
+if (mtwolive !== "dead"){mtwodownf()}
+if (monelive !== "dead"){monedownf()}
+if (ufivelive !== "dead"){ufivedownf()}
+if (ufourlive !== "dead"){ufourdownf()}
+if (uthreelive !== "dead"){uthreedownf()}
+if (utwolive !== "dead"){utwodownf()}
+if (uonelive !== "dead"){uonedownf()}
+}
+
+function allmoveright()
+{
+if (ufivelive !== "dead"){ufiverightf();}
+if (mfivelive !== "dead"){mfiverightf();}
+if (bfivelive !== "dead"){bfiverightf();}
+if (ufourlive !== "dead"){ufourrightf();}
+if (mfourlive !== "dead"){mfourrightf();}
+if (bfourlive !== "dead"){bfourrightf();}
+if (uthreelive !== "dead"){uthreerightf();}
+if (mthreelive !== "dead"){mthreerightf();}
+if (bthreelive !== "dead"){bthreerightf();}
+if (utwolive !== "dead"){utworightf();}
+if (mtwolive !== "dead"){mtworightf();}
+if (btwolive !== "dead"){btworightf();}
+if (uonelive !== "dead"){uonerightf();}
+if (monelive !== "dead"){monerightf();}
+if (bonelive !== "dead"){bonerightf();}
+}
+
+// functions that make you lose when the aliens hit the bottom of the screen 
+
+function lose()
+{
+if (uoneon > 165){alertlosing()};
+if (moneon > 165){alertlosing()};
+if (boneon > 165){alertlosing()};
+if (utwoon > 167){alertlosing()};
+if (mtwoon > 167){alertlosing()};
+if (btwoon > 167){alertlosing()};
+if (uthreeon > 169){alertlosing()};
+if (mthreeon > 169){alertlosing()};
+if (bthreeon > 169){alertlosing()};
+if (ufouron > 171){alertlosing()};
+if (mfouron > 171){alertlosing()};
+if (bfouron > 171){alertlosing()};
+if (ufiveon > 173){alertlosing()};
+if (mfiveon > 173){alertlosing()};
+if (bfiveon > 173){alertlosing()};
+}
+var haveyoulost = "no"
+function alertlosing()
+{if (haveyoulost == "no")
+{lost="yes" , alert('You lose!') , location.href="lost.htm"}}
+//the functions to move the aliens left and right down the screen
+var moves = 0
+
+function moveall()
+{if(moves == 70)
+{moves = 71
+allmoveright()}
+if(moves == 69)
+{moves = 70
+allmovedown()}
+if(moves == 68)
+{moves = 69
+allmoveleft()}
+if(moves == 67)
+{moves = 68
+allmoveleft()}
+if(moves == 66)
+{moves = 67
+allmoveleft()}
+if(moves == 65)
+{moves = 66
+allmoveleft()}
+if(moves == 64)
+{moves = 65
+allmoveleft()}
+if(moves == 63)
+{moves = 64
+allmoveleft()}
+if (moves == 62)
+{moves = 63
+allmovedown()}
+if (moves == 61)
+{moves = 62
+allmoveright()}
+if (moves == 60)
+{moves = 61
+allmoveright()}
+if (moves == 59)
+{moves = 60
+allmoveright()}
+if (moves == 58)
+{moves = 59
+allmoveright()}
+if (moves == 57)
+{moves = 58
+allmoveright()}
+if (moves == 56)
+{moves = 57
+allmoveright()}
+if (moves == 55)
+{moves = 56
+allmovedown()}
+if (moves == 54)
+{moves = 55
+allmoveleft()}
+if (moves == 53)
+{moves = 54
+allmoveleft()}
+if (moves == 52)
+{moves = 53
+allmoveleft()}
+if (moves == 51)
+{moves = 52
+allmoveleft()}
+if (moves == 50)
+{moves = 51
+allmoveleft()}
+if (moves == 49)
+{moves = 50
+allmoveleft()}
+if (moves == 48)
+{moves = 49
+allmovedown()}
+if (moves == 47)
+{moves = 48
+allmoveright()}
+if (moves == 46)
+{moves = 47
+allmoveright()}
+if (moves == 45)
+{moves = 46
+allmoveright()}
+if (moves == 44)
+{moves = 45
+allmoveright()}
+if (moves == 43)
+{moves = 44
+allmoveright()}
+if (moves == 42)
+{moves = 43
+allmoveright()}
+if (moves == 41)
+{moves = 42
+allmovedown()}
+if (moves == 40)
+{moves = 41
+allmoveleft()}
+if (moves == 39)
+{moves = 40
+allmoveleft()}
+if (moves == 38)
+{moves = 39
+allmoveleft()}
+if (moves == 37)
+{moves = 38
+allmoveleft()}
+if (moves == 36)
+{moves = 37
+allmoveleft()}
+if (moves == 35)
+{moves = 36
+allmoveleft()}
+if (moves == 34)
+{moves = 35
+allmovedown()}
+if (moves == 33)
+{moves = 34
+allmoveright()}
+if (moves == 32)
+{moves = 33
+allmoveright()}
+if (moves == 31)
+{moves = 32
+allmoveright()}
+if (moves == 30)
+{moves = 31
+allmoveright()}
+if (moves == 29)
+{moves = 30
+allmoveright()}
+if (moves == 28)
+{moves = 29
+allmoveright()}
+if (moves == 27)
+{moves = 28
+allmovedown()}
+if (moves == 26)
+{moves = 27
+allmoveleft()}
+if (moves == 25)
+{moves = 26
+allmoveleft()}
+if (moves == 24)
+{moves = 25
+allmoveleft()}
+if (moves == 23)
+{moves = 24
+allmoveleft()}
+if (moves == 22)
+{moves = 23
+allmoveleft()}
+if (moves == 21)
+{moves = 22
+allmoveleft()}
+if (moves == 20)
+{moves = 21
+allmovedown()}
+if (moves == 19)
+{moves = 20
+allmoveright()}
+if (moves == 18)
+{moves = 19
+allmoveright()}
+if (moves == 17)
+{moves = 18
+allmoveright()}
+if (moves == 16)
+{moves = 17
+allmoveright()}
+if (moves == 15)
+{moves = 16
+allmoveright()}
+if (moves == 14)
+{moves = 15
+allmoveright()}
+if (moves == 13)
+{moves = 14
+allmovedown()}
+if (moves == 12)
+{moves = 13
+allmoveleft()}
+if (moves == 11)
+{moves = 12
+allmoveleft()}
+if (moves == 10)
+{moves = 11
+allmoveleft()}
+if (moves == 9)
+{moves = 10
+allmoveleft()}
+if (moves == 8)
+{moves = 9
+allmoveleft()}
+if(moves == 7)
+{moves = 8
+allmoveleft()}
+if(moves == 6)
+{moves = 7
+allmovedown()}
+if(moves == 5)
+{moves = 6
+allmoveright()}
+if(moves == 4)
+{moves = 5
+allmoveright()}
+if(moves == 3)
+{moves = 4
+allmoveright()}
+if(moves == 2)
+{moves = 3
+allmoveright()}
+if(moves == 1)
+{moves = 2
+allmoveright()}
+if(moves == 0)
+{moves = 1
+allmoveright()}}
+
+function movemissile10()
+{
+
+if (fup == flyon)
+{endmissile() , endfly()}else{go_up()}
+}
+
+function movemissile9()
+{
+if (fup < 15)
+{endmissile()}else{movemissile10()}
+}
+
+function movemissile8()
+{if (fon == 149)
+{if (blockeight == "gone")
+{movemissile9()}
+if (blockeight == "damaged")
+{endmissile() , document.images[fup].src="blank.gif" , document.images[fup].name="blank.gif" , blockeight="gone"}
+if (blockeight == "fine")
+{endmissile() , document.images[fup].src="upsmashed.gif" , document.images[fup].name="upsmashed.gif" , blockeight="damaged"}}else{movemissile9()}}
+
+function movemissile7()
+{if (fon == 147)
+{if (blockseven == "gone")
+{movemissile8()}
+if (blockseven == "damaged")
+{endmissile() , document.images[fup].src="blank.gif" , document.images[fup].name="blank.gif" , blockseven="gone"}
+if (blockseven == "fine")
+{endmissile() , document.images[fup].src="upsmashed.gif" , document.images[fup].name="upsmashed.gif" , blockseven="damaged"}}else{movemissile8()}}
+
+function movemissile6()
+{if (fon == 145)
+{if (blocksix == "gone")
+{movemissile7()}
+if (blocksix == "damaged")
+{endmissile() , document.images[fup].src="blank.gif" , document.images[fup].name="blank.gif" , blocksix="gone"}
+if (blocksix == "fine")
+{endmissile() , document.images[fup].src="upsmashed.gif" , document.images[fup].name="upsmashed.gif" , blocksix="damaged"}}else{movemissile7()}}
+
+function movemissile5()
+{if (fon == 143)
+{if (blockfive == "gone")
+{movemissile6()}
+if (blockfive == "damaged")
+{endmissile() , document.images[fup].src="blank.gif" , document.images[fup].name="blank.gif" , blockfive="gone"}
+if (blockfive == "fine")
+{endmissile() , document.images[fup].src="upsmashed.gif" , document.images[fup].name="upsmashed.gif" , blockfive="damaged"}}else{movemissile6()}}
+
+function movemissile4()
+{if (fon == 141)
+{if (blockfour == "gone")
+{movemissile5()}
+if (blockfour == "damaged")
+{endmissile() , document.images[fup].src="blank.gif" , document.images[fup].name="blank.gif" , blockfour="gone"}
+if (blockfour == "fine")
+{endmissile() , document.images[fup].src="upsmashed.gif"  , document.images[fup].name="upsmashed.gif", blockfour="damaged"}}else{movemissile5()}}
+
+function movemissile3()
+{if (fon == 139)
+{if (blockthree == "gone")
+{movemissile4()}
+if (blockthree == "damaged")
+{endmissile() , document.images[fup].src="blank.gif" , document.images[fup].name="blank.gif" , blockthree="gone"}
+if (blockthree == "fine")
+{endmissile() , document.images[fup].src="upsmashed.gif" , document.images[fup].name="upsmashed.gif" , blockthree="damaged"}}else{movemissile4()}}
+
+function movemissile2()
+{if (fon == 137)
+{if (blocktwo == "gone")
+{movemissile3()}
+if (blocktwo == "damaged")
+{endmissile() , document.images[fup].src="blank.gif" , document.images[fup].name="blank.gif" , blocktwo="gone"}
+if (blocktwo == "fine")
+{endmissile() , document.images[fup].src="upsmashed.gif" , document.images[fup].name="upsmashed.gif" , blocktwo="damaged"}}else{movemissile3()}}
+
+function movemissile()
+{if (fon == 135)
+{if (blockone == "gone")
+{movemissile2()}
+if (blockone == "damaged")
+{endmissile() , document.images[fup].src="blank.gif" , document.images[fup].name="blank.gif" , blockone="gone"}
+if (blockone == "fine")
+{endmissile() , document.images[fup].src="upsmashed.gif" , document.images[fup].name="upsmashed.gif" , blockone="damaged"}}else{movemissile2()}}
+
+function endmissile()
+{document.images[fon].src = document.images[fon].name , missile = "no"}
+
+function hit()
+{if (fon == uoneon){uonelive = "dead" , endmissile() , uoneon=0 , hitted++, score++, score++, score++}
+if (fon == moneon){monelive = "dead" , endmissile() , moneon=0 , hitted++, score++, score++}
+if (fon == boneon){bonelive = "dead" , endmissile() , boneon=0 , hitted++, score++}
+if (fon == utwoon){utwoon=0 , utwolive = "dead" , endmissile() , hitted++, score++, score++, score++}
+if (fon == mtwoon){mtwoon=0 , mtwolive = "dead" , endmissile() , hitted++, score++, score++}
+if (fon == btwoon){btwoon=0 , btwolive = "dead" , endmissile() , hitted++, score++}
+if (fon == uthreeon){uthreeon=0 , uthreelive = "dead" , endmissile() , hitted++, score++, score++, score++}
+if (fon == mthreeon){mthreeon=0 , mthreelive = "dead" , endmissile() , hitted++, score++, score++}
+if (fon == bthreeon){bthreeon=0 , bthreelive = "dead" , endmissile() , hitted++, score++}
+if (fon == ufouron){ufouron=0 , ufourlive = "dead" , endmissile() , hitted++, score++, score++, score++}
+if (fon == mfouron){mfouron=0 , mfourlive = "dead" , endmissile() , hitted++, score++, score++}
+if (fon == bfouron){bfouron=0 , bfourlive = "dead" , endmissile() , hitted++, score++}
+if (fon == ufiveon){ufiveon=0 , ufivelive = "dead" , endmissile() , hitted++, score++, score++, score++}
+if (fon == mfiveon){mfiveon=0 , mfivelive = "dead" , endmissile() , hitted++, score++, score++}
+if (fon == bfiveon){bfiveon=0 , bfivelive = "dead" , endmissile() , hitted++, score++}
+if (fon == flyon){endfly(), endmissile(), score=score+100}}
+
+function won()
+{if(hitted == 15)
+{alert('you scored: ' + score), location.href="won.htm"}}
+
+
+function areyouhit()
+{if (roneon == on)
+{document.images[on].src="boom.gif" , alert('You have been hit.  You scored: '+score) , location.href="lost.htm"}}
+
+
+function endrocket()
+{document.images[roneon].src=document.images[roneon].name , document.images[ronedown].src=document.images[ronedown].name , rocketone="no"}
+
+
+
+
+function moverocket9()
+{if (ronedown == 149)
+{if (blockeight == "gone")
+{rocketgo_down()}
+if (blockeight == "damaged")
+{endrocket() , document.images[roneon].src="blank.gif" , document.images[roneon].name="blank.gif" , blockeight="gone"}
+if (blockeight == "fine")
+{endrocket() , document.images[roneon].src="downsmashed.gif" , document.images[roneon].name="downsmashed.gif" , blockeight="damaged"}}else{rocketgo_down()}}
+
+
+function moverocket8()
+{if (ronedown == 147)
+{if (blockseven == "gone")
+{moverocket9()}
+if (blockseven == "damaged")
+{endrocket() , document.images[roneon].src="blank.gif" , document.images[roneon].name="blank.gif" , blockseven="gone"}
+if (blockseven == "fine")
+{endrocket() , document.images[roneon].src="downsmashed.gif" , document.images[roneon].name="downsmashed.gif" , blockseven="damaged"}}else{moverocket9()}}
+
+function moverocket7()
+{if (ronedown == 145)
+{if (blocksix == "gone")
+{moverocket8()}
+if (blocksix == "damaged")
+{endrocket() , document.images[roneon].src="blank.gif" , document.images[roneon].name="blank.gif" , blocksix="gone"}
+if (blocksix == "fine")
+{endrocket() , document.images[roneon].src="downsmashed.gif" , document.images[roneon].name="downsmashed.gif" , blocksix="damaged"}}else{moverocket9()}}
+
+function moverocket6()
+{if (ronedown == 143)
+{if (blockfive == "gone")
+{moverocket7()}
+if (blockfive == "damaged")
+{endrocket() , document.images[roneon].src="blank.gif" , document.images[roneon].name="blank.gif" , blockfive="gone"}
+if (blockfive == "fine")
+{endrocket() , document.images[roneon].src="downsmashed.gif" , document.images[roneon].name="downsmashed.gif" , blockfive="damaged"}}else{moverocket7()}}
+
+function moverocket5()
+{if (ronedown == 141)
+{if (blockfour == "gone")
+{moverocket6()}
+if (blockfour == "damaged")
+{endrocket() , document.images[roneon].src="blank.gif" , document.images[roneon].name="blank.gif" , blockfour="gone"}
+if (blockfour == "fine")
+{endrocket() , document.images[roneon].src="downsmashed.gif" , document.images[roneon].name="downsmashed.gif" , blockfour="damaged"}}else{moverocket6()}}
+
+function moverocket4()
+{if (ronedown == 139)
+{if (blockthree == "gone")
+{moverocket5()}
+if (blockthree == "damaged")
+{endrocket() , document.images[roneon].src="blank.gif" , document.images[roneon].name="blank.gif" , blockthree="gone"}
+if (blockthree == "fine")
+{endrocket() , document.images[roneon].src="downsmashed.gif" , document.images[roneon].name="downsmashed.gif" , blockthree="damaged"}}else{moverocket5()}}
+
+function moverocket3()
+{if (ronedown == 137)
+{if (blocktwo == "gone")
+{moverocket4()}
+if (blocktwo == "damaged")
+{endrocket() , document.images[roneon].src="blank.gif" , document.images[roneon].name="blank.gif" , blocktwo="gone"}
+if (blocktwo == "fine")
+{endrocket() , document.images[roneon].src="downsmashed.gif" , document.images[roneon].name="downsmashed.gif" , blocktwo="damaged"}}else{moverocket4()}}
+
+function moverocket2()
+{if (ronedown == 135)
+{if (blockone == "gone")
+{moverocket3()}
+if (blockone == "damaged")
+{endrocket() , document.images[roneon].src="blank.gif" , document.images[roneon].name="blank.gif" , blockone="gone"}
+if (blockone == "fine")
+{endrocket() , document.images[roneon].src="downsmashed.gif" , document.images[roneon].name="downsmashed.gif" , blockone="damaged"}}else{moverocket3()}}
+
+
+
+function moverocket()
+{
+if (ronedown > 180)
+{endrocket()}else{moverocket2()}
+}
+
+var flyingover = "no"
+
+function endfly()
+{
+flyingover = "no" , document.images[flyon].src="blank.gif"
+}
+
+function movefly()
+{
+if (flyright !== 30)
+{fly_right()}else{endfly()}
+}
+
+
+function flyover()
+{
+flyon = 15
+flyright = 16
+flyleft = 14
+flyingover = "yes"
+}
+
+
+var goes3 = 0
+var goes2 = 1
+
+function whatdo()
+{
+
+won();
+window.status="you scored: " + score
+if (goes3 == 100)
+{goes3=0 , flyover()}else{goes3++}
+
+theyfire1();
+
+if (missile == "yes")
+{if (themissile == "new")
+{firstgo_up() , hit()}else{movemissile() , hit()}}
+
+
+
+if (goes2 == 2)
+{if (flyingover == "yes")
+{movefly()}
+if (rocketone == "yes")
+{areyouhit() , moverocket() , areyouhit()}
+goes2 = 0
+}else{goes2++}
+
+
+if (goes == 4)
+{moveall();
+lose();
+goes=0}else{goes++}}
+
+
+function theyfire1()
+{if (rocketone == "no")
+{if (btwolive !== "dead")
+{
+if(btwoon < 135)
+{
+roneup = btwoup
+ronedown = btwodown
+roneon = btwoon
+rocketone = "yes"}}else{
+if (bfourlive !== "dead")
+{
+if(bfouron < 135)
+{
+roneup = bfourup
+ronedown = bfourdown
+roneon = bfouron
+rocketone = "yes"}}else{
+if (bthreelive !=="dead")
+{
+if(bthreeon < 135)
+{
+roneup = bthreeup
+ronedown = bthreedown
+roneon = bthreeon
+rocketone = "yes"}}else{
+if (bonelive !== "dead")
+{
+if(boneon < 135)
+{
+roneup = boneup
+ronedown = bonedown
+roneon = boneon
+rocketone = "yes"}}else{
+if (bfivelive !== "dead")
+{
+if(bfiveon < 135)
+{
+roneup = bfiveup
+ronedown = bfivedown
+roneon = bfiveon
+rocketone = "yes"}}
+}
+}}}}}
+
+function fire()
+{if (missile == "no")
+{fup = up
+fdown = down
+fon = on
+missile = "yes"
+themissile = "new"}}
+
+// functions that stop you moving off the edge off the screen
+
+function canugo_right()
+{if (on == 179){}else{go_right()}}
+
+function canugo_left()
+{if (on == 165){}else{go_left()}}
+//-->
+</script>
+</head>
+<BODY onkeydown="javascript:keyDown()" onLoad="timerId = setInterval('whatdo()', 100)">
+<script language="javascript">
+<!--
+
+//onkeydown="javascript:keyDown()"
+function FFkeyDown(e)
+{
+if(e.which == 39){alert('canyuyoiugoright') , canugo_right()}
+if(e.which == 39){canugo_right()}
+else
+if(e.which == 37){canugo_left()}
+else
+if(e.which == 32){fire()}
+else
+if(e.which == 80){alert('paused')};
+}
+
+function IEkeyDown()
+{
+if(event.keyCode == 39){canugo_right()}
+else
+if(event.keyCode == 37){canugo_left()}
+else
+if(event.keyCode == 32){fire()}
+else
+if(event.keyCode == 80){alert('paused')};
+}
+//-->
+</script> 
+</span>
+
+
+<script language="JavaScript" type="text/javascript">
+<!--
+var endofscript = '</script>'
+
+var fforie;
+
+if (navigator.appName == "Microsoft Internet Explorer")
+{fforie = true}
+
+if (fforie == true){
+
+document.writeln('<script>')
+document.writeln('function keyDown()')
+document.writeln('{')
+document.writeln('if(event.keyCode == 39)')
+document.writeln('{canugo_right()}')
+document.writeln('else')
+document.writeln('if(event.keyCode == 37)')
+document.writeln('{canugo_left()}')
+document.writeln('else')
+document.writeln('if(event.keyCode == 32){fire()}')
+document.writeln('else')
+document.writeln('if(event.keyCode == 80){alert("paused")};')
+document.writeln('}')
+document.writeln(endofscript)
+}
+else
+{document.writeln('<script>')
+document.writeln('function keyDown(e)')
+document.writeln('{')
+document.writeln('if(e.which == 39){canugo_right()}')
+document.writeln('if(e.which == 37){canugo_left()}')
+document.writeln('if(e.which == 32){fire()}')
+document.writeln('}')
+document.writeln('document.onkeydown=keyDown;')
+document.writeln(endofscript)}
+//-->
+</script>
+<center>
+<img src="blank.gif" name="blank.gif" width="25" height="25"><img src="blank.gif" name="blank.gif" width="25" height="25"><img src="blank.gif" name="blank.gif" width="25" height="25"><img src="blank.gif" name="blank.gif" width="25" height="25"><img src="blank.gif" name="blank.gif" width="25" height="25"><img src="blank.gif" name="blank.gif" width="25" height="25"><img src="blank.gif" name="blank.gif" width="25" height="25"><img src="blank.gif" name="blank.gif" width="25" height="25"><img src="blank.gif" name="blank.gif" width="25" height="25"><img src="blank.gif" name="blank.gif" width="25" height="25"><img src="blank.gif" name="blank.gif" width="25" height="25"><img src="blank.gif" name="blank.gif" width="25" height="25"><img src="blank.gif" name="blank.gif" width="25" height="25"><img src="blank.gif" name="blank.gif" width="25" height="25"><img src="blank.gif" name="blank.gif" width="25" height="25"><br>
+<img src="triangle.gif" name="blank.gif" width="25" height="25"><img src="blank.gif" name="blank.gif" width="25" height="25"><img src="triangle.gif" name="blank.gif" width="25" height="25"><img src="blank.gif" name="blank.gif" width="25" height="25"><img src="triangle.gif" name="blank.gif" width="25" height="25"><img src="blank.gif" name="blank.gif" width="25" height="25"><img src="triangle.gif" name="blank.gif" width="25" height="25"><img src="blank.gif" name="blank.gif" width="25" height="25"><img src="triangle.gif" name="blank.gif" width="25" height="25"><img src="blank.gif" name="blank.gif" width="25" height="25"><img src="blank.gif" name="blank.gif" width="25" height="25"><img src="blank.gif" name="blank.gif" width="25" height="25"><img src="blank.gif" name="blank.gif" width="25" height="25"><img src="blank.gif" name="blank.gif" width="25" height="25"><img src="blank.gif" name="blank.gif" width="25" height="25"><br>
+<img src="blob.gif" name="blank.gif" width="25" height="25"><img src="blank.gif" name="blank.gif" width="25" height="25"><img src="blob.gif" name="blank.gif" width="25" height="25"><img src="blank.gif" name="blank.gif" width="25" height="25"><img src="blob.gif" name="blank.gif" width="25" height="25"><img src="blank.gif" name="blank.gif" width="25" height="25"><img src="blob.gif" name="blank.gif" width="25" height="25"><img src="blank.gif" name="blank.gif" width="25" height="25"><img src="blob.gif" name="blank.gif" width="25" height="25"><img src="blank.gif" name="blank.gif" width="25" height="25"><img src="blank.gif" name="blank.gif" width="25" height="25"><img src="blank.gif" name="blank.gif" width="25" height="25"><img src="blank.gif" name="blank.gif" width="25" height="25"><img src="blank.gif" name="blank.gif" width="25" height="25"><img src="blank.gif" name="blank.gif" width="25" height="25"><br>
+<img src="square.gif" name="blank.gif" width="25" height="25"><img src="blank.gif" name="blank.gif" width="25" height="25"><img src="square.gif" name="blank.gif" width="25" height="25"><img src="blank.gif" name="blank.gif" width="25" height="25"><img src="square.gif" name="blank.gif" width="25" height="25"><img src="blank.gif" name="blank.gif" width="25" height="25"><img src="square.gif" name="blank.gif" width="25" height="25"><img src="blank.gif" name="blank.gif" width="25" height="25"><img src="square.gif" name="blank.gif" width="25" height="25"><img src="blank.gif" name="blank.gif" width="25" height="25"><img src="blank.gif" name="blank.gif" width="25" height="25"><img src="blank.gif" name="blank.gif" width="25" height="25"><img src="blank.gif" name="blank.gif" width="25" height="25"><img src="blank.gif" name="blank.gif" width="25" height="25"><img src="blank.gif" name="blank.gif" width="25" height="25"><br>
+<img src="blank.gif" name="blank.gif" width="25" height="25"><img src="blank.gif" name="blank.gif" width="25" height="25"><img src="blank.gif" name="blank.gif" width="25" height="25"><img src="blank.gif" name="blank.gif" width="25" height="25"><img src="blank.gif" name="blank.gif" width="25" height="25"><img src="blank.gif" name="blank.gif" width="25" height="25"><img src="blank.gif" name="blank.gif" width="25" height="25"><img src="blank.gif" name="blank.gif" width="25" height="25"><img src="blank.gif" name="blank.gif" width="25" height="25"><img src="blank.gif" name="blank.gif" width="25" height="25"><img src="blank.gif" name="blank.gif" width="25" height="25"><img src="blank.gif" name="blank.gif" width="25" height="25"><img src="blank.gif" name="blank.gif" width="25" height="25"><img src="blank.gif" name="blank.gif" width="25" height="25"><img src="blank.gif" name="blank.gif" width="25" height="25"><br>
+<img src="blank.gif" name="blank.gif" width="25" height="25"><img src="blank.gif" name="blank.gif" width="25" height="25"><img src="blank.gif" name="blank.gif" width="25" height="25"><img src="blank.gif" name="blank.gif" width="25" height="25"><img src="blank.gif" name="blank.gif" width="25" height="25"><img src="blank.gif" name="blank.gif" width="25" height="25"><img src="blank.gif" name="blank.gif" width="25" height="25"><img src="blank.gif" name="blank.gif" width="25" height="25"><img src="blank.gif" name="blank.gif" width="25" height="25"><img src="blank.gif" name="blank.gif" width="25" height="25"><img src="blank.gif" name="blank.gif" width="25" height="25"><img src="blank.gif" name="blank.gif" width="25" height="25"><img src="blank.gif" name="blank.gif" width="25" height="25"><img src="blank.gif" name="blank.gif" width="25" height="25"><img src="blank.gif" name="blank.gif" width="25" height="25"><br>
+<img src="blank.gif" name="blank.gif" width="25" height="25"><img src="blank.gif" name="blank.gif" width="25" height="25"><img src="blank.gif" name="blank.gif" width="25" height="25"><img src="blank.gif" name="blank.gif" width="25" height="25"><img src="blank.gif" name="blank.gif" width="25" height="25"><img src="blank.gif" name="blank.gif" width="25" height="25"><img src="blank.gif" name="blank.gif" width="25" height="25"><img src="blank.gif" name="blank.gif" width="25" height="25"><img src="blank.gif" name="blank.gif" width="25" height="25"><img src="blank.gif" name="blank.gif" width="25" height="25"><img src="blank.gif" name="blank.gif" width="25" height="25"><img src="blank.gif" name="blank.gif" width="25" height="25"><img src="blank.gif" name="blank.gif" width="25" height="25"><img src="blank.gif" name="blank.gif" width="25" height="25"><img src="blank.gif" name="blank.gif" width="25" height="25"><br>
+<img src="blank.gif" name="blank.gif" width="25" height="25"><img src="blank.gif" name="blank.gif" width="25" height="25"><img src="blank.gif" name="blank.gif" width="25" height="25"><img src="blank.gif" name="blank.gif" width="25" height="25"><img src="blank.gif" name="blank.gif" width="25" height="25"><img src="blank.gif" name="blank.gif" width="25" height="25"><img src="blank.gif" name="blank.gif" width="25" height="25"><img src="blank.gif" name="blank.gif" width="25" height="25"><img src="blank.gif" name="blank.gif" width="25" height="25"><img src="blank.gif" name="blank.gif" width="25" height="25"><img src="blank.gif" name="blank.gif" width="25" height="25"><img src="blank.gif" name="blank.gif" width="25" height="25"><img src="blank.gif" name="blank.gif" width="25" height="25"><img src="blank.gif" name="blank.gif" width="25" height="25"><img src="blank.gif" name="blank.gif" width="25" height="25"><br>
+
+<img src="block.gif" name="block.gif" width="25" height="25"><img src="blank.gif" name="blank.gif" width="25" height="25"><img src="block.gif" name="block.gif" width="25" height="25"><img src="blank.gif" name="blank.gif" width="25" height="25"><img src="block.gif" name="block.gif" width="25" height="25"><img src="blank.gif" name="blank.gif" width="25" height="25"><img src="block.gif" name="block.gif" width="25" height="25"><img src="blank.gif" name="blank.gif" width="25" height="25"><img src="block.gif" name="block.gif" width="25" height="25"><img src="blank.gif" name="blank.gif" width="25" height="25"><img src="block.gif" name="block.gif" width="25" height="25"><img src="blank.gif" name="blank.gif" width="25" height="25"><img src="block.gif" name="block.gif" width="25" height="25"><img src="blank.gif" name="blank.gif" width="25" height="25"><img src="block.gif" name="block.gif" width="25" height="25"><br>
+<img src="blank.gif" name="blank.gif" width="25" height="25"><img src="blank.gif" name="blank.gif" width="25" height="25"><img src="blank.gif" name="blank.gif" width="25" height="25"><img src="blank.gif" name="blank.gif" width="25" height="25"><img src="blank.gif" name="blank.gif" width="25" height="25"><img src="blank.gif" name="blank.gif" width="25" height="25"><img src="blank.gif" name="blank.gif" width="25" height="25"><img src="blank.gif" name="blank.gif" width="25" height="25"><img src="blank.gif" name="blank.gif" width="25" height="25"><img src="blank.gif" name="blank.gif" width="25" height="25"><img src="blank.gif" name="blank.gif" width="25" height="25"><img src="blank.gif" name="blank.gif" width="25" height="25"><img src="blank.gif" name="blank.gif" width="25" height="25"><img src="blank.gif" name="blank.gif" width="25" height="25"><img src="blank.gif" name="blank.gif" width="25" height="25"><br>
+<img src="blank.gif" name="blank.gif" width="25" height="25"><img src="blank.gif" name="blank.gif" width="25" height="25"><img src="blank.gif" name="blank.gif" width="25" height="25"><img src="blank.gif" name="blank.gif" width="25" height="25"><img src="blank.gif" name="blank.gif" width="25" height="25"><img src="blank.gif" name="blank.gif" width="25" height="25"><img src="blank.gif" name="blank.gif" width="25" height="25"><img src="blank.gif" name="blank.gif" width="25" height="25"><img src="blank.gif" name="blank.gif" width="25" height="25"><img src="blank.gif" name="blank.gif" width="25" height="25"><img src="blank.gif" name="blank.gif" width="25" height="25"><img src="blank.gif" name="blank.gif" width="25" height="25"><img src="blank.gif" name="blank.gif" width="25" height="25"><img src="blank.gif" name="blank.gif" width="25" height="25"><img src="blank.gif" name="blank.gif" width="25" height="25"><br>
+<img src="ship.gif" name="blank.gif" width="25" height="25"><img src="blank.gif" name="blank.gif" width="25" height="25"><img src="blank.gif" name="blank.gif" width="25" height="25"><img src="blank.gif" name="blank.gif" width="25" height="25"><img src="blank.gif" name="blank.gif" width="25" height="25"><img src="blank.gif" name="blank.gif" width="25" height="25"><img src="blank.gif" name="blank.gif" width="25" height="25"><img src="blank.gif" name="blank.gif" width="25" height="25"><img src="blank.gif" name="blank.gif" width="25" height="25"><img src="blank.gif" name="blank.gif" width="25" height="25"><img src="blank.gif" name="blank.gif" width="25" height="25"><img src="blank.gif" name="blank.gif" width="25" height="25"><img src="blank.gif" name="blank.gif" width="25" height="25"><img src="blank.gif" name="blank.gif" width="25" height="25"><img src="blank.gif" name="blank.gif" width="25" height="25"><br>
+<img src="blank.gif" name="blank.gif" width="25" height="25"><img src="blank.gif" name="blank.gif" width="25" height="25"><img src="blank.gif" name="blank.gif" width="25" height="25"><img src="blank.gif" name="blank.gif" width="25" height="25"><img src="blank.gif" name="blank.gif" width="25" height="25"><img src="blank.gif" name="blank.gif" width="25" height="25"><img src="blank.gif" name="blank.gif" width="25" height="25"><img src="blank.gif" name="blank.gif" width="25" height="25"><img src="blank.gif" name="blank.gif" width="25" height="25"><img src="blank.gif" name="blank.gif" width="25" height="25"><img src="blank.gif" name="blank.gif" width="25" height="25"><img src="blank.gif" name="blank.gif" width="25" height="25"><img src="blank.gif" name="blank.gif" width="25" height="25"><img src="blank.gif" name="blank.gif" width="25" height="25"><img src="blank.gif" name="blank.gif" width="25" height="25"><br>
+<img src="blank.gif" name="blank.gif" width="25" height="25"><img src="blank.gif" name="blank.gif" width="25" height="25"><img src="blank.gif" name="blank.gif" width="25" height="25"><img src="blank.gif" name="blank.gif" width="25" height="25"><img src="blank.gif" name="blank.gif" width="25" height="25"><img src="blank.gif" name="blank.gif" width="25" height="25"><img src="blank.gif" name="blank.gif" width="25" height="25"><img src="blank.gif" name="blank.gif" width="25" height="25"><img src="blank.gif" name="blank.gif" width="25" height="25"><img src="blank.gif" name="blank.gif" width="25" height="25"><img src="blank.gif" name="blank.gif" width="25" height="25"><img src="blank.gif" name="blank.gif" width="25" height="25"><img src="blank.gif" name="blank.gif" width="25" height="25"><img src="blank.gif" name="blank.gif" width="25" height="25"><img src="blank.gif" name="blank.gif" width="25" height="25"><br>
+</body>
+</html>
+

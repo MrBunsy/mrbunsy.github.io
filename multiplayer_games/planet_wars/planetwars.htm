@@ -1,0 +1,1547 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html>
+<head><title>Planet Wars 0.32 - Luke's 2D JavaScript Engine version 2.18</title>
+<style type="text/css">
+body {color:white}
+a {color:white}
+</style>
+<script type="text/javascript">
+<!--
+var IE=false;
+//-->
+</script>
+<script src="2D_engine2.18_PW8.js" type="text/javascript"></script>
+<script src="sandbox_divwindows.js" type="text/javascript"></script>
+<!--[if IE]><script type="text/javascript" src="excanvas_gradstuff_compressed.js"></script>
+
+<script type="text/javascript">
+<!--
+IE=true;
+//-->
+</script>
+
+<![endif]-->
+</head>
+<body onload="setupcanvas();" bgcolor="black">
+<div id="worldspan" style="position:absolute;top:17;left:12;display:none;width:800;height:550;z-index:2;" onMouseDown="mousemovearrow();mousedown=true;checkclick(false);"></div>
+<span id="linespan" style="position:absolute;top:16;left:11;display:block;"></span>
+<span id="windowspan"></span>
+<div style="position:absolute;left:830;top:20;">
+<b>Local Planet Wars</b><br>
+<a href="../lobby" >Play Online</a><br>
+<a href="../../index.php?go=planetwars">Main Wesbite</a><br>
+<br>
+<form action="javascript:startnewgame()">
+<table>
+<tr><td colspan=2><b>New Game Setup:</b></td></tr>
+<tr><td colspan=2>Simple Graphics:<input id="customgraphics" type="checkbox"></td></tr>
+<tr><td colspan=2>Fancy Effects:<input id="customfancyness" type="checkbox" checked></td></tr>
+<tr><td>Mode:</td><td><select id="custommode"><option value=1>Hyper Gravity</option><option value=0>Normal</option></select></td></tr>
+<tr><td>Difficulty:</td><td><select id="customhardness" onchange="openoptions()" onMouseDown="openoptions()" onMouseUp="openoptions()" onClick="openoptions()"><option value='hard'>Hard</option><option value='medium'>Medium</option><option value='easy'>Easy</option><option value='custom'>Custom</option></select></td></tr>
+<tr><td>Players:</td><td><select id="customplayers"><option value=2>2</option><option value=3>3</option><option value=4>4</option></select></td></tr>
+</table>
+<input type="submit" value="New Map">
+<input type='button' value="Edit Map" onClick="mapswindow.OpenWindow();makingmap=true;redrawworld();">
+<br>
+<br>
+<span id="optionsspan" style="display:none;">
+<table>
+<tr><td colspan=2><b>Advanced Options</b></td></tr>
+<tr><td>Game Speed:</td><td><select id="customspeed"><option value=0.01>Mid</option><option value=0.005>Slow</option><option value=0.02>Fast</option></select></td></tr>
+<tr><td>Black Holes:</td><td><input id="customblackholes" type="checkbox" checked></td></tr>
+<tr><td>Worm Holes:</td><td><input id="customwormholes" type="checkbox" checked></td></tr>
+<tr><td>Planets:</td><td><input type="text" id="customplanets" size=2 value=5></td></tr>
+<tr><td>Planet Sizes:</td><td><select id="customplanetsize"><option value=2>Mid</option><option value=1>Small</option><option value=3>Large</option></select></td></tr>
+<tr><td colspan=2><input type="button" value="Reset" onClick="document.getElementById('customspeed').value=0.01;document.getElementById('customblackholes').checked=false;document.getElementById('customplanets').value=5;document.getElementById('customplanetsize').value=1;document.getElementById('customplayers').value=2;document.getElementById('customgraphics').checked=false"></td></tr>
+</table>
+</span>
+
+
+</form>
+
+<br>
+
+<span id="gameoverspan"></span>
+<span id="gamerunningspan">
+<form action="javascript:fire(document.getElementById('fireangle').value*1,document.getElementById('firespeed').value*1);">
+<table>
+<tr><td><b>Turn:</b></td><td><b><span id="whosgospan">Player 0</span></b></td></tr>
+<tr><td>Angle:</td><td><input type="text" id="fireangle" size=2 value=90></td></tr>
+<tr><td>Speed:</td><td><input type="text" id="firespeed" size=2 value=100></td></tr>
+<tr><td colspan=2><input type="submit" value="Fire Missile"></td></tr>
+</table>
+</form>
+</span>
+<br>
+</div>
+
+<div id="greyoutdiv" style="display:none; z-index:4; width:801;height:551; top:6; left:8; position:absolute; background-color:gray; filter:alpha(opacity=75);-moz-opacity:.75;opacity:.75;" ></div>
+
+<canvas id="arrowcanvas" width="150" height="150" style='position:absolute;z-index:2;' onMouseDown="mousemovearrow();mousedown=true;"></canvas>
+<canvas id="animatecanvas" width="100" height="100" style='position:absolute;z-index:2;' onMouseDown="mousemovearrow();mousedown=true;"></canvas>
+<canvas id="canvastag" width="800" height="550" style="border:solid white 1px;position:absolute;top:16;left:11;" onMouseDown="mousemovearrow();mousedown=true;"></canvas>
+
+
+
+
+
+<div id="testspan" style="position:relative; z-index:5;"></div>
+<div id="testspan2" style="position:relative; z-index:5;"></div>
+
+<script language="JavaScript" type="text/javascript">
+<!--
+
+/*
+
+Local Planet Wars version 0.28 (with map editor) - Copyright Luke Wallin 2007-2008
+
+*/
+var makingmap=false;
+var mapswindow = new divwindow('mapswindow','Map Maker Options',3,'white','gray',150,220,350,200,5,'<font color="black">Mouse Click Will:<br> <select id="mapoptions"><option value="movethings">Move Things<\/option><option value="deletethings">Delete Things<\/option><option value=""><\/option><option value="makebigger">Make Bigger<\/option><option value="makesmaller">Make Smaller<\/option><option value=""><\/option><option value="addplanet">Add Planet<\/option><option value="addstation">Add Space Station<\/option><option value="addblackhole">Add Black Hole<\/option><option value="addwormhole">Add Worm Hole<\/option><\/select><br><br>Randomly Add:<br><input type="button" value="Planet" onclick="randomplanet()"><br><input type="button" value="Blackhole" onclick="randomblackhole()"><br><input type="button" value="Space Station" onclick="randomstation()"><br><br><input type="button" value="Play Map" onClick="mapswindow.CloseWindow();checkmapready()"></font>','checkmapready();')
+
+var mousedown=false
+var maxspeed=200;
+//250 is max for the arrow to be drawn right
+
+//if (document.all){var IE=true}else{var IE = false}
+var world=document.getElementById('worldspan');
+
+var worldcanvas;
+var ctx;
+var ctx2;
+var ctx3;
+var loopme;
+
+
+var wholeworld= new Array()
+
+//General variables used to define major things in the world
+
+//'canvas', 'blur' or 'divs'.  blur is canvas where things leave trails.
+//also 'IEblur'
+var rendermode="blur";
+
+if(IE){rendermode="IEblur";}
+//show springs when using DIVS.  Bit crap, and quite slow.
+var divsprings=false
+
+
+
+var world=document.getElementById('worldspan');
+//gravity, and in which direction (could be used as a cheap wind, like Worms 1)  100 seems to be a nice value
+var gravityY=0;
+var gravityX=0;
+//how much  speed everything retains per loop (fraction)
+var friction=1
+//time/s per refresh
+var timeperloop=0.01
+//essentially fps
+var refreshrate;
+
+//if(IE){refreshrate=timeperloop*796;}else{refreshrate=timeperloop*1000;}
+if(IE){refreshrate=0.02*796;}else{refreshrate=0.02*1000;}
+//velocity retained during collision (as fraction), set to 1 for inelastic collisions
+var dampen=1
+//most force the user can apply to 'us'
+var maxuserforce=20000
+var incriment=maxuserforce/10
+
+
+
+//here are where objects are created
+//NAMES MUST BE UNIQUE
+
+
+//entity(state,name,x,y,width,height,mass,colour,type,vx,vy,fx,fy,hard,sticky,shape,visible,gametype,elastic,divoptions,divimage)
+
+//x,y co-ords are for the top left hand corner, div options are standard HTML bits and bobs for the style of the div
+//these are for the borders, you'll always want some kind of border (even if invisible) to stop anything being able to leave the screen
+
+//mouseclick()
+//var bg=new entity(1,'bg',00,00,850,600,0,false,1,0,0,0,0,false,false,1,'background-color:white;',0,1,'');
+
+var lowerborder=new entity(1,'lowerborder',-50,549,900,500,10,false,1,0,0,0,0,true,false,1,false,0,1,'',false);
+var upperborder=new entity(1,'upperborder',-50,-500,900,500,10,false,1,0,0,0,0,true,false,1,false,0,1,'',false);
+var leftborder=new entity(1,'leftborder',-500,-50,500,700,10,false,1,0,0,0,0,true,false,1,false,0,1,'',false);
+var rightborder=new entity(1,'rightborder',800,-50,500,700,10,false,1,0,0,0,0,true,false,1,false,0,1,'',false);
+
+
+//new entity(1,'circle0',189,290,50,50,50,'green',1,0,0,0,0,true,false,0,true,1,0.95,'','balls/green.gif');new entity(1,'circle1',625,291,50,50,50,'green',1,0,0,0,0,true,false,0,true,1,0.95,'','balls/green.gif');new entity(1,'circle2',401,123,50,50,50,'green',0,0,0,0,0,true,false,0,true,1,0.95,'','balls/green.gif');connect(4,5,1000,436,1,0,true);gravityY=200;friction=0.995;
+
+
+//the minimum speed anything can have before it's stopped (set to 0 for no min speed)
+var minspeed=10
+var safari=false;
+function setupcanvas()
+{
+
+
+switch(rendermode)
+{case 'canvas':
+case 'blur':
+
+
+worldcanvas= document.getElementById('canvastag');
+if (worldcanvas.getContext){ctx = worldcanvas.getContext('2d');}
+
+if (document.getElementById('arrowcanvas').getContext){ctx2 = document.getElementById('arrowcanvas').getContext('2d');}
+if (document.getElementById('animatecanvas').getContext){ctx3 = document.getElementById('animatecanvas').getContext('2d');}
+
+worldcanvas.style.display='block';
+world.style.display='block';
+document.getElementById('linespan').style.display='none';
+break;
+case 'divs':
+document.getElementById('canvastag').style.display='none';
+document.getElementById('linespan').style.display='block';
+world.style.display='block';
+
+break;
+case 'IEblur':
+document.getElementById('canvastag').style.display='none';
+document.getElementById('linespan').style.display='block';
+world.style.display='block';
+
+worldcanvas= document.getElementById('canvastag');
+if (worldcanvas.getContext){ctx = worldcanvas.getContext('2d');}
+if (document.getElementById('arrowcanvas').getContext){ctx2 = document.getElementById('arrowcanvas').getContext('2d');}
+if (document.getElementById('animatecanvas').getContext){ctx3 = document.getElementById('animatecanvas').getContext('2d');}
+worldcanvas.style.display='block';
+break;
+
+}
+//used as a bodge because safari messed up the whole canvas when using a gradient.
+try
+{ctx.canvas.toDataURL()}
+catch(err)
+{safari=true;}
+if(IE){safari=false}
+
+if(safari)
+{//fix input boxes beeing teeny tiny on Safari.
+document.getElementById('fireangle').size='';
+document.getElementById('firespeed').size='';
+}
+
+//old versions of Safari seem to have problems drawing gradients.  By default, enabling simple graphics on safari ought to fix it.
+//Let's hope bug-free safari users are intelligent enough to untick the box to see the more shiney version. 
+if(safari){document.getElementById('customgraphics').checked=true;}
+
+loopme=setInterval('loop()',refreshrate)
+//newworld(document.getElementById('customplanets').value*1,2,0.2,0.05,false,false);
+//newworld(document.getElementById('customplanets').value*1,document.getElementById('customplayers').value*1,document.getElementById('customplanetsize').value*1,document.getElementById('customblackholes').checked,document.getElementById('customspeed').value*1,document.getElementById('customwormholes').checked,document.getElementById('customgraphics').checked)
+openoptions()
+startnewgame()
+}
+
+//greys out the play area
+function greyout(dowhat)
+{switch (dowhat)
+{
+case true:
+
+switch(rendermode)
+{case 'canvas':
+ctx.fillStyle = "rgba(0, 0, 200, 0.5)";
+ctx.fillRect(0,0,800,600);
+ctx.fillStyle = "rgba(0,0,0,1)";
+break;
+case 'divs':
+case 'blur':
+case 'IEblur':
+document.getElementById('greyoutdiv').style.display='block';
+break;}
+break;
+case false:
+switch(rendermode)
+{case 'canvas':
+redrawworld();
+break;
+case 'divs':
+case 'blur':
+case 'IEblur':
+document.getElementById('greyoutdiv').style.display='none';
+break;}
+break;
+}
+}
+
+
+function clearworld()
+{
+switch(rendermode)
+{case 'blur':
+case 'IEblur':
+world.innerHTML=''
+ctx.fillStyle = 'black';
+ctx.fillRect(0,0,800,600);
+break;}
+
+connections=new Array();
+var wholeworld2=wholeworld.slice(0,4);
+wholeworld=new Array();
+chargedobjects=new Array();
+wholeworld=wholeworld2;
+
+redrawworld();}
+
+
+
+
+function playerobject(num,ai,worldpos)
+{//num = player number, 0,1,etc; ai=true/false
+this.num=num;
+this.ai=ai;
+this.worldpos=worldpos
+this.alive=true;
+
+this.lastspeed=100;
+this.lastangle=90;
+
+switch(this.num%4)
+{
+case 0:this.colour="rgba(255,0,0,1)";this.palecolour="rgba(255,128,128,1)";this.fontcolour="red";break;//red
+case 1:this.colour="rgba(255,255,0,1)";this.palecolour="rgba(255,255,128,1)";this.fontcolour="yellow";break;//yellow
+case 2:this.colour="rgba(0,255,0,1)";this.palecolour="rgba(128,255,128,1)";this.fontcolour="lime";break;//green
+case 3:this.colour="rgba(0,0,255,1)";this.palecolour="rgba(128,128,255,1)";this.fontcolour="blue";break;//blue
+}
+
+
+}
+
+function openoptions()
+{
+if(document.getElementById('customhardness').value=='custom')
+{document.getElementById('optionsspan').style.display="block";}
+else
+{document.getElementById('optionsspan').style.display="none";}
+}
+
+function startnewgame()
+{
+switch(document.getElementById('customhardness').value)
+{
+case 'hard':
+//5 planets, medium sized, blackholes, medium speed, wormholes
+newworld(5,document.getElementById('customplayers').value*1,2,true,0.01,true,document.getElementById('customgraphics').checked,document.getElementById('custommode').value*1)
+break;
+case 'medium':
+//5 planets, medium sized, blackholes OFF, medium speed, wormholes
+newworld(5,document.getElementById('customplayers').value*1,2,false,0.01,true,document.getElementById('customgraphics').checked,document.getElementById('custommode').value*1)
+break;
+case 'easy':
+//3 planets, small sized, blackholes OFF, medium speed, wormholes OFF
+newworld(3,document.getElementById('customplayers').value*1,1,false,0.01,false,document.getElementById('customgraphics').checked,document.getElementById('custommode').value*1)
+break;
+case 'custom':
+newworld(document.getElementById('customplanets').value*1,document.getElementById('customplayers').value*1,document.getElementById('customplanetsize').value*1,document.getElementById('customblackholes').checked,document.getElementById('customspeed').value*1,document.getElementById('customwormholes').checked,document.getElementById('customgraphics').checked,document.getElementById('custommode').value*1)
+break;
+}
+}
+
+
+var worldwidth=800
+var worldheight=550
+
+var simplegraphics=false
+
+var repelerarray=new Array();
+
+var playerarray=new Array();
+//gametypes: 0=border, 1=ship, 2=planet, 3=missile, 4=blackhole, 5=wormhole, 6=repeler(spacestation)
+var worldgamemode=0;
+
+var isthereaBH=false;
+
+function newworld(planets,players,planetsize,blackholes,worldspeed,wormholes,graphics,gamemode)
+{
+isthereaBH=false;
+worldgamemode=gamemode;
+switch(gamemode)
+{
+case 0:maxspeed=200;break;//normal
+case 1:maxspeed=250;break;//Hypergrav
+}
+
+repelerarray=new Array();
+simplegraphics=graphics;
+switch(planetsize)
+{
+case 1:maxdia=70;mindia=20;break;//old system
+case 2:maxdia=100;mindia=50;break;
+case 3:maxdia=200;mindia=80;break;
+}
+
+
+timeperloop=worldspeed
+
+if(isNaN(parseFloat(planets))){planets=5;document.getElementById('customplanets').value=5;}
+if(isNaN(parseFloat(players))){planets=2;document.getElementById('customplayers').value=2;}
+
+whosgo=0;
+gameover=false
+document.getElementById('gamerunningspan').style.display="block";
+document.getElementById('whosgospan').innerHTML="<font color='red'>Player 1<\/font>";
+document.getElementById('gameoverspan').innerHTML="";
+document.getElementById('fireangle').value=90
+document.getElementById('firespeed').value=100
+clearworld()
+playerarray=new Array();
+missileflying=false;
+
+stars(30)
+
+
+var tempplayers=new Array()
+for(var p=0;p<players;p++)
+{
+var tempx=50+Math.round(Math.random()*(worldwidth-100))
+var tempy=50+Math.round(Math.random()*(worldheight-100))
+
+if(p!==0)
+{
+var looplimit=0
+while(farapart(p,tempplayers,tempx,tempy,300) && looplimit<10)
+//while(checkforanycollide3(tempx-150,tempy-150,300,300,0)!==false && looplimit<10)
+{looplimit++;
+var tempx=50+Math.round(Math.random()*(worldwidth-100))
+var tempy=50+Math.round(Math.random()*(worldheight-100))
+}
+if(looplimit>=10)
+{
+looplimit=0
+while(checkforanycollide3(tempx-150,tempy-150,300,300,0)!==false && looplimit<10)
+{looplimit++;
+var tempx=50+Math.round(Math.random()*(worldwidth-100))
+var tempy=50+Math.round(Math.random()*(worldheight-100))}
+}
+
+}
+
+tempplayers[p]=new entity(1,'player'+p,tempx,tempy,20,10,10,'rgba(255,165,0,1)',1,0,0,0,0,true,false,1,true,1,1,'',false)
+playerarray[p]=new playerobject(p,false,tempplayers[p].arraypos);
+tempplayers[p].colour=playerarray[p].colour;
+//tempplayers[p].divimage="images/"+playerarray[p].fontcolour+"square.png";
+tempplayers[p].player=p
+//end of players loop
+}
+
+
+
+var tempwormholes=new Array();
+if(wormholes)
+{
+
+if(Math.random()*5<1)//one in five(ish) chance of a pair of wormholes.
+{
+
+for(var w=0;w<2;w++)
+{
+var tempx=Math.round(Math.random()*(worldwidth-1))
+var tempy=Math.round(Math.random()*(worldheight-1))
+looplimit=0
+while(checkforanycollide3(tempx-100,tempy-100,200,200,0)!==false && looplimit<10)
+{looplimit++
+tempx=Math.round(Math.random()*(worldwidth-1))
+tempy=Math.round(Math.random()*(worldheight-1))}
+
+switch(Math.round(Math.random()))
+{
+case 0:var tempcolour="rgba(64,64,255,1)";break;//pale blue
+case 1:var tempcolour="rgba(255,64,64,1)";break;//pale red
+}
+
+//alert(w)
+tempwormholes[w]=new entity(1,'wormhole'+w,tempx,tempy,20,20,10,tempcolour,1,0,0,0,0,true,false,0,true,5,1,'',false)
+//alert(tempwormholes[w].arraypos)
+
+//end of wormholes loop
+}
+tempwormholes[0].linkedto=tempwormholes[1].arraypos;
+tempwormholes[1].linkedto=tempwormholes[0].arraypos;
+
+//end of if wormsholes chance
+}
+//end of wormholes
+}
+
+var tempblackholes=new Array();
+if(blackholes)
+{
+if(Math.random()*7<1)//one in 8(ish) chance of a blackhole.
+{var tempx=Math.round(Math.random()*(worldwidth-1))
+var tempy=Math.round(Math.random()*(worldheight-1))
+looplimit=0
+while(checkforanycollide3(tempx-100,tempy-100,200,200,0)!==false && looplimit<10)
+{looplimit++
+tempx=Math.round(Math.random()*(worldwidth-1))
+tempy=Math.round(Math.random()*(worldheight-1))}
+//only if placed far away.
+if(looplimit<10)
+{tempblackholes[0]=new entity(1,'blackhole',tempx,tempy,2,2,10,'black',1,0,0,0,0,true,false,0,true,4,1,'',false)
+tempblackholes[0].makecharged(0.75)
+isthereaBH=true;
+//alert(tempx+' , '+tempy)
+}
+}//end of 1 in 10 chance
+}//end of if blackholes
+
+var temprepelers=new Array();
+//if(Math.random()*3<1){
+for(var r=0;r<Math.round(Math.random()*1);r++)
+{
+var tempwidth=(15+Math.round(Math.random()*(15)))*2//between 15 and 30 radius
+var tempheight=tempwidth
+
+var tempx=Math.round(Math.random()*(worldwidth-tempwidth))
+var tempy=Math.round(Math.random()*(worldheight-tempwidth))
+looplimit=0
+while(checkforanycollide3(tempx-tempwidth,tempy-tempheight,tempwidth*3,tempheight*3,0)!==false && looplimit<10)
+{looplimit++
+tempx=Math.round(Math.random()*(worldwidth-tempwidth))
+tempy=Math.round(Math.random()*(worldheight-tempwidth))}
+
+if(looplimit<10)
+{
+temprepelers[r]=new entity(1,'repeler'+r,tempx,tempy,tempwidth,tempheight,10,'rgb(128,128,128)',1,0,0,0,0,true,false,0,true,6,1,'',false)
+
+switch(gamemode)
+{case 0:temprepelers[r].makecharged(-(tempwidth)/100);break;
+case 1:temprepelers[r].makecharged(-(tempwidth*tempwidth)/5000);break;
+}
+repelerarray.push(temprepelers[r].arraypos)
+}
+
+}
+
+//}
+
+
+var tempplanets=new Array()
+for(var p=0;p<planets;p++)
+{
+var tempwidth=mindia+Math.round(Math.random()*(maxdia-mindia))
+var tempheight=tempwidth
+
+var tempx=Math.round(Math.random()*(worldwidth-tempwidth))
+var tempy=Math.round(Math.random()*(worldheight-tempwidth))
+looplimit=0
+while(checkforanycollide3(tempx-tempwidth,tempy-tempheight,tempwidth*3,tempheight*3,0)!==false && looplimit<10)
+{looplimit++
+tempx=Math.round(Math.random()*(worldwidth-tempwidth))
+tempy=Math.round(Math.random()*(worldheight-tempwidth))
+}
+
+//if we couldn't place a planet far away from other planets, then just place one not overlapping
+if(looplimit>=10)
+{looplimit=0
+while(checkforanycollide3(tempx-tempwidth/2,tempy-tempheight/2,tempwidth*2,tempheight*2,0)!==false && looplimit<10)
+{looplimit++
+tempx=Math.round(Math.random()*(worldwidth-tempwidth))
+tempy=Math.round(Math.random()*(worldheight-tempwidth))}}
+if(looplimit<10)
+{
+switch(Math.ceil(Math.random()*3))
+{case 0:var tempcolour="rgba(128,128,128,1)";break;//grey
+case 1:var tempcolour="rgba(0,0,200,1)";break;//blue
+case 2:var tempcolour="rgba(0,128,0,1)";break;//green
+case 3:var tempcolour="rgba(165,80,42,1)";break;}//brown
+
+tempplanets[p]=new entity(1,'planet'+p,tempx,tempy,tempwidth,tempheight,10,tempcolour,1,0,0,0,0,true,false,0,true,2,1,'',false)
+switch(gamemode)
+{case 0:tempplanets[p].makecharged(tempwidth/100);break;
+case 1:tempplanets[p].makecharged((tempwidth*tempwidth)/5000);break;}
+
+}
+//end of planets loop
+}
+
+redrawworld();
+}
+
+
+function randomblackhole()
+{
+if(!isthereaBH)
+{
+added++
+var tempx=Math.round(Math.random()*(worldwidth-1))
+var tempy=Math.round(Math.random()*(worldheight-1))
+looplimit=0
+while(checkforanycollide3(tempx-100,tempy-100,200,200,0)!==false && looplimit<10)
+{looplimit++
+tempx=Math.round(Math.random()*(worldwidth-1))
+tempy=Math.round(Math.random()*(worldheight-1))}
+//only if placed far away.
+if(looplimit<10)
+{var tempblackholes=new entity(1,'newthing'+added,tempx,tempy,2,2,10,'black',1,0,0,0,0,true,false,0,true,4,1,'',false)
+tempblackholes.makecharged(0.75)
+isthereaBH=true;}}
+redrawworld();
+}
+
+function randomplanet()
+{
+added++;
+var tempwidth=20+Math.round(Math.random()*(200))
+var tempheight=tempwidth
+
+var tempx=Math.round(Math.random()*(worldwidth-tempwidth))
+var tempy=Math.round(Math.random()*(worldheight-tempwidth))
+looplimit=0
+while(checkforanycollide3(tempx-tempwidth,tempy-tempheight,tempwidth*3,tempheight*3,0)!==false && looplimit<10)
+{looplimit++
+tempx=Math.round(Math.random()*(worldwidth-tempwidth))
+tempy=Math.round(Math.random()*(worldheight-tempwidth))
+}
+
+//if we couldn't place a planet far away from other planets, then just place one not overlapping
+if(looplimit>=10)
+{looplimit=0
+while(checkforanycollide3(tempx-tempwidth/2,tempy-tempheight/2,tempwidth*2,tempheight*2,0)!==false && looplimit<10)
+{looplimit++
+tempx=Math.round(Math.random()*(worldwidth-tempwidth))
+tempy=Math.round(Math.random()*(worldheight-tempwidth))}}
+if(looplimit<10)
+{
+switch(Math.ceil(Math.random()*3))
+{case 0:var tempcolour="rgba(128,128,128,1)";break;//grey
+case 1:var tempcolour="rgba(0,0,200,1)";break;//blue
+case 2:var tempcolour="rgba(0,128,0,1)";break;//green
+case 3:var tempcolour="rgba(165,80,42,1)";break;}//brown
+
+var tempplanets=new entity(1,'newthing'+added,tempx,tempy,tempwidth,tempheight,10,tempcolour,1,0,0,0,0,true,false,0,true,2,1,'',false)
+switch(worldgamemode)
+{case 0:tempplanets.makecharged(tempwidth/100);break;
+case 1:tempplanets.makecharged((tempwidth*tempwidth)/5000);break;}
+
+}
+redrawworld();
+}
+
+function randomstation()
+{
+added++;
+var tempwidth=(15+Math.round(Math.random()*(15)))*2//between 15 and 30 radius
+var tempheight=tempwidth
+
+var tempx=Math.round(Math.random()*(worldwidth-tempwidth))
+var tempy=Math.round(Math.random()*(worldheight-tempwidth))
+looplimit=0
+while(checkforanycollide3(tempx-tempwidth,tempy-tempheight,tempwidth*3,tempheight*3,0)!==false && looplimit<10)
+{looplimit++
+tempx=Math.round(Math.random()*(worldwidth-tempwidth))
+tempy=Math.round(Math.random()*(worldheight-tempwidth))}
+
+if(looplimit<10)
+{
+var temprepelers=new entity(1,'rnewthing'+added,tempx,tempy,tempwidth,tempheight,10,'rgb(128,128,128)',1,0,0,0,0,true,false,0,true,6,1,'',false)
+
+switch(worldgamemode)
+{case 0:temprepelers.makecharged(-(tempwidth)/100);break;
+case 1:temprepelers.makecharged(-(tempwidth*tempwidth)/5000);break;
+}
+repelerarray.push(temprepelers.arraypos)
+}
+redrawworld();
+}
+
+
+//checks to see if the players are far enough apart
+function farapart(p,tempplayers,tempx,tempy,howfar)
+{
+for(var p1=0;p1<p;p1++)
+{
+if(distance(tempplayers[p1].x,tempplayers[p1].y,tempx,tempy)>howfar){return false;}
+}
+
+return true
+}
+
+var nummissiles=0
+var missileflying=false;
+
+var whosgo=0
+
+//idea: make missiles lighter shade of player's colour.
+function fire(angle,speed)
+{
+if(isNaN(parseFloat(angle))){angle=90;}
+if(isNaN(parseFloat(speed))){speed=100;}
+if(speed>maxspeed){speed=maxspeed}
+if(speed<0){speed=0;}
+
+document.getElementById('firespeed').value=speed
+document.getElementById('fireangle').value=angle
+
+if(!missileflying && !gameover && !makingmap)
+{
+
+playerarray[whosgo].lastspeed=speed;
+playerarray[whosgo].lastangle=angle;
+
+missileflying=true;
+angle=toradians(angle*(-1))
+var tempx=wholeworld[playerarray[whosgo].worldpos].x+wholeworld[playerarray[whosgo].worldpos].width/2+Math.cos(angle)*20
+var tempy=wholeworld[playerarray[whosgo].worldpos].y+wholeworld[playerarray[whosgo].worldpos].height/2+Math.sin(angle)*20
+var tempvx=Math.cos(angle)*speed;
+var tempvy=Math.sin(angle)*speed;
+
+var tempmissile=new entity(1,'missile'+nummissiles,tempx,tempy,6,6,50,playerarray[whosgo].palecolour,0,tempvx,tempvy,0,0,true,false,0,true,3,1,'','images/'+playerarray[whosgo].fontcolour+'missile.gif')
+tempmissile.makecharged(-0.01)
+
+ctx.strokeStyle=tempmissile.colour
+ctx.lineWidth=2;
+ctx.lineCap='round';
+ctx.beginPath();
+
+nummissiles++
+}//end of if missile flying
+}
+
+function changego()
+{
+if(checkendofgame())
+{endgame()}else{
+
+whosgo++;
+if(whosgo==playerarray.length){whosgo=0;}
+
+//if more than two player game, and one person is dead, skip their go.
+while(!playerarray[whosgo].alive)
+{whosgo++;
+if(whosgo==playerarray.length){whosgo=0;}}
+
+document.getElementById('whosgospan').innerHTML="<font color='"+playerarray[whosgo].fontcolour+"'>Player "+(1+whosgo)+"<\/font>";
+document.getElementById('firespeed').value=playerarray[whosgo].lastspeed
+document.getElementById('fireangle').value=playerarray[whosgo].lastangle
+}
+}
+
+//kills a player off
+function killplayer(thisplayer,killedby)
+{
+//provided they're not already dead.
+if(playerarray[thisplayer].alive)
+{//draw cross over them in colour of player that killed them
+ctx.strokeStyle = playerarray[killedby].colour;
+ctx.lineWidth=2;
+ctx.lineCap='round';
+ctx.beginPath();
+ctx.moveTo(wholeworld[playerarray[thisplayer].worldpos].x-wholeworld[playerarray[thisplayer].worldpos].width/4,wholeworld[playerarray[thisplayer].worldpos].y-wholeworld[playerarray[thisplayer].worldpos].height/4)
+ctx.lineTo(wholeworld[playerarray[thisplayer].worldpos].x+wholeworld[playerarray[thisplayer].worldpos].width*5/4,wholeworld[playerarray[thisplayer].worldpos].y+wholeworld[playerarray[thisplayer].worldpos].height*5/4)
+ctx.moveTo(wholeworld[playerarray[thisplayer].worldpos].x+wholeworld[playerarray[thisplayer].worldpos].width*5/4,wholeworld[playerarray[thisplayer].worldpos].y-wholeworld[playerarray[thisplayer].worldpos].height/4)
+ctx.lineTo(wholeworld[playerarray[thisplayer].worldpos].x-wholeworld[playerarray[thisplayer].worldpos].width/4,wholeworld[playerarray[thisplayer].worldpos].y+wholeworld[playerarray[thisplayer].worldpos].height*5/4)
+ctx.stroke();
+}
+playerarray[thisplayer].alive=false
+
+}
+
+//checks to see if there's only one player left alive
+function checkendofgame()
+{
+var liveplayers=0
+for(var p=0;p<playerarray.length;p++)
+{if(playerarray[p].alive){liveplayers++;}}
+
+if(liveplayers<=1){return true;}
+return false;
+}
+
+var gameover=false;
+function endgame()
+{
+for(var p=0;p<playerarray.length;p++)
+{if(playerarray[p].alive){var winner=p;}}
+gameover=true;
+document.getElementById('gamerunningspan').style.display="none";
+document.getElementById('gameoverspan').innerHTML="Game Over!  <font color='"+playerarray[winner].fontcolour+"'>Player "+(1+winner)+"</font> won!";
+}
+
+//draw randomly placed stars on the canvas
+function stars(numstars)
+{if(rendermode!=='divs')
+{
+ctx.fillStyle = 'black';
+ctx.fillRect(0,0,worldwidth,worldheight);
+for(var s=0;s<numstars;s++)
+{ctx.beginPath();
+ctx.fillStyle = 'white'
+var tempx=Math.random()*(worldwidth)
+var tempy=Math.random()*(worldheight)
+ctx.moveTo(tempx,tempy);
+var tempwidth=Math.random()*1.5
+ctx.arc(tempx,tempy,tempwidth,0,Math.PI*2,true);  // draw circle
+ctx.fill();}}}
+
+
+var xchange;var ychange;
+
+var selected=false;
+//user has clicked to change speed/angle of next missile;
+function mousemovearrow()
+{
+
+if(makingmap)
+{
+
+//checkforanycollide3(x,y,w,h,s)
+var whatshere=checkforanycollide3(mouseX+xchange-5,mouseY+ychange-5,10,10,0);
+if(whatshere!==false)//clicked on something
+{
+switch(document.getElementById('mapoptions').value)
+{//case 'movethings':selected=whatshere;};break;
+case 'deletethings':wholeworld[whatshere].kill();updatestats();break;}
+}
+else//not click on anything
+{
+switch(document.getElementById('mapoptions').value)
+{
+case 'addplayer':
+break;
+}
+
+}
+
+
+}else{//above = map maker stuff, below = move arrow stuff
+
+var dx=mouseX-wholeworld[playerarray[whosgo].worldpos].x+wholeworld[playerarray[whosgo].worldpos].width/2-24
+var dy=mouseY-wholeworld[playerarray[whosgo].worldpos].y+wholeworld[playerarray[whosgo].worldpos].height/2-20
+
+var tempangle=getangle(dx,dy)*(-1)
+tempangle=Math.round(todegrees(tempangle))
+
+if(tempangle<=-180 && tempangle!==-360){tempangle=180+tempangle%180}
+else if(tempangle==-360){tempangle=0;}
+
+var tempspeed=Math.round(Math.sqrt(dx*dx+dy*dy)*1.2)
+if(tempspeed>maxspeed){tempspeed=maxspeed}
+
+document.getElementById('firespeed').value=tempspeed;
+document.getElementById('fireangle').value=tempangle;
+}
+}
+
+var lastarrowangle=0;
+var lastarrowsize=0;
+var lastarrowcolour='black'
+
+function drawarrow(angle,size,colour)
+{
+if(isNaN(parseFloat(angle))){angle=90;}
+if(isNaN(parseFloat(size))){size=20;}
+lastarrowangle=angle
+lastarrowsize=size;
+lastarrowcolour=colour;
+angle=toradians(angle)*(-1)
+
+ctx2.clearRect(0,0,150,150);
+ctx2.strokeStyle=colour
+ctx2.lineWidth=2
+ctx2.lineCap='round';
+ctx2.lineJoin='round';
+ctx2.beginPath();
+
+size=size*(58/maxspeed);
+
+var spacer=15
+
+ctx2.moveTo(75+Math.cos(angle)*spacer,75+Math.sin(angle)*spacer)
+ctx2.lineTo(75+Math.cos(angle)*spacer+Math.cos(angle)*size,75+Math.sin(angle)*spacer+Math.sin(angle)*size);
+ctx2.lineTo(75+Math.cos(angle)*spacer+Math.cos(angle+Math.PI/8)*size*4/5,75+Math.sin(angle)*spacer+Math.sin(angle+Math.PI/8)*size*4/5)
+ctx2.moveTo(75+Math.cos(angle)*spacer+Math.cos(angle)*size,75+Math.sin(angle)*spacer+Math.sin(angle)*size);
+ctx2.lineTo(75+Math.cos(angle)*spacer+Math.cos(angle-Math.PI/8)*size*4/5,75+Math.sin(angle)*spacer+Math.sin(angle-Math.PI/8)*size*4/5)
+ctx2.stroke();}
+
+//loop stuff
+var counter=0;
+
+//how often, in loops, do we we-draw the canvas?
+var drawsync=1;
+
+//timer variable, used for dragging stuff.
+var timer=0
+
+var dragoldx=0;
+var dragoldy=0;
+
+//var thingschanged=true;
+
+//this is the function which gets looped when the sandbox isn't paused
+function loop()
+{
+//timer+=timeperloop;
+//finds new position of everything which can move
+if(!makingmap){replotentities();}
+
+if(mousedown){mousemovearrow();checkclick(true);}
+
+//if we're waiting for someone to fire
+if(!missileflying && !gameover && !makingmap)
+{
+if(lastarrowangle!==document.getElementById('fireangle').value*1 || lastarrowsize!==document.getElementById('firespeed').value*1 || lastarrowcolour!==playerarray[whosgo].colour)
+drawarrow(document.getElementById('fireangle').value*1,document.getElementById('firespeed').value*1,playerarray[whosgo].colour)
+document.getElementById('arrowcanvas').style.display='block';
+document.getElementById('arrowcanvas').style.left=(wholeworld[playerarray[whosgo].worldpos].x+wholeworld[playerarray[whosgo].worldpos].width/2-60)
+document.getElementById('arrowcanvas').style.top=(wholeworld[playerarray[whosgo].worldpos].y+wholeworld[playerarray[whosgo].worldpos].height/2-55)
+}
+else
+{
+if(!needlaser){document.getElementById('arrowcanvas').style.display='none';}
+}
+
+if(counter%drawsync==0){
+switch(rendermode)
+{
+case 'canvas':
+//displays it on the canvas
+if(needredraw){redrawworld();needredraw=false}
+//redrawworld();
+break;
+case 'divs':
+//divsredrawworld();
+//linehtml=''
+if(divsprings)
+{
+for(var k=0;k<connections.length;k++)
+{connections[k].updateline();}
+}
+break;}
+
+}
+/*
+if(selected!==false && makingmap)//mouse is dragging an object about.
+{
+if(checkforanycollide2(wholeworld[selected],mouseX+xchange,mouseY+ychange)===false)
+
+}
+*/
+if(document.getElementById('customfancyness').checked && missileflying)
+{
+var lasers=0
+for(var r=0;r<repelerarray.length;r++)
+{
+var laserlength=dsqrd(wholeworld[repelerarray[r]].x+wholeworld[repelerarray[r]].width/2,wholeworld[repelerarray[r]].y+wholeworld[repelerarray[r]].height/2,wholeworld[wholeworld.length-1].x+wholeworld[wholeworld.length-1].width/2,wholeworld[wholeworld.length-1].y+wholeworld[wholeworld.length-1].height/2)
+
+if(laserlength < 75*75)//wholeworld[repelerarray[r]].width+20
+{
+lasers++;
+//missile is close to a space station
+if(!needlaser){document.getElementById('arrowcanvas').style.display='block';needlaser=true;}
+//alert('laser!')
+document.getElementById('arrowcanvas').style.left=(wholeworld[repelerarray[r]].x+wholeworld[repelerarray[r]].width/2-63)
+document.getElementById('arrowcanvas').style.top=(wholeworld[repelerarray[r]].y+wholeworld[repelerarray[r]].height/2-57)
+laserlength=Math.sqrt(laserlength);
+
+var angle=Math.atan2(wholeworld[wholeworld.length-1].y+wholeworld[wholeworld.length-1].height/2-wholeworld[repelerarray[r]].y-wholeworld[repelerarray[r]].height/2,wholeworld[wholeworld.length-1].x+wholeworld[wholeworld.length-1].width/2-wholeworld[repelerarray[r]].x-wholeworld[repelerarray[r]].width/2)
+//alert(angle*Math.PI/180)
+ctx2.clearRect(0,0,150,150);
+
+ctx2.beginPath()
+ctx2.strokeStyle="rgb(0,255,0)";
+
+var spacer=1;
+
+ctx2.moveTo(75+wholeworld[repelerarray[r]].width/6,75-wholeworld[repelerarray[r]].height/6-2)
+ctx2.lineTo(75+Math.cos(angle)*laserlength,75+Math.sin(angle)*laserlength);
+ctx2.stroke();
+}//end of laser length
+
+}//end of spacestationloop
+
+if(lasers==0){needlaser=false;}
+
+}//end of fancyness
+else if(!missileflying){needlaser=false;}
+
+
+counter++
+}
+
+var needlaser=false;
+
+function pauseloop()
+{
+
+}
+
+//var player=ball.arraypos;
+//function currently not used, but applies a force to the 'player' in responce to arrow keys being pressed
+function moveus()
+{
+if (moveright){wholeworld[player].fx+=incriment; if (wholeworld[player].fx>maxuserforce){wholeworld[player].fx=maxuserforce};}
+if (moveleft){wholeworld[player].fx-=incriment; if (wholeworld[player].fx<-maxuserforce){wholeworld[player].fx=-maxuserforce}}
+if(!moveright && !moveleft){if (wholeworld[player].fx>0){wholeworld[player].fx-=incriment};if (wholeworld[player].fx<0){wholeworld[player].fx+=incriment}}
+if (moveup){wholeworld[player].fy-=incriment; if (wholeworld[player].fy < -maxuserforce){wholeworld[player].fy=-maxuserforce}}
+if (movedown){wholeworld[player].fy+=incriment; if (wholeworld[player].fy > maxuserforce){wholeworld[player].fy=maxuserforce}}
+if (!moveup && !movedown){wholeworld[player].fy+=incriment*2; if (wholeworld[player].fy > 0){wholeworld[player].fy=0}}
+}
+
+
+function springforce(x1,x2,y1,y2,sprstr,sprlng)
+{
+var farapart=Math.sqrt( Math.pow(x2-x1,2) + Math.pow(y2-y1,2)  )
+var springforce=-sprstr*(farapart-sprlng);
+var springangle=getangle(x1-x2,y1-y2);
+return [farapart,springforce,springangle];
+}
+
+
+function posfromforce(vx,vy,testfx,testfy,ourangle,ourspeedfriction,times)
+{
+var testax=testfx/wholeworld[i].mass
+var testay=testfy/wholeworld[i].mass
+//var testnewvy=Math.sin(ourangle)*ourspeedfriction+(testfx/wholeworld[i].mass)*times
+//var testnewvx=Math.cos(ourangle)*ourspeedfriction+(testfy/wholeworld[i].mass)*times
+
+var testnewvy=vy+(testfx/wholeworld[i].mass)*times
+var testnewvx=vx+(testfy/wholeworld[i].mass)*times
+
+var testnewx=(testnewvx*times+1/2*testax*timeperloop*timeperloop)+wholeworld[i].x
+var testnewy=(testnewvy*times+1/2*testay*timeperloop*timeperloop)+wholeworld[i].y
+return[testnewx,testnewy];
+}
+
+
+
+//IDEA FOR FRICITON, ADD FRICTION TO SPEED, THEN RESLOVE FOR X AND Y VELOCITIES
+
+function replotentities()
+{
+for (i=0;i<wholeworld.length;i++)
+{
+if(wholeworld[i].type == 0 && wholeworld[i].state==1)
+{
+//if type=0 then we're a entity and thus need to be replotted, and we're not dead
+ourspeed=Math.sqrt(wholeworld[i].vx*wholeworld[i].vx+wholeworld[i].vy*wholeworld[i].vy)
+
+var ourangle
+
+if(wholeworld[i].vx<0){ourangle=(Math.PI)+(Math.atan(wholeworld[i].vy/wholeworld[i].vx))}
+else if(wholeworld[i].vx>0 && wholeworld[i].vy>=0){ourangle=Math.atan(wholeworld[i].vy/wholeworld[i].vx)}
+else if(wholeworld[i].vx>0 && wholeworld[i].vy < 0){ourangle=2*(Math.PI)+Math.atan(wholeworld[i].vy/wholeworld[i].vx)}
+else if(wholeworld[i].vx==0 && wholeworld[i].vy == 0){ourangle=0}
+else if(wholeworld[i].vx==0 && wholeworld[i].vy>=0){ourangle=(Math.PI)/2}
+else{ourangle=3*(Math.PI)/2}
+
+var ourspeedfriction=ourspeed*friction
+
+//if(wholeworld[i].connected.length>0){ourspeedfriction/=2;}
+
+//acceleration of object to be updated; f=ma therefore a=f/m
+var fx=wholeworld[i].fx+gravityX*wholeworld[i].mass//-wholeworld[i].vx
+var fy=wholeworld[i].fy+gravityY*wholeworld[i].mass//-wholeworld[i].vy
+
+if(wholeworld[i].charged)
+{for(var k=0;k<chargedobjects.length;k++)
+{if(chargedobjects[k].name!==wholeworld[i].name)
+{var rsqrd=Math.pow(wholeworld[i].x+wholeworld[i].width/2-chargedobjects[k].x-chargedobjects[k].width/2,2)+Math.pow(wholeworld[i].y+wholeworld[i].height/2-chargedobjects[k].y-chargedobjects[k].height/2,2)
+//coloumbs law:
+//f=k.q1.q2/r^2
+var coulombforce=8990000000*chargedobjects[k].charge*wholeworld[i].charge/rsqrd
+var coulombangle=getangle(wholeworld[i].x+wholeworld[i].width/2-chargedobjects[k].x-chargedobjects[k].width/2,wholeworld[i].y+wholeworld[i].height/2-chargedobjects[k].y-chargedobjects[k].height/2)
+fy+=Math.sin(coulombangle)*coulombforce
+fx+=Math.cos(coulombangle)*coulombforce}}}
+
+var tempvx=Math.cos(ourangle)*ourspeedfriction
+var tempvy=Math.sin(ourangle)*ourspeedfriction
+
+//for(var k=wholeworld[i].connected.length-1;k>=0;k--)
+
+for(var k=0;k<wholeworld[i].connected.length;k++)
+{
+if(connections[wholeworld[i].connected[k]].type==0)//if this connection is a spring
+{
+if(connections[wholeworld[i].connected[k]].to!==i)
+{var them=connections[wholeworld[i].connected[k]].to;}
+else{
+var them=connections[wholeworld[i].connected[k]].from;}
+
+//var them=wholeworld[i].connected[k];
+
+var tempspringstrength=connections[wholeworld[i].connected[k]].connectionstrength;
+var tempspringlength=connections[wholeworld[i].connected[k]].connectionlength;
+var themx=(wholeworld[them].x+wholeworld[them].width/2)
+var themy=(wholeworld[them].y+wholeworld[them].height/2)
+
+//Hooke's Law:
+//F=-kx
+var springvar = springforce((wholeworld[i].x+wholeworld[i].width/2),themx,(wholeworld[i].y+wholeworld[i].height/2),themy,tempspringstrength,tempspringlength)
+//(wholeworld[us].x+wholeworld[us].width/2)-themx,(wholeworld[us].y+wholeworld[us].height/2)-themy
+
+//force from current position
+var testfy=Math.sin(springvar[2])*springvar[1]//+wholeworld[i].vx
+var testfx=Math.cos(springvar[2])*springvar[1]//+wholeworld[i].vy
+
+//force from one loop's time if the above force were applied
+var testpositions=posfromforce(tempvx,tempvy,testfx,testfy,ourangle,ourspeedfriction,timeperloop/2);
+springvar = springforce((testpositions[0]+wholeworld[i].width/2),themx,(testpositions[1]+wholeworld[i].height/2),themy,tempspringstrength,tempspringlength)
+var testfy2=Math.sin(springvar[2])*springvar[1]
+var testfx2=Math.cos(springvar[2])*springvar[1]
+
+//force on thingy if it moved using average of above two forces
+testpositions=posfromforce(tempvx,tempvy,(testfx+testfx2)/2,(testfy+testfy2)/2,ourangle,ourspeedfriction,timeperloop);
+springvar = springforce((testpositions[0]+wholeworld[i].width/2),themx,(testpositions[1]+wholeworld[i].height/2),themy,tempspringstrength,tempspringlength)
+var testfy3=Math.sin(springvar[2])*springvar[1]
+var testfx3=Math.cos(springvar[2])*springvar[1]
+
+fy+=(testfy+testfy2+testfy3)/3
+fx+=(testfx+testfx2+testfx3)/3
+
+//end of if connection is a spring
+}
+//end of connections loop
+}
+
+var ax=fx/wholeworld[i].mass
+var ay=fy/wholeworld[i].mass
+
+//v=u+at
+newvy=Math.sin(ourangle)*ourspeedfriction+ay*timeperloop
+newvx=Math.cos(ourangle)*ourspeedfriction+ax*timeperloop
+//wholeworld[i].vy=newvy
+//wholeworld[i].vx=newvx
+//optimisation, if we're not moving, don't faff about re-plotting our position
+if(newvy!==0 || newvx!==0){
+// if we're moving really slowly, and there's no force on us, then stop moving.
+if(ourspeedfriction <=minspeed && wholeworld[i].fx==0 && wholeworld[i].fy==0 && ax==0 && ay==0){newvx=0;newvy=0;}
+//s=ut + 0.5at^2 therefore, new position = old position + ut+1/2at^2
+newx=(wholeworld[i].vx*timeperloop+1/2*ax*timeperloop*timeperloop)+wholeworld[i].x
+newy=(wholeworld[i].vy*timeperloop+1/2*ay*timeperloop*timeperloop)+wholeworld[i].y
+
+
+for (var i2=0;i2<wholeworld.length;i2++)
+{
+if(wholeworld[i2].hard==true && i!==i2 && wholeworld[i2].state==1)
+{
+if(checkcollide(newx,newy,wholeworld[i].width,wholeworld[i].height,wholeworld[i].shape,wholeworld[i2].x,wholeworld[i2].y,wholeworld[i2].width,wholeworld[i2].height,wholeworld[i2].shape,wholeworld[i],wholeworld[i2]))
+{//if there is a collision
+
+
+//gametypes: 0=border, 1=ship, 2=planet, 3=missile, 4=blackhole, 5=satelite 
+//detecting what collides with what
+
+switch(wholeworld[i].gametype)
+{
+case 3://missile
+if(wholeworld[i2].gametype==5)//WORMHOLE
+{
+var wormangle=getangle(wholeworld[i].x+wholeworld[i].width/2-wholeworld[i2].x-wholeworld[i2].width/2,wholeworld[i].y+wholeworld[i].height/2-wholeworld[i2].y-wholeworld[i2].height/2)
+var wormdist=distance(wholeworld[i2].x+wholeworld[i2].width/2,wholeworld[i2].y+wholeworld[i2].height/2,wholeworld[i].x+wholeworld[i].width/2,wholeworld[i].y+wholeworld[i].height/2)+5
+
+wholeworld[i].x=wholeworld[wholeworld[i2].linkedto].x+wholeworld[wholeworld[i2].linkedto].width/2+Math.cos(wormangle+Math.PI)*wormdist
+wholeworld[i].y=wholeworld[wholeworld[i2].linkedto].y+wholeworld[wholeworld[i2].linkedto].height/2+Math.sin(wormangle+Math.PI)*wormdist
+
+newx=wholeworld[i].x
+newy=wholeworld[i].y
+}
+else{//not wormhole
+wholeworld[i].state=3//kill it
+missileflying=false;
+if(rendermode=='IEblur'){ctx.stroke();}
+if(wholeworld[i2].gametype==1){killplayer(wholeworld[i2].player,whosgo)}
+changego()
+}
+;break;
+
+}
+
+/*
+//if(wholeworld[i2].sticky==false){
+if(wholeworld[i].shape==0 && wholeworld[i2].shape==0)
+{
+wholeworld[i].vx=newvx
+wholeworld[i].vy=newvy
+collideascircles(wholeworld[i],wholeworld[i2])
+
+}else if(wholeworld[i].shape==3|| wholeworld[i2].shape==3){collidewithpoly(wholeworld[i],wholeworld[i2])}
+else
+{
+collideassquares(wholeworld[i],wholeworld[i2])
+}
+
+if(wholeworld[i2].type==0 && wholeworld[i].type==0){wholeworld[i2].vx=theirnewvx;wholeworld[i2].vy=theirnewvy}
+//newx=wholeworld[i].x;newy=wholeworld[i].y;
+
+
+//this bit is new (v1.48), the idea is to solve problems when a ball is stuck between two plates, or similar.
+var dx=newx-wholeworld[i].x
+var dy=newy-wholeworld[i].y
+if(checkcollide((newx-dx/4),(newy-dy/4),wholeworld[i].width,wholeworld[i].height,wholeworld[i].shape,wholeworld[i2].x,wholeworld[i2].y,wholeworld[i2].width,wholeworld[i2].height,wholeworld[i2].shape,wholeworld[i],wholeworld[i2])!==true){newx-=dx/4;newy-=dy/4;}
+else if(checkcollide((newx-dx/2),(newy-dy/2),wholeworld[i].width,wholeworld[i].height,wholeworld[i].shape,wholeworld[i2].x,wholeworld[i2].y,wholeworld[i2].width,wholeworld[i2].height,wholeworld[i2].shape,wholeworld[i],wholeworld[i2])!==true){newx-=dx/2;newy-=dy/2;}
+else if(checkcollide((newx-(dx/4)*3),(newy-(dy/4)*3),wholeworld[i].width,wholeworld[i].height,wholeworld[i].shape,wholeworld[i2].x,wholeworld[i2].y,wholeworld[i2].width,wholeworld[i2].height,wholeworld[i2].shape,wholeworld[i],wholeworld[i2])!==true){newx-=(dx/4)*3;newy-=(dy/4)*3;}
+else{newx=wholeworld[i].x;newy=wholeworld[i].y;}
+
+*/
+newx=wholeworld[i].x;newy=wholeworld[i].y;
+
+wholeworld[i].vx=newvx
+wholeworld[i].vy=newvy
+
+//end of if sticky
+//}
+
+newvx*=wholeworld[i].elastic
+newvy*=wholeworld[i].elastic
+
+//end of there is a collision
+}
+//end of collidable if statement
+}
+//end of i2 (collision) loop
+}
+
+wholeworld[i].vx=newvx
+wholeworld[i].vy=newvy
+
+wholeworld[i].oldx=wholeworld[i].x
+wholeworld[i].oldy=wholeworld[i].y
+
+wholeworld[i].x=newx
+wholeworld[i].y=newy
+
+switch(rendermode)
+{case 'divs':
+//wholeworld[i].updatediv2()
+whichdiv=document.getElementById(wholeworld[i].div);
+whichdiv.style.left=Math.round(newx);
+whichdiv.style.top=Math.round(newy);
+
+break;
+case 'canvas':
+needredraw=true;
+break;
+case 'blur':
+//alert(wholeworld[i].vx)
+//ctx.beginPath();
+//wholeworld[i].plotme()
+//ctx.fill();
+
+whichdiv=document.getElementById(wholeworld[i].div);
+whichdiv.style.left=Math.round(newx);
+whichdiv.style.top=Math.round(newy);
+
+ctx.strokeStyle=wholeworld[i].colour;
+ctx.lineWidth=2;
+ctx.lineCap='round';
+ctx.beginPath();
+ctx.moveTo(wholeworld[i].oldx+wholeworld[i].width/2,wholeworld[i].oldy+wholeworld[i].height/2);
+ctx.lineTo(wholeworld[i].x+wholeworld[i].width/2,wholeworld[i].y+wholeworld[i].height/2);
+//ctx.closePath();
+ctx.stroke();
+
+break;
+case 'IEblur':
+
+whichdiv=document.getElementById(wholeworld[i].div);
+whichdiv.style.left=Math.round(newx);
+whichdiv.style.top=Math.round(newy);
+ctx.moveTo(wholeworld[i].oldx+wholeworld[i].width/2,wholeworld[i].oldy+wholeworld[i].height/2);
+ctx.lineTo(wholeworld[i].x+wholeworld[i].width/2,wholeworld[i].y+wholeworld[i].height/2);
+
+//if fancy effects button ticked, use improved IEblur trail in IE
+if(counter%15==0 && document.getElementById('customfancyness').checked){ctx.stroke();ctx.beginPath();}
+
+break;
+}
+/*
+whichdiv=document.getElementById(wholeworld[i].div);
+whichdiv.style.left=Math.round(newx);
+whichdiv.style.top=Math.round(newy);
+*/
+
+//end of if we're moving statement
+}
+
+//end of if entity statement
+}
+//this will attempt to bring back to life anything which couldn't come back because somehting was in the way 
+else if(wholeworld[i].state==2){wholeworld[i].unkill()}
+else if(wholeworld[i].state==3){wholeworld[i].kill();}
+else if(wholeworld[i].state==4){wholeworld[i].kill();wholeworld[i].x=100;wholeworld[i].y=275;wholeworld[i].fx=0;wholeworld[i].fy=0;wholeworld[i].vx=0;wholeworld[i].vy=0;wholeworld[i].unkill();}
+//end of wholeworld loop 
+}
+//end of replotentities()
+}
+
+function update(updateme)
+{}
+
+function togglespeed()
+{
+switch(timeperloop)
+{
+case 0.005:timeperloop=0.01;document.getElementById('speedbutton').value="Mid";break;
+case 0.01:timeperloop=0.02;document.getElementById('speedbutton').value="Fast";break;
+case 0.02:timeperloop=0.005;document.getElementById('speedbutton').value="Slow";break;
+}
+}
+
+var paused=false;
+function togglepause()
+{
+if(paused){
+clearInterval(loopme);
+paused=false;loopme=setInterval('loop()',refreshrate);document.getElementById("pausebutton").value="Pause"
+
+
+}
+else{
+paused=true;clearInterval(loopme);document.getElementById("pausebutton").value="Play"
+loopme=setInterval('pauseloop()',refreshrate)
+
+}
+}
+
+var mousesize=10;
+var added=0;
+
+function checkmapready()
+{
+var tempwormholes=new Array();
+for(var k=0;k<wholeworld.length;k++)
+{
+if(wholeworld[k].state==1 && wholeworld[k].gametype==5)//alive and a wormhole
+{
+tempwormholes.push(k)
+}
+}
+
+
+if(tempwormholes.length==0)//no wormholes - fine to start
+{makingmap=false;stars(30);redrawworld()}
+else if(tempwormholes.length==2)
+{//two wormholes - pair them up and start
+wholeworld[tempwormholes[0]].linkedto=wholeworld[tempwormholes[1]].arraypos;
+wholeworld[tempwormholes[1]].linkedto=wholeworld[tempwormholes[0]].arraypos;
+makingmap=false;stars(30);redrawworld();
+}
+else
+{
+alert('Sorry, you have a bad number of wormholes - there must be either none or two.')
+mapswindow.OpenWindow();
+}
+
+}
+
+function checkclick(fromloop)
+{//map editor stuff - fromloop is is this function run from the loop? avoid creating 100s of planets at once by mistake.
+
+here=checkforanycollide3(mouseX-Math.floor(mousesize/2),mouseY-Math.floor(mousesize/2),mousesize,mousesize,0)//see what mouse cursor is colliding with
+
+if(makingmap)
+{
+
+if(selected===false)
+{
+switch(document.getElementById('mapoptions').value)
+{
+case 'addplanet':
+if(!fromloop && checkforanycollide3(mouseX-25,mouseY-25,50,50,0)===false)
+{
+added++;
+switch(Math.ceil(Math.random()*3))
+{case 0:var tempcolour="rgba(128,128,128,1)";break;//grey
+case 1:var tempcolour="rgba(0,0,200,1)";break;//blue
+case 2:var tempcolour="rgba(0,128,0,1)";break;//green
+case 3:var tempcolour="rgba(165,80,42,1)";break;}//brown
+var tempthing=new entity(1,'newthing'+added,mouseX-25,mouseY-25,50,50,10,tempcolour,1,0,0,0,0,true,false,0,true,2,1,'',false)
+switch(worldgamemode)
+{case 0:tempthing.makecharged(50/100);break;
+case 1:tempthing.makecharged((50*50)/5000);break;}
+}
+break;
+
+case 'addblackhole':
+if(!fromloop && checkforanycollide3(mouseX-1,mouseY-1,2,2,0)===false && !isthereaBH)
+{
+added++;
+var tempthing=new entity(1,'newthing'+added,mouseX-1,mouseY-1,2,2,10,'black',1,0,0,0,0,true,false,0,true,4,1,'',false)
+tempthing.makecharged(0.75);
+isthereaBH=true;
+}
+break;
+case 'addstation':
+if(!fromloop && checkforanycollide3(mouseX-25,mouseY-25,50,50,0)===false)
+{
+added++;
+var tempthing=new entity(1,'newthing'+added,mouseX-25,mouseY-25,50,50,10,'rgb(128,128,128)',1,0,0,0,0,true,false,0,true,6,1,'',false)
+switch(worldgamemode)
+{case 0:tempthing.makecharged((-1)*50/100);break;
+case 1:tempthing.makecharged((-1)*(50*50)/5000);break;}
+repelerarray.push(tempthing.arraypos)
+}
+break;
+case 'addwormhole':
+if(!fromloop && checkforanycollide3(mouseX-10,mouseY-10,20,20,0)===false)
+{
+added++;
+switch(Math.round(Math.random()))
+{case 0:var tempcolour="rgba(64,64,255,1)";break;//pale blue
+case 1:var tempcolour="rgba(255,64,64,1)";break;//pale red
+}
+var tempthing=new entity(1,'newthing'+added,mouseX-10,mouseY-10,20,20,10,tempcolour,1,0,0,0,0,true,false,0,true,5,1,'',false)
+}
+break;
+default:
+selected=here;
+break;}
+needredraw=true;
+}else{
+switch(document.getElementById('mapoptions').value)
+{//gametypes: 0=border, 1=ship, 2=planet, 3=missile, 4=blackhole, 5=wormhole, 6=repeler(spacestation)
+case 'movethings':
+wholeworld[selected].x=mouseX-wholeworld[selected].width/2
+wholeworld[selected].y=mouseY-wholeworld[selected].height/2
+needredraw=true;
+break;
+case 'deletethings':
+if(wholeworld[selected].gametype!==1 && wholeworld[selected].gametype!==0)
+{wholeworld[selected].kill();
+
+needredraw=true;
+
+if(wholeworld[selected].gametype==4){isthereaBH=false;}
+if(wholeworld[selected].gametype==6)
+{//spacestation - remove from repelerarray (for fancy laser effects)
+var spliceme=false;
+for(var r=0;r<repelerarray.length;r++)
+{
+if(repelerarray[r]==selected){spliceme=r;}
+}
+repelerarray.splice(spliceme,1);
+
+}
+}
+
+break;
+case 'makebigger':
+if(wholeworld[selected].gametype==2 || wholeworld[selected].gametype==6)
+{
+var thismuch=2
+if(IE){thismuch=10}
+wholeworld[selected].width+=thismuch;
+wholeworld[selected].height+=thismuch;
+wholeworld[selected].y-=thismuch/2;
+wholeworld[selected].x-=thismuch/2;
+switch(worldgamemode)
+{case 0:wholeworld[selected].makecharged(wholeworld[selected].width/100);break;
+case 1:wholeworld[selected].makecharged((wholeworld[selected].width*wholeworld[selected].width)/5000);break;}
+}
+needredraw=true;
+break;
+case 'makesmaller':
+if((wholeworld[selected].gametype==2 || wholeworld[selected].gametype==6) && wholeworld[selected].width>15)
+{var thismuch=2
+if(IE){thismuch=10}
+
+wholeworld[selected].width-=thismuch;
+wholeworld[selected].height-=thismuch;
+wholeworld[selected].y+=thismuch/2;
+wholeworld[selected].x+=thismuch/2;
+switch(worldgamemode)
+{case 0:wholeworld[selected].makecharged(wholeworld[selected].width/100);break;
+case 1:wholeworld[selected].makecharged((wholeworld[selected].width*wholeworld[selected].width)/5000);break;}
+}
+needredraw=true;
+break;
+}
+
+//end of if selected
+}
+redrawworld();
+
+//end of if mapmaker
+}
+//end of func
+}
+
+
+// variables to hold mouse x-y position
+var mouseX = 0
+var mouseY = 0
+var realmouseX = 0
+var realmouseY = 0
+var oldmouseX = 0
+var oldmouseY = 0
+var changeinX=0;
+var changeinY=0;
+var oldtop
+var oldleft
+var mousediffinx
+var mousediffiny
+
+
+var mousein=false;
+
+//this is called anytime the mouse button is released on the page. Stops windows 'sticking' to the mouse
+function finalmouseup()
+{
+mousedown=false
+selected=false;
+//stop windows being dragged
+for(var i=0;i<windows.length;i++){windows[i].moveme=false;}}
+
+//detect IE or not for mouse capture
+//if (document.all){var IE=true}else{var IE = false}
+if (IE==false) {document.captureEvents(Event.MOUSEMOVE)}
+
+function getMouseXY(e)
+{if(IE){
+//grab the x-y pos.s if browser is IE
+mouseX = event.clientX + document.body.scrollLeft-13
+mouseY = event.clientY + document.body.scrollTop-18
+realmouseX = event.clientX + document.body.scrollLeft//-13
+realmouseY = event.clientY + document.body.scrollTop//-18
+}else{
+//grab the x-y pos.s if browser is NS
+mouseX = e.pageX-11
+mouseY = e.pageY-16
+realmouseX = e.pageX//-8
+realmouseY = e.pageY//-8
+}
+//catch possible negative values in NS4
+if (mouseX < 0){mouseX = 0}
+if (mouseY < 0){mouseY = 0}
+//this will do things with the mouse movement
+checkmice();
+oldmouseX=mouseX;
+oldmouseY=mouseY;}
+
+//see where the mouse is, and if a window needs to be moved
+function checkmice()
+{for(var i=0;i<windows.length;i++)
+{if (windows[i].moveme == true)//moveing a window
+{var oldwidth=tonumber(document.getElementById(windows[i].title).style.width)
+var oldheight=tonumber(document.getElementById(windows[i].divname).style.height)
+var offset=getScrollXY();
+var screenwidth = document.body.clientWidth*1+offset[0];
+var screenheight = document.body.clientHeight*1+offset[1];
+var newleft =	realmouseX-mousediffinx;
+var newtop = realmouseY-mousediffiny;
+//find out if you're trying to drag the window off the bottom and right edges of the screen
+var newright =	realmouseX+oldwidth+20-mousediffinx
+var newbottom = realmouseY+oldheight+20
+if (newright > screenwidth){newleft=screenwidth-oldwidth-20}
+if (newbottom > screenheight){newtop=screenheight-oldheight-32}
+if (newleft < 10){newleft = 10}
+if (newtop < 10){newtop = 10}  
+document.getElementById(windows[i].divname).style.left=newleft
+document.getElementById(windows[i].divname).style.top=newtop}}}
+
+
+
+document.onmouseup   = finalmouseup;
+document.onmousemove = getMouseXY;
+
+//-->
+</script>
+
+</body>
+</html>
+
+
+

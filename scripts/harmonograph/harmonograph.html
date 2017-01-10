@@ -1,0 +1,41 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+		<title>Harmonograph Simulation Test</title>
+		<script type="text/javascript" src="commonFunctions.js"></script>
+		<script type="text/javascript" src="canvas2image.js"></script>
+		<script type="text/javascript" src="base64.js"></script>
+		<script type="text/javascript" src="harmonograph.js"></script>
+		<script type="text/javascript" src="HarmonographClass.js"></script>
+		<!--[if IE]>
+		<script type="text/javascript" src="excanvas3.compiled.js"></script>
+		<script type="text/javascript" src="IEsucks.js"></script>
+		<link type="text/css" rel="stylesheet" href="IEsucks.css">
+		<![endif]-->
+		
+	</head>
+	<body>
+		
+		<h3><a href="http://www.lukewallin.co.uk/software/harmonograph/">Javascript Harmonograph Simulator - www.lukewallin.co.uk</a></h3>
+		<!--[if IE]>
+		<h4>You are using IE. Some features are missing. <a href="http://www.google.com/chrome">Get Chrome </a> or <a href="http://www.getfirefox.com">Firefox</a> to see this app in full!</h4>
+		<![endif]-->
+		<canvas id="harmonographCanvas" width="600" height="600"></canvas>
+		<br>
+		
+		<div id="harmonographLinkDiv"></div>
+		
+		<!--<input type="button" value="Save as PNG Image" onclick="" \>//-->
+		
+		<br>
+		<br>
+		<input type="button" onclick="harmonograph.updateFromForm();harmonograph.draw();" value="Update" \>
+		<input type="button" onclick="harmonograph.updateFromForm();harmonograph.drawSlow();" class="IEfail" value="Draw Slow" \>
+		<input type="button" onclick="harmonograph.updateFromForm();harmonograph.addPendulum();harmonograph.buildDiv();" value="Add Pendulum" \>
+		<br>
+		<input type="button" class="IEfail" onclick="harmonograph.makePNG();" value="Save Image" \> <input type="button" class="IEfail" onclick="harmonograph.makePNG(true);" value="Save thumbnail" \>
+		<br>
+		<div id="harmonographDiv"></div>
+	</body>
+</html>

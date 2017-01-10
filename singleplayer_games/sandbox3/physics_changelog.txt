@@ -1,0 +1,9 @@
+0.01 (15/09/2008)
+-Engine split into sections, and this changelog started.
+
+0.02 (15/09/2008)
+-made to work stand-alone from response (fake response added if and when needed)
+-fixed springs.
+
+0.03 (17/09/2008)
+-various fixes made when working on spiderGen - should still work for sandbox though.

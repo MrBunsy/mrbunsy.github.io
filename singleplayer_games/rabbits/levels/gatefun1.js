@@ -1,0 +1,67 @@
+function loadgatefun1()
+{
+new gate(0,4,1,1,0); 
+new gate(0,5,1,1,0); 
+new gate(1,6,1,1,0); 
+new gate(1,7,1,1,0); 
+new gate(2,8,1,1,0); 
+new gate(2,9,1,1,0); 
+new gate(3,10,1,1,0); 
+new block(0,3,0); 
+new block(2,2,0); 
+new block(3,1,0); 
+new gate(1,3,1,1,1); 
+new gate(2,5,1,1,1); 
+new gate(3,7,1,1,1); 
+new gate(4,8,1,1,1); 
+new gate(4,9,1,1,1); 
+new warren(1,9,1,1); 
+new gate(3,6,1,2,1); 
+new gate(5,10,1,2,1); 
+new gate(2,4,1,3,1); 
+new gate(3,11,1,3,0); 
+new block(4,11,0); 
+new gate(3,3,1,1,1); 
+new gate(6,8,1,1,1); 
+new gate(5,7,1,2,1); 
+new gate(4,5,1,2,1); 
+new gate(4,4,1,3,0); 
+new gate(5,6,1,0,0); 
+new gate(6,9,1,0,0); 
+new hutch(6,11,[0,1,2,3],[false],[false],1,2,20); 
+new block(5,11,0); 
+new block(7,10,0); 
+new block(7,9,0); 
+new gate(3,2,1,1,0); 
+new block(7,12,0); 
+new block(7,11,0); 
+new block(8,9,0); 
+new block(9,9,0); 
+new block(4,12,0); 
+new block(6,12,0); 
+new warren(9,8,0,false); 
+new warren(8,7,0,false); 
+new warren(8,6,0,false); 
+new warren(7,5,0,false); 
+new warren(7,4,0,false); 
+new warren(6,3,0,false); 
+new warren(6,2,0,false); 
+new warren(5,1,0,false); 
+new warren(5,0,0,false); 
+new gate(6,5,1,0,0); 
+new gate(8,8,1,0,1); 
+new gate(7,7,1,3,0); 
+new gate(7,6,1,2,0); 
+new gate(5,2,1,2,0); 
+new gate(4,1,1,0,0); 
+new gate(5,3,1,2,1); 
+new gate(6,4,1,2,1); 
+gridcols=10;gridrows=13;gridsize=30;gridsides=6;
+new tool(0,3,3); 
+new tool(1,1,1); 
+new tool(1,0,1); 
+
+
+}
+loadgatefun1();
+finishloading();

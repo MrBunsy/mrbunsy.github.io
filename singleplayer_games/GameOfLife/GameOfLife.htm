@@ -1,0 +1,30 @@
+<html>
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+		<title>Game Of Life</title>
+		<!--[if IE]>
+		<script type="text/javascript" src="excanvas-compressed.js"></script>
+		<![endif]-->
+
+		<script type="text/javascript" src="GameOfLife.js"></script>
+		<script type="text/javascript" src="GameOfLifeControls.js"></script>
+		<script type="text/javascript" src="PlayGameOfLife.js"></script>
+	</head>
+	<body>
+		
+		<div id="GameOfLifeDiv">
+			<canvas id="GameOfLifeCanvas" style="float:left;" onmousedown="playGameOfLife.mouseDown();" width=600 height=600></canvas>
+			<div id="GameOfLifeControls" style="float:leftt;">
+				<ul style="list-style-type:none;">
+					<li><span id="GameOfLifeStatus">Paused</span></li>
+					<li>FPS: <input type="button" value="-" onClick="playGameOfLife.changeSpeed(false);"> <span id="GameOfLifeSpeed">2</span> <input type="button" value="+" onClick="playGameOfLife.changeSpeed(true);"></li>
+					<li><a href="javascript:playGameOfLife.play();">Play</a></li>
+					<li><a href="javascript:playGameOfLife.stop();">Stop</a></li>
+					<li><a href="javascript:playGameOfLife.clear()">Clear Grid</a></li>
+				</ul>
+				
+			</div>
+		</div>
+		
+	</body>
+</html>

@@ -1,0 +1,64 @@
+/* ===== Map Preview (links) ===== */
+#map ul {
+	margin-top: 15px;
+	margin-left: 20px;
+}
+#map li {
+	display: inline;
+	list-style: none;
+	margin-left: 4px;
+}
+
+/* ===== The Map Editor ===== */
+#planet_wars_editor {
+	display: none;
+	position: fixed;
+	top: 0;
+	left: 0;
+	width: 100%;
+	background-color: #cdcdcd;
+    -moz-opacity: 0.9;
+    opacity:.90;
+    filter: alpha(opacity=90);
+	height: 100%;
+}
+#planet_wars_editor_container {
+	display: none;
+	position: absolute;
+	top: 8%;
+	width: 960px;
+	background-color: #fff;
+	padding-top: 25px;
+}
+#planet_wars_editor_container canvas {
+	background-color: #000;
+	margin-bottom: 25px;
+	margin-left: 25px;
+	float: left;
+}
+#editor_tools_container {
+	margin-left: 790px;
+	width: 150px;
+}
+#editor_tools {
+	padding: 10px 3px 10px 0;
+}
+#editor_tools ul {
+	list-style: none;
+	margin-left: 15px;
+}
+#editor_tools li {
+	margin-top: 3px;
+}
+#editor_tools li.add {
+	padding-top: 8px;
+}
+#editor_tools li.clear {
+	margin-top: 15px;
+}
+#editor_close {
+	position: absolute;
+	bottom: 25px; /* Same as margin-bottom on canvas */
+	right: 20px;
+	font-size: 1.3em;
+}

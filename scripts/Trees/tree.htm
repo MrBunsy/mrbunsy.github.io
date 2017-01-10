@@ -1,0 +1,116 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html>
+<head>
+<title>Tree System</title>
+</head>
+<body>
+<canvas style="border:solid black 1px;" id="canvastagid" width=500 height=500></canvas>
+<script language="JavaScript" type="text/javascript">
+<!--
+var canvas=document.getElementById('canvastagid').getContext('2d');
+
+var trees=new Array();
+function tree(x,y,iterations,branchings,size,steps)
+  {
+	this.root=[x,y];
+	this.iterations=iterations;
+	this.iteration=0;
+	this.branchings=branchings;
+	this.size=size;
+	
+	this.steps=steps;
+	this.alive=true;
+	
+	this.branches=new Array();
+	this.branches.push(new branch(this.root , [this.root[0],this.root[1]-this.size] , this.steps) )
+	//idea for angles and stuff:
+	//angle[iteration][branchnum]
+	
+	trees.push(this); 
+	}
+
+//for next itteration: if(i==branches.length-1) {start next iteration}
+	
+function branch(start,finish,steps)
+  {
+	this.start=start;
+	this.finish=finish;
+	this.steps=steps
+	this.progress=0;
+	
+	this.alive=true;
+	
+	this.dx=(finish[0]-start[0])/steps
+	this.dy=(finish[1]-start[1])/steps
+	//alert([this.dx,this.dy])
+	}
+	
+var loopme=setInterval(loop,200)
+
+function loop()
+  {
+	for(var t=0;t<trees.length;t++)
+  	{
+		if(trees[t].alive)
+  		{
+    	for(var i=0;i<trees[t].branches.length;i++)
+    	  {
+  			if(trees[t].branches[i].alive)
+    			{
+					//alert(trees[t].branches[i].start)
+					
+  				//for each branch that is alive, draw a bit more.
+					canvas.beginPath();
+      		canvas.moveTo(trees[t].branches[i].start[0]+trees[t].branches[i].dx*trees[t].branches[i].progress , trees[t].branches[i].start[1]+trees[t].branches[i].dy*trees[t].branches[i].progress)
+      		trees[t].branches[i].progress++
+      		canvas.lineTo(trees[t].branches[i].start[0]+trees[t].branches[i].dx*trees[t].branches[i].progress , trees[t].branches[i].start[1]+trees[t].branches[i].dy*trees[t].branches[i].progress)
+					canvas.stroke();
+    			}
+    		}
+  		
+    	if(trees[t].branches[trees[t].branches.length-1].progress >= trees[t].steps)
+  		  {
+  			//all live branches for this tree grown to full length
+  			trees[t].iteration++;
+  			trees[t].size*=0.75;
+  			if(trees[t].iteration<trees[t].iterations)
+  				{
+    			tempbranches=trees[t].branches.length;
+    			for(var b=0;b<tempbranches;b++)
+    			  {
+    				if(trees[t].branches[b].alive)
+    				  {
+    					trees[t].branches[b].alive=false;
+    					//create the new branches starting from the end of this branch
+    					
+    					for(var b2=0;b2<trees[t].branchings;b2++)
+    					  {
+								//alert(b2)
+    						//angle of branch which has just stopped
+    						oldangle=Math.atan2(trees[t].branches[b].finish[1]-trees[t].branches[b].start[1] , trees[t].branches[b].finish[0]-trees[t].branches[b].start[0])
+    						
+    						newangle=oldangle+ Math.random()*Math.PI*0.8 - Math.PI*0.4;
+    						//alert([trees[t].branches[b].finish , [trees[t].branches[b].finish[0]+Math.cos(newangle)*trees[t].size , trees[t].branches[b].finish[1]+Math.sin(newangle)*trees[t].size] , trees[t].branchings])
+    						trees[t].branches.push(new branch(trees[t].branches[b].finish , [trees[t].branches[b].finish[0]+Math.cos(newangle)*trees[t].size , trees[t].branches[b].finish[1]+Math.sin(newangle)*trees[t].size] , trees[t].steps))
+    						}//new branches loop
+    					}//branch was alive
+    				}//branches loop
+    			}
+				else
+				  {
+					//tree grown too much
+					trees[t].alive=false;
+					}
+				}//all grown
+  		}//tree alive
+  	}//tree loop
+	}
+
+new tree(250,500,5,4,100,5)
+//-->
+</script>
+
+
+</body>
+</html>

@@ -1,0 +1,161 @@
+0.01 (17-12-07)
+-Working random planet placement
+
+0.02 (18-12-07)
+-Added player placement
+
+0.03 (19-12-07)
+-Can fire missile.  Nothing to stop it bouncing around, and bugs with missiles after world generation. (possibly caused by black holes)
+-Black holes disabled.
+
+0.04 (20-12-07)
+-Missiles stop when they hit something.
+
+0.05 (20-12-07)
+-Star generator added
+-Angles now anti-clockwise
+
+0.06 (21-12-07)
+-Players taking turns system working.
+-Winning is now possible.
+BUG - Can still fire when killed (more than 2 players)
+
+0.07 (22-12-07)
+-Coloumbs law now works properly - charge ('gravity') acts from the centre of an object.
+-Colours added to players, missiles and text.
+-More than one player games now work properly (dead players skipped), but not very obvious to the user yet.  Might add explosions.
+
+0.08 (22-12-07)
+-New render mode, 'IEblur' added, where everything is static on the canvas, and a div is used to move the missile.  Once the missile has hit somewhere, it's trail is drawn.  This was needed because IE was growing painfully slow and using up 100% of the CPU to draw trails in real-time
+-Two types of spaceship added, each can be facing two directions.
+-When you hit another ship, it is crossed out in the colour of the player who hit it.
+-IE var set using [if IE] rather than document.all, since that falsely triggered Opera (which is capable of drawing trails on the canvas in real time)
+-Planets drawn with gradients for colour, works nicely (albeit differently) in Opera, FF and IE, but not at all in Safari.  Detection of safari through ctx.canvas.toDataURL() (Safari fails).  Not ideal, but works.  Safari just draws them a single colour.
+BUG - can kill already dead players.
+BUG? - Missiles fired along the same route as previously are nearly impossible to see.  Consider using DIVs for missiles, and canvas to leave a thiner trail behind?
+
+0.09 (22-12-07)
+-Can no longer kill someone twice.
+-Missiles use DIVs to move a larger coloured blob, and the canvas to draw a narrow trail behind it.
+-Gamespeed option added
+-Using IEblur render, the last shot should now be drawn (rather than skipped, as was)
+-Fixed bug where firing at an angle of 160 (probably others too) would kill yourself.
+
+0.10 (22-12-07)
+-Fixed more angle bugs.
+-Added checks to see if angles, speeds, etc, are numbers.
+-Cut out normal engine collision stuff - hopefully fixed odd bug where things tried to collide
+
+0.11 (23-12-07)
+-Better new game options.
+-New planet size option.
+-Can't change game speed mid game (resulted in a slight change of path of missiles).
+-Removed remenants of onMouseDown from worlddiv
+-Fixed bug, so you can now get rocket ship facing other way.
+
+0.12 (23-12-07)
+-Taken safari detection out - looks like it was a bug in an early windows beta of safari.
+-Added occasional rings around planets
+-Fixed more coulomb's law problems, forces are now done from the centres of charged objects.
+-Added wormholes, complete with fancy graphic
+
+Elton's Ideas:
+-Wormholes (teleport).  I love this idea.
+-blackholes affect what the stars look like.  Cool, but lots of work.
+-Boxes round black holes.  Not so fond of.  Maybe as an option.
+
+0.13 (23-12-07)
+-Changes to world generator. Now they're not placed at all if they can't be spaced apart.
+-Hopefully fixed odd problems with wormholes by adding 5 to the distance they're popped out at.
+
+Ideas:
+-Arrow to show direction and speed of next missile.  A canvas in a div?
+-Use independant lobby system for multiplayer games?  Makes keeping versions up to date potentially harder, but re-using lobby much easier.
+
+0.14 (24-12-07)
+-Added arrow to show where the missile is aimed, size of arrow reflects speed.
+-Mouse click (and drag) can be used to change the angle and speed.
+
+0.15 (24-12-07)
+-Attempt to make scale of arrow easier (distance away from spaceship no longer 1:1 with size of arrow), so as to avoid speed too often being maxed out.
+-Worm hole graphics can rotate either direction, and be different colours.
+
+0.16 (24-12-07)
+-Added a simple graphics mode, looks like my Safari problems weren't unique.
+-(After more testing, thought this might be needed) Safari now defaults to simple graphics mode.
+
+NOTE TO SELF:
+-read somewhere that Safari doesn't like drawing on the canvas off-screen.  Possible this is part of the problem?
+
+HELP! strange problems developed in Opera after updating, now the canvas is all choppy!  Even on the sandbox!  Some old versions of PW work, and google's examples work.  I've read that opera only accepts rgba colour vaules, I might give this a try.
+
+IDEA! - use lineJoin to tidy up arrow.
+
+0.17 (6-01-08)
+-Tinkerings to try and fix odd Opera problem, not really conclusive.  now lots of colours are specified in rgba
+-Fixed false IE detection of opera, accidently slipped in in the mouse stuff.
+-Fixed Opera problem, side effect may be that it's also fixed the Safari problem
+-Think I implenented a tidier looking arrow
+
+0.18 (7-01-08)
+-Added equipotential line drawer, mostly to see what happens, not really intended in public version
+
+0.19 (7-01-08)
+-improved EP lines, still painfully slow though.  Also added choice of which EP to draw line at
+
+0.17.1 (11-01-08)
+-Added link to online games system
+
+0.20 (17-01-08) - derived from 0.17.1
+-Added 'spacestations' - a Death Star with same charge as missile, so it repels it.
+
+0.21 (?)
+-Testing lasers
+
+0.22 (2-02-08)
+-Testing animation system/better lasers
+
+Found a link between CPU usage and number/size of canvases.  Adding a second full sizes canvas reduces opera to a crawl, FF increses to 80% CPU (as opposed to 40% max before), IE not affected.
+This rather hampers my animation system idea.
+0.23 is my test which showed this.
+
+I think I'll have to re-use the arrow canvas, just moving it to where it's needed for animations, much like my prototype laser.  Hopefully tidying up how often it's hidden and shown should speed it up
+
+0.24 (2-02-08):
+-Laser optimised
+-started work on map editor.  Realised it's a lot of work and stopped for now.
+
+Plan: Either have a different rendering mode for editor (which will be faster, so things can be dragged), or use the multiplayer editor and PHP.
+
+0.25 (3-02-08):
+-Testing out gravity which is proportional to area.  Quite fun, much more of an effect, but faster missiles will be needed
+
+0.26 (9-02-08):
+-Added option to switch between hyper gravity (name for what I tested in 0.25) and normal, bringing single player closer to multiplayer.  Still need a map editor.
+
+0.27 (18-03-08):
+-Map maker rendermode added - simple coloured circles for most things, and coloured boxes for players.  Much like MP editor.
+-Adding map editor, fixed bug in engine where makecharged function didn't change a previously charged object, but gave it even more charge.
+-Check for right number of wormholes
+-repelerarray correctly altered when deleting and adding wormholes
+-only one black hole
+
+0.28 (18-03-08):
+-Got 'add random' buttons working in editor.
+
+idea: - use redrawworld() when simple graphics is clicked
+
+0.29 (19-03-08)
+-IE optimisation attempted
+
+0.30 (19-0308)
+-Given up with IE optimisation, just improved makebigger and makesmaller
+
+0.31 (19-03-08)
+-makebigger and makemsmaller leave centre of circle in the same position.
+-Improved IEblur so it draws a trail in chunks after the missile, seems to have low CPU usage (few % as opposed to 100% for drawing whole trail in normal blur mode), and probably looks better than no trail till the missile crashes.
+
+FOUND BUG - if you add a black hole then create a new map the black hole counter won't be reset and you can't add a black hole without refreshing the page.
+
+0.32 (31-05-08)
+-Above map editor black hole bug fixed.

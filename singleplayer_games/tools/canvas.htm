@@ -1,0 +1,52 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<title>Javascript Canvas</title>
+<script src="canvas.js" type="text/javascript"></script>
+</head>
+<body>
+<span id="canvasspan"></span>
+<h1>Javascript Div Canvas</h1>
+<form name="lineform" action="javascript:DrawLine(document.lineform.x1.value*1,document.lineform.y1.value*1,document.lineform.x2.value*1,document.lineform.y2.value*1,document.lineform.z.value,document.lineform.colour.value,document.lineform.thick.value)">
+x1:<input type="text" name="x1" size='10'>y1:<input type="text" name="y1" size='10'><br>
+x2:<input type="text" name="x2" size='10'>y2:<input type="text" name="y2" size='10'><br>
+<select name="colour"><option value="black">Black</option><option value="red">Red</option><option value="orange">Orange</option><option value="green">Green</option><option value="blue">Blue</option><option value="purple">Purple</option></select>
+thick:<input type="text" name="thick" size='10' value=1>
+z-index:<input type="text" name="z" size='10' value=1>
+<input type="submit" value="Draw">
+</form>
+
+<span onClick="document.getElementById('canvasspan').innerHTML='';" style="cursor:pointer; cursor:hand;">Wipe Canvas</span>
+<p>
+<span onClick="alert(document.getElementById('canvasspan').innerHTML);" style="cursor:pointer; cursor:hand;">Alert Canvas</span>
+<h2>How To Use</h2>
+Add a span with the id 'canvasspan'.
+<pre>&lt;span id="canvaspan"&gt;&lt;/span&gt;</pre>
+Include the <a href="canvas.js">canvas.js</a> script.
+<pre>&lt;script src="canvas.js" type="text/javascript"&gt;&lt;/script&gt;</pre>
+There are three functions, DrawLine, DrawCircle and DrawElipse.  DrawLine is the only one which has been optimised and is able to draw a clean line.
+<p>
+They accept the following parameters:
+<p>
+DrawLine(x1 - integer, y1- integer, x2 - integer, y2 - integer, z-index - integer, colour - string, thickness - integer)
+<p>
+DrawCircle(center x - integer, centre y- integer, radius - integer, z-index - integer, colour - string, thickness - integer)
+<p>
+DrawElipse(center x - integer, centre y- integer, radius x - integer, radius y - integer, z-index - integer, colour - string, thickness - integer)
+<script language="JavaScript" type="text/javascript">
+<!--
+
+DrawLine(10,10,700,500,2,'#000000',1)
+
+DrawLine(300,90,280,100,2,'#00ff00',50)
+
+DrawCircle(400,500,100,1,'#0000ff',1)
+
+DrawElipse(600,200,50,200,1,'#0000ff',1)
+
+//-->
+</script>
+
+
+</body>
+</html>

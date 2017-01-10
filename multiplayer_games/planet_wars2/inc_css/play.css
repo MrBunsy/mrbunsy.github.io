@@ -1,0 +1,115 @@
+/* ===== Map stuff ===== */
+#map_container {
+	margin: 30px auto auto auto;
+	width: 830px;
+}
+#planet_wars_div {
+	margin: 15px auto 15px auto;
+}
+
+#stuff_under_map {
+	width: 830px;
+	margin: 30px auto auto auto;
+	position:relative;
+	z-index: 4;
+}
+
+/* ===== People in Room ===== */
+#people_in_room_container {
+	width: 225px;
+	float: left;
+}
+#people_in_room {
+	height: 200px;
+}
+
+/* ===== Controls ===== */
+#controls_container {
+	width: 265px;
+	float: left;
+	margin-left: 20px;
+}
+#controls {
+	padding: 10px 20px 20px 20px;
+}
+#planet_wars_angle_input_box, #planet_wars_speed_input_box {
+	width: 75px;
+}
+#controls br {
+	margin-top: 5px;
+}
+#controls label {
+	display: inline-block;
+	width: 50px;
+	font-size: 1.2em;
+}
+#planet_wars_fire {
+	float: right;
+	padding: 7px 8px;
+	margin-top: 3px;
+	margin-right: 10px;
+}
+#planet_wars_whosego {
+	text-align: center;
+	font-weight: bold;
+	margin-top: 15px;
+	font-size: 1.5em;
+}
+/* ===== Chat ===== */
+#chat_container {
+	width: 300px;
+	float: left;
+	margin-left: 20px;
+}
+#chat_messages {
+	height: 180px;
+}
+#chat_container input {
+	width: 298px;
+}
+
+#planet_wars_input_form {
+	visibility: hidden;
+}
+
+
+#endgame_display_container {
+	padding-top: 10px;
+	display: none;
+	width: 30%;
+	position: absolute;
+	top: 480px;
+	left: 35%;
+	border: solid 1px #000;
+	background-color: #fff;
+}
+#endgame_display_container h2 {
+	text-align: center;
+	font-size: 1.8em;
+}
+#endgame_display table {
+	margin-left: auto;
+	margin-right: auto;
+	margin-top: 15px;
+	border: 1px solid #000;
+	border-collapse: collapse;
+}
+#endgame_display table tr.header {
+	border: 1px solid #000;
+}
+#endgame_display table td, #endgame_display table th {
+	padding: 3px 6px;
+	border-right: 1px solid #000;
+}
+p#endgame_display_close {
+	text-align: right;
+	margin-right: 10px;
+	margin-top: 15px;
+	margin-bottom: 3px;
+}
+p#endgame_display_close a {
+	text-decoration: none;
+}
+p#endgame_display_close a:hover {
+	text-decoration: underline;
+}

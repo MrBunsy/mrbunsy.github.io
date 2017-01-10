@@ -1,0 +1,231 @@
+<html>
+<head>
+
+
+<script language="JavaScript" type="text/javascript">
+<!--
+
+var rabbitmove;
+var counts = 0
+var counts2 = 0
+
+function main()
+{
+areyoudead()
+if (counts == 6){moverabbit() , areyoudead() , counts = 0}else{counts++}
+if (counts2 == 4){movemonsters() , areyoudead() , counts2 = 0}else{counts2++}
+display()
+
+
+}
+
+//-->
+</script>
+<script language="JavaScript" type="text/javascript">
+<!--
+
+function display()
+{document.getElementById('scorebox').innerHTML="Lives: "+rabbit.lives}
+
+function areyoudead()
+{
+if (rabbit.location == bluemonster.location){rabbit.lives=rabbit.lives-1} 
+if (rabbit.lives == 0){alert("DIE"), history.go(0)}
+}
+
+function movemonsters()
+{
+bluemonster.monstermove(-17)
+}
+
+function moverabbit()
+{
+if (rabbitmove == "right"){rabbit.move(1)}
+if (rabbitmove == "left"){rabbit.move(-1)}
+if (rabbitmove == "down"){rabbit.move(+17)}
+if (rabbitmove == "up"){rabbit.move(-17)}}
+var paused = "false"
+
+function pause()
+{
+if (paused !== "true" )
+{
+document.getElementById('scorebox').innerHTML="PAUSED"
+clearInterval(s)
+paused = "true"
+}else{
+s=setInterval('main()',50)
+paused = "false"
+}
+}
+
+//-->
+</script>
+<script language="JavaScript" type="text/javascript">
+<!--
+function Creature(name,location,lives)
+{this.name = name
+this.location = location;
+this.lives = lives;
+this.move = move;}
+
+function Monster(image,location,time,ontopsrc,wheretomove)
+{this.wheretomove = wheretomove;
+this.ontopsrc = ontopsrc;
+this.image = image;
+this.location = location;
+this.time = time;
+this.monstermove = monstermove;}
+
+function monstermove()
+{
+
+evalthisM1 = eval(this.location+this.wheretomove)
+if (evalthisM1 < 0){evalthisM1 = 0}
+if (evalthisM1 > 221){evalthisM1 = 0} 
+evalthisM3 = "document.images["+evalthisM1+"]"
+evalthisM2 = eval(evalthisM3)
+if (evalthisM2.name == "../blank.gif")
+{
+evalthisM=eval("document.images["+this.location+"]")
+evalthisM.src = this.ontopsrc
+
+this.location = evalthisM1
+
+evalthisM3 = "document.images["+this.location+"]"
+evalthisM2 = eval(evalthisM3)
+this.ontopsrc = evalthisM2.src
+evalthisM2.src=this.image
+
+}else{
+countingmonster =  Math.ceil(Math.random()*4);
+if (countingmonster == 1){this.wheretomove = -17}
+if (countingmonster == 2){this.wheretomove = +17}
+if (countingmonster == 3){this.wheretomove = -1}
+if (countingmonster == 4){this.wheretomove = +1}
+}
+}
+var bluemonster = new Monster("../monster1.gif",76,15,"../blank.gif",-17)
+var rabbit = new Creature("rabbit",110, 3)
+var evalthis;
+var evalthis2;
+var rabbitimage;
+var bigblobs;
+var blobs;
+var howfartomove = -17
+var countingmonster = 1
+var evalthisM;
+var evalthisM2;
+var evalthisM3;
+var evalthisM1
+
+function move(where)
+{
+evalthis3 = eval(this.location+where)
+evalthis = "document.images["+evalthis3+"]"
+evalthis2 = eval(evalthis)
+if (evalthis2.name == "../blank.gif")
+{
+if (this.name == "rabbit")
+{
+if (where == -1){rabbitimage = "../left.gif"}
+if (where == +1){rabbitimage = "../right.gif"}
+if (where == -17){rabbitimage = "../up.gif"}
+if (where == +17){rabbitimage = "../down.gif"}
+}else{
+rabbitimage = this.name
+}
+
+if (evalthis2.src == "../bigblob.gif")
+{
+bigblobs = "true"
+}
+if (evalthis2.src == "../blob.gif")
+{
+blobs++
+}
+
+evalthis=eval("document.images["+this.location+"]")
+evalthis.src = evalthis.name
+
+this.location = evalthis3
+evalthis = "document.images["+this.location+"]"
+evalthis2 = eval(evalthis)
+evalthis2.src=rabbitimage
+}
+
+}
+
+
+//var the_image = prompt("change parrot or cheese","");
+//	var the_image_name = "window.document." + the_image;
+//	var the_image_object = eval(the_image_name);
+//	the_image_object.src = "ant.gif";
+
+
+//-->
+</script>
+</head>
+<body onkeydown="javascript:keyDown()" onload="javascript:s=setInterval('main()',50);" bgcolor="#ffffff">
+<script language="JavaScript" type="text/javascript">
+<!--
+var endofscript = '</script>'
+var fforie;
+if (navigator.appName == "Microsoft Internet Explorer")
+{fforie = true}
+if (fforie == true){
+document.writeln('<script>')
+document.writeln('function keyDown()')
+document.writeln('{')
+document.writeln('if(event.keyCode == 39){rabbitmove="right"}')
+document.writeln('if(event.keyCode == 37){rabbitmove="left"}')
+document.writeln('if(event.keyCode == 40){rabbitmove="down"}')
+document.writeln('if(event.keyCode == 38){rabbitmove="up"}')
+document.writeln('if(event.keyCode == 80){pause()};')
+document.writeln('if(event.keyCode == 27){self.close()};')
+document.writeln('}')
+document.writeln(endofscript)
+}
+else
+{
+document.writeln('<script>')
+document.writeln('function keyDown(e)')
+document.writeln('{')
+document.writeln('if(e.which == 39){rabbitmove="right"}')
+document.writeln('if(e.which == 37){rabbitmove="left"}')
+document.writeln('if(e.which == 40){rabbitmove="down"}')
+document.writeln('if(e.which == 38){rabbitmove="up"}')
+document.writeln('if(e.which == 80){pause()}')
+document.writeln('if(e.which == 27){self.close()};')
+document.writeln('}')
+document.writeln('document.onkeydown=keyDown;')
+document.writeln(endofscript)}
+var numbers = 500
+
+//-->
+</script>
+
+-0---1---2---3---4---5---6---7---8--9--10--11--12-13-14--15--16<br>
+<img src="../white.gif" name='../white.gif' width="25" height="25" alt="">							 <img src="../bigblob.gif" name="../blank.gif" width="25" height="25" alt=""><img src="../blob.gif" name="../blank.gif" width="25" height="25" alt=""><img src="../blob.gif" name="../blank.gif" width="25" height="25" alt=""><img src="../blob.gif" name="../blank.gif" width="25" height="25" alt=""><img src="../blob.gif" name="../blank.gif" width="25" height="25" alt=""><img src="../blob.gif" name="../blank.gif" width="25" height="25" alt=""><img src="../blob.gif" name="../blank.gif" width="25" height="25" alt=""><img src="../blob.gif" name="../blank.gif" width="25" height="25" alt=""><img src="../blob.gif" name="../blank.gif" width="25" height="25" alt=""><img src="../blob.gif" name="../blank.gif" width="25" height="25" alt=""><img src="../blob.gif" name="../blank.gif" width="25" height="25" alt=""><img src="../blob.gif" name="../blank.gif" width="25" height="25" alt=""><img src="../blob.gif" name="../blank.gif" width="25" height="25" alt=""><img src="../blob.gif" name="../blank.gif" width="25" height="25" alt=""><img src="../bigblob.gif" name="../blank.gif" width="25" height="25" alt="">		<img src="../white.gif" name='../white.gif' width="25" height="25" alt="">17<br>
+<img src="../white.gif" name='../white.gif' width="25" height="25" alt="">							 <img src="../blob.gif" name='../blank.gif' width="25" height="25" alt=""><img src="../wrightdown.gif" name="../wrightdown.gif" width="25" height="25" alt=""><img src="../wrightleft.gif" name="../wrightleft.gif" width="25" height="25" alt=""><img src="../wdownleft.gif" name="../wdownleft.gif" width="25" height="25" alt=""><img src="../blob.gif" name="../blank.gif" width="25" height="25" alt=""><img src="../wrightleft.gif" name="../wrightleft.gif" width="25" height="25" alt=""><img src="../wrightleft.gif" name="../wrightleft.gif" width="25" height="25" alt=""><img src="../wrightleft.gif" name="../wrightleft.gif" width="25" height="25" alt=""><img src="../wrightleft.gif" name="../wrightleft.gif" width="25" height="25" alt=""><img src="../wrightleft.gif" name="../wrightleft.gif" width="25" height="25" alt=""><img src="../blob.gif" name="../blank.gif" width="25" height="25" alt=""><img src="../wrightdown.gif" name="../wrightdown.gif" width="25" height="25" alt=""><img src="../wrightleft.gif" name="../wrightleft.gif" width="25" height="25" alt=""><img src="../wdownleft.gif" name="../wdownleft.gif" width="25" height="25" alt=""><img src="../blob.gif" name="../blank.gif" width="25" height="25" alt="">		<img src="../white.gif" name='../white.gif' width="25" height="25" alt="">34<br>
+<img src="../white.gif" name='../white.gif' width="25" height="25" alt="">							 <img src="../blob.gif" name="../blank.gif" width="25" height="25" alt=""><img src="../wupdown.gif" name="../wupdown.gif" width="25" height="25" alt=""><img src="../blank.gif" name="../blank.gif" width="25" height="25" alt=""><img src="../wupdown.gif" name="../wupdown.gif" width="25" height="25" alt=""><img src="../blob.gif" name="../blank.gif" width="25" height="25" alt=""><img src="../blob.gif" name="../blank.gif" width="25" height="25" alt=""><img src="../blob.gif" name="../blank.gif" width="25" height="25" alt=""><img src="../blob.gif" name="../blank.gif" width="25" height="25" alt=""><img src="../blob.gif" name="../blank.gif" width="25" height="25" alt=""><img src="../blob.gif" name="../blank.gif" width="25" height="25" alt=""><img src="../blob.gif" name="../blank.gif" width="25" height="25" alt=""><img src="../blank.gif" name="../blank.gif" width="25" height="25" alt=""><img src="../blob.gif" name="../blank.gif" width="25" height="25" alt=""><img src="../wupdown.gif" name="../wupdown.gif" width="25" height="25" alt=""><img src="../blob.gif" name="../blank.gif" width="25" height="25" alt="">		<img src="../white.gif" name='../white.gif' width="25" height="25" alt="">51<br>
+<img src="../white.gif" name='../white.gif' width="25" height="25" alt="">							 <img src="../blob.gif" name="../blank.gif" width="25" height="25" alt=""><img src="../wupright.gif" name="../wupright.gif" width="25" height="25" alt=""><img src="../wrightleft.gif" name="../wrightleft.gif" width="25" height="25" alt=""><img src="../wupleft.gif" name="../wupleft.gif" width="25" height="25" alt=""><img src="../blob.gif" name="../blank.gif" width="25" height="25" alt=""><img src="../wrightdown.gif" name="../wrightdown.gif" width="25" height="25" alt=""><img src="../wrightleft.gif" name="../wrightleft.gif" width="25" height="25" alt=""><img src="../blank.gif" name="../blank.gif" width="25" height="25" alt=""><img src="../wrightleft.gif" name="../wrightleft.gif" width="25" height="25" alt=""><img src="../wdownleft.gif" name="../wdownleft.gif" width="25" height="25" alt=""><img src="../blob.gif" name="../blank.gif" width="25" height="25" alt=""><img src="../wupdown.gif" name="../wupdown.gif" width="25" height="25" alt=""><img src="../blob.gif" name="../blank.gif" width="25" height="25" alt=""><img src="../wupdown.gif" name="../wupdown.gif" width="25" height="25" alt=""><img src="../blob.gif" name="../blank.gif" width="25" height="25" alt="">		<img src="../white.gif" name='../white.gif' width="25" height="25" alt="">68<br>
+<img src="../white.gif" name='../white.gif' width="25" height="25" alt="">							 <img src="../blob.gif" name="../blank.gif" width="25" height="25" alt=""><img src="../blob.gif" name="../blank.gif" width="25" height="25" alt=""><img src="../blob.gif" name="../blank.gif" width="25" height="25" alt=""><img src="../blob.gif" name="../blank.gif" width="25" height="25" alt=""><img src="../blob.gif" name="../blank.gif" width="25" height="25" alt=""><img src="../wupdown.gif" name="../wupdown.gif" width="25" height="25" alt=""><img src="../monster2.gif" name="../blank.gif" width="25" height="25" alt=""><img src="../monster1.gif" name="../blank.gif" width="25" height="25" alt=""><img src="../monster3.gif" name="../blank.gif" width="25" height="25" alt=""><img src="../wupdown.gif" name="../wupdown.gif" width="25" height="25" alt=""><img src="../blob.gif" name="../blank.gif" width="25" height="25" alt=""><img src="../wupright.gif" name="../wupright.gif" width="25" height="25" alt=""><img src="../wrightleft.gif" name="../wrightleft.gif" width="25" height="25" alt=""><img src="../wupleft.gif" name="../wupleft.gif" width="25" height="25" alt=""><img src="../blob.gif" name="../blank.gif" width="25" height="25" alt="">		<img src="../white.gif" name='../white.gif' width="25" height="25" alt="">85<br>
+<img src="../white.gif" name='../white.gif' width="25" height="25" alt="">							 <img src="../blob.gif" name="../blank.gif" width="25" height="25" alt=""><img src="../wrightdown.gif" name="../wrightdown.gif" width="25" height="25" alt=""><img src="../wrightleft.gif" name="../wrightleft.gif" width="25" height="25" alt=""><img src="../wdownleft.gif" name="../wdownleft.gif" width="25" height="25" alt=""><img src="../blob.gif" name="../blank.gif" width="25" height="25" alt=""><img src="../wupright.gif" name="../wupright.gif" width="25" height="25" alt=""><img src="../wrightleft.gif" name="../wrightleft.gif" width="25" height="25" alt=""><img src="../wrightleft.gif" name="../wrightleft.gif" width="25" height="25" alt=""><img src="../wrightleft.gif" name="../wrightleft.gif" width="25" height="25" alt=""><img src="../wupleft.gif" name="../wupleft.gif" width="25" height="25" alt=""><img src="../blob.gif" name="../blank.gif" width="25" height="25" alt=""><img src="../blob.gif" name="../blank.gif" width="25" height="25" alt=""><img src="../blob.gif" name="../blank.gif" width="25" height="25" alt=""><img src="../blob.gif" name="../blank.gif" width="25" height="25" alt=""><img src="../blob.gif" name="../blank.gif" width="25" height="25" alt="">		<img src="../white.gif" name='../white.gif' width="25" height="25" alt="">102<br>
+
+<img src="../white.gif" name='../white.gif' width="25" height="25" alt="">							 <img src="../blob.gif" name="../blank.gif" width="25" height="25" alt=""><img src="../wupdown.gif" name="../wupdown.gif" width="25" height="25" alt=""><img src="../blank.gif" name="../blank.gif" width="25" height="25" alt=""><img src="../wupdown.gif" name="../wupdown.gif" width="25" height="25" alt=""><img src="../blob.gif" name="../blank.gif" width="25" height="25" alt=""><img src="../blob.gif" name="../blank.gif" width="25" height="25" alt=""><img src="../blob.gif" name="../blank.gif" width="25" height="25" alt=""><img src="../rab.gif" name="../blank.gif" width="25" height="25" alt=""><img src="../blob.gif" name="../blank.gif" width="25" height="25" alt=""><img src="../blob.gif" name="../blank.gif" width="25" height="25" alt=""><img src="../blob.gif" name="../blank.gif" width="25" height="25" alt=""><img src="../wrightdown.gif" name="../wrightdown.gif" width="25" height="25" alt=""><img src="../wrightleft.gif" name="../wrightleft.gif" width="25" height="25" alt=""><img src="../wdownleft.gif" name="../wdownleft.gif" width="25" height="25" alt=""><img src="../blob.gif" name="../blank.gif" width="25" height="25" alt="">		<img src="../white.gif" name='../white.gif' width="25" height="25" alt="">119<br>
+
+<img src="../white.gif" name='../white.gif' width="25" height="25" alt="">							 <img src="../blob.gif" name="../blank.gif" width="25" height="25" alt=""><img src="../wupdown.gif" name="../wupdown.gif" width="25" height="25" alt=""><img src="../blank.gif" name="../blank.gif" width="25" height="25" alt=""><img src="../wupdown.gif" name="../wupdown.gif" width="25" height="25" alt=""><img src="../blob.gif" name="../blank.gif" width="25" height="25" alt=""><img src="../wright.gif" name="../wright.gif" width="25" height="25" alt=""><img src="../wleft.gif" name="../wleft.gif" width="25" height="25" alt=""><img src="../blob.gif" name="../blank.gif" width="25" height="25" alt=""><img src="../wupdown.gif" name="../wupdown.gif" width="25" height="25" alt=""><img src="../blob.gif" name="../blank.gif" width="25" height="25" alt=""><img src="../wrightdown.gif" name="../wrightdown.gif" width="25" height="25" alt=""><img src="../wupleft.gif" name="../wupleft.gif" width="25" height="25" alt=""><img src="../blank.gif" name="../blank.gif" width="25" height="25" alt=""><img src="../wupdown.gif" name="../wupdown.gif" width="25" height="25" alt=""><img src="../blob.gif" name="../blank.gif" width="25" height="25" alt="">		<img src="../white.gif" name='../white.gif' width="25" height="25" alt="">136<br>
+<img src="../white.gif" name='../white.gif' width="25" height="25" alt="">							 <img src="../blob.gif" name="../blank.gif" width="25" height="25" alt=""><img src="../wupdown.gif" name="../wupdown.gif" width="25" height="25" alt=""><img src="../wrightdown.gif" name="../wrightdown.gif" width="25" height="25" alt=""><img src="../wupleft.gif" name="../wupleft.gif" width="25" height="25" alt=""><img src="../blob.gif" name="../blank.gif" width="25" height="25" alt=""><img src="../blob.gif" name="../blank.gif" width="25" height="25" alt=""><img src="../blob.gif" name="../blank.gif" width="25" height="25" alt=""><img src="../blob.gif" name="../blank.gif" width="25" height="25" alt=""><img src="../wupdown.gif" name="../wupdown.gif" width="25" height="25" alt=""><img src="../blob.gif" name="../blank.gif" width="25" height="25" alt=""><img src="../wupright.gif" name="../wupright.gif" width="25" height="25" alt=""><img src="../wrightleft.gif" name="../wrightleft.gif" width="25" height="25" alt=""><img src="../wrightleft.gif" name="../wrightleft.gif" width="25" height="25" alt=""><img src="../wupleft.gif" name="../wupleft.gif" width="25" height="25" alt=""><img src="../blob.gif" name="../blank.gif" width="25" height="25" alt="">		<img src="../white.gif" name='../white.gif' width="25" height="25" alt="">153<br>
+<img src="../white.gif" name='../white.gif' width="25" height="25" alt="">							 <img src="../blob.gif" name="../blank.gif" width="25" height="25" alt=""><img src="../wupdown.gif" name="../wupdown.gif" width="25" height="25" alt=""><img src="../wupdown.gif" name="../wupdown.gif" width="25" height="25" alt=""><img src="../blob.gif" name="../blank.gif" width="25" height="25" alt=""><img src="../blob.gif" name="../blank.gif" width="25" height="25" alt=""><img src="../wrightdown.gif" name="../wrightdown.gif" width="25" height="25" alt=""><img src="../wdownleft.gif" name="../wdownleft.gif" width="25" height="25" alt=""><img src="../blob.gif" name="../blank.gif" width="25" height="25" alt=""><img src="../blob.gif" name="../blank.gif" width="25" height="25" alt=""><img src="../blob.gif" name="../blank.gif" width="25" height="25" alt=""><img src="../blob.gif" name="../blank.gif" width="25" height="25" alt=""><img src="../blob.gif" name="../blank.gif" width="25" height="25" alt=""><img src="../blob.gif" name="../blank.gif" width="25" height="25" alt=""><img src="../blob.gif" name="../blank.gif" width="25" height="25" alt=""><img src="../blob.gif" name="../blank.gif" width="25" height="25" alt="">		<img src="../white.gif" name='../white.gif' width="25" height="25" alt="">170<br>
+<img src="../white.gif" name='../white.gif' width="25" height="25" alt="">							 <img src="../blob.gif" name="../blank.gif" width="25" height="25" alt=""><img src="../wupdown.gif" name="../wupdown.gif" width="25" height="25" alt=""><img src="../wupdown.gif" name="../wupdown.gif" width="25" height="25" alt=""><img src="../blob.gif" name="../blank.gif" width="25" height="25" alt=""><img src="../wrightdown.gif" name="../wrightdown.gif" width="25" height="25" alt=""><img src="../wupleft.gif" name="../wupleft.gif" width="25" height="25" alt=""><img src="../wupright.gif" name="../wupright.gif" width="25" height="25" alt=""><img src="../wrightleft.gif" name="../wrightleft.gif" width="25" height="25" alt=""><img src="../wdownleft.gif" name="../wdownleft.gif" width="25" height="25" alt=""><img src="../blob.gif" name="../blank.gif" width="25" height="25" alt=""><img src="../wrightdown.gif" name="../wrightdown.gif" width="25" height="25" alt=""><img src="../wrightleft.gif" name="../wrightleft.gif" width="25" height="25" alt=""><img src="../wrightleft.gif" name="../wrightleft.gif" width="25" height="25" alt=""><img src="../wdownleft.gif" name="../wdownleft.gif" width="25" height="25" alt=""><img src="../blob.gif" name="../blank.gif" width="25" height="25" alt="">		<img src="../white.gif" name='../white.gif' width="25" height="25" alt="">187<br>
+<img src="../white.gif" name='../white.gif' width="25" height="25" alt="">							 <img src="../blob.gif" name="../blank.gif" width="25" height="25" alt=""><img src="../wupright.gif" name="../wupright.gif" width="25" height="25" alt=""><img src="../wupleft.gif" name="../wupleft.gif" width="25" height="25" alt=""><img src="../blob.gif" name="../blank.gif" width="25" height="25" alt=""><img src="../wupright.gif" name="../wupright.gif" width="25" height="25" alt=""><img src="../wrightleft.gif" name="../wrightleft.gif" width="25" height="25" alt=""><img src="../wrightleft.gif" name="../wrightleft.gif" width="25" height="25" alt=""><img src="../wrightleft.gif" name="../wrightleft.gif" width="25" height="25" alt=""><img src="../wupleft.gif" name="../wupleft.gif" width="25" height="25" alt=""><img src="../blob.gif" name="../blank.gif" width="25" height="25" alt=""><img src="../wupright.gif" name="../wupright.gif" width="25" height="25" alt=""><img src="../wrightleft.gif" name="../wrightleft.gif" width="25" height="25" alt=""><img src="../wrightleft.gif" name="../wrightleft.gif" width="25" height="25" alt=""><img src="../wupleft.gif" name="../wupleft.gif" width="25" height="25" alt=""><img src="../blob.gif" name="../blank.gif" width="25" height="25" alt="">		<img src="../white.gif" name='../white.gif' width="25" height="25" alt="">204<br>
+<img src="../white.gif" name='../white.gif' width="25" height="25" alt="">							 <img src="../bigblob.gif" name="../blank.gif" width="25" height="25" alt=""><img src="../blob.gif" name="../blank.gif" width="25" height="25" alt=""><img src="../blob.gif" name="../blank.gif" width="25" height="25" alt=""><img src="../blob.gif" name="../blank.gif" width="25" height="25" alt=""><img src="../blob.gif" name="../blank.gif" width="25" height="25" alt=""><img src="../blob.gif" name="../blank.gif" width="25" height="25" alt=""><img src="../blob.gif" name="../blank.gif" width="25" height="25" alt=""><img src="../blob.gif" name="../blank.gif" width="25" height="25" alt=""><img src="../blob.gif" name="../blank.gif" width="25" height="25" alt=""><img src="../blob.gif" name="../blank.gif" width="25" height="25" alt=""><img src="../blob.gif" name="../blank.gif" width="25" height="25" alt=""><img src="../blob.gif" name="../blank.gif" width="25" height="25" alt=""><img src="../blob.gif" name="../blank.gif" width="25" height="25" alt=""><img src="../blob.gif" name="../blank.gif" width="25" height="25" alt=""><img src="../bigblob.gif" name="../blank.gif" width="25" height="25" alt="">		<img src="../white.gif" name='../white.gif' width="25" height="25" alt="">221<br>
+<div id="scorebox"></div><br>
+
+<form name="control">
+<input value="stop" onclick="javascript:clearInterval(s);" type="button">
+<input value="start" onclick="javascript:s=setInterval('main()',50);" type="button">
+<input value="pause" onclick="javascript:pause();" type="button">
+</form>
+</body></html>

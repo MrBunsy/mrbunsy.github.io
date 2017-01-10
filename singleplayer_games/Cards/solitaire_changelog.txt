@@ -1,0 +1,78 @@
+0.01 (26/08/2008)
+-can draw the cards on the board.
+
+0.04 (27/08/2008)
+-dragging cards about, picking them up, piling them up and putting them down largely working.
+-no rules enforced yet.
+
+0.05 (27/08/2008)
+-deck at top works
+-ace piles work
+-everything except rules and win conditions is done - I think.
+-no known bugs or niggles
+
+0.07 (27/08/2008)
+-rules enforced
+-win condition added (and works)
+-win function working (just a You've won! and a new game option atm)
+-new game option (with confirm window) added in game
+
+0.08 (27/08/2008)
+-double clicking to send aces to stack working.
+-also works for other cards (correctly!)
+-won't automatically turn over the next card (due to detection being on mouseDOWN and turning over on mouseUP)
+
+0.09 (27/08/2008)
+-double click (sort of) working in IE
+-canvas slightly faster due to new full option in drawcard
+-win easter egg (cascading cards) added.  Barely works in IE, though.
+
+idea for cascade in IE - bouce the minicanvas and draw blanks?
+
+0.10 (28/08/2008)
+-cascade more or less working in IE.  The minicanvas is bounced down the screen, drawing rectangles behind it.
+
+0.11 (28/08/2008)
+-fixed incorrectly creating blank text
+-fixed not being able to start a new game after cascade due to above change
+-added menu bar at top
+-added about window (click on Solitaire)
+
+0.12 (28/08/2008)
+-added drawPile and buildMouseDowns
+-for some odd reason, emptying the card span and text array stops the IE dragging a card reallllly slowly bug.  So I've added this to drawPile.  i've given up trying to understand IE
+-instead of using clearRect, a blue rectangle is drawn over the old pile (IE doesn't support clearRect properly :P)
+-turning cards over on the pile is noticably faster in IE
+
+-slow card drag is still there occasionally in IE
+
+-forcing full draw in IE seems to fix slow card drag - but has a momentary wait.  (as per it used to)
+
+0.13 (29/08/2008)
+-experiments to find cause of slow card bug:
+  Appears to be when the canvas is selected
+  drawPile doesn't add back the blank text - it seems to have gone away once this has happened
+-added a blank div over the card when it's being dragged
+-might revert to 0.12 and add just the drawPile fix
+
+0.14 (29/08/2008)
+-picking up cards in IE now uses drawPile like other browsers
+-slow card drag bug fixed
+-picking up cards is now much quicker in IE (nearly as good as other browsers).
+-called this version 1.4 in About - more useful for this since I don't really need to go up in hundreths :P
+
+0.15 (29/08/2008)
+-failed attempting at improving cascade in IE
+!!! - DO NOT USE THIS VERSION - !!!
+
+0.16 (29/08/2008)
+-double click still turning over next card problem fixed (I think).  I'd been using setInterval (a loop) instead of setTimeout
+-added margin-right and left to text at top - looks better.
+(01/09/2008)
+-added Simple Simon's fix for cards not moving slightly when mouse goes down (math.ceil mousepos)
+
+0.17 (11/09/2008)
+-fixed disapearing card glitch found in Spider.
+
+0.18 (12/09/2008)
+-supports cards 0.29b and clipping.

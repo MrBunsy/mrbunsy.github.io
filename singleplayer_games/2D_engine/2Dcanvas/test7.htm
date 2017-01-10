@@ -1,0 +1,27 @@
+<html>
+<head>
+<title>Canvas tutorial</title>
+<!--[if IE]><script type="text/javascript" src="excanvas.js"></script><![endif]-->
+<script type="text/javascript">
+function draw() {
+  var ctx = document.getElementById('canvas').getContext('2d');
+
+ctx.fillStyle = 'black';
+ctx.fillRect(0,0,150,150);
+
+ctx.beginPath()
+ctx.moveTo(70,70);
+ctx.fillStyle="white"
+
+ctx.arc(70,70,3,0,Math.PI*2,true);  // draw circle
+ctx.fill();
+}
+</script>
+<style type="text/css">
+canvas { border: 1px solid black; }
+</style>
+</head>
+<body onload="draw();">
+<canvas id="canvas" width="150" height="150"></canvas>
+</body>
+</html>

@@ -1,0 +1,20 @@
+#planet_wars_div {
+	position: relative;
+	background-color: #000;
+}
+#planet_wars_canvas2 {
+	position: absolute;
+	top: 0;
+	left: 0;
+}
+#planet_wars_canvas1 {
+	position: absolute;
+	top: 0;
+	left: 0;
+}
+
+#planet_wars_canvas3{
+	position: absolute;
+	top: 0;
+	left: 0;
+}

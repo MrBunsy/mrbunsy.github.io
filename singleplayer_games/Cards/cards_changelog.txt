@@ -1,0 +1,80 @@
+0.01 (24/08/2008)
+-started work on the card and deck functions
+-able to draw outline of card
+
+0.06 (25/08/2008)
+-ace to 10 of diamonds working
+
+0.09 (25/08/2008)
+-improved readability of cards at small sizes (made text slightly larger relative)
+
+0.13 (26/08/2008)
+-added shuffle function and fixed bug of trying to add card 52 (which doesn't exist).
+
+0.14b (26/08/2008)
+-improved readability of some letters and numbers at small sizes (making more lines always crisp)
+
+0.15 (26/08/2008)
+-added mouseDown functions (not tested yet - slightly altered from pegs)
+-fixed clubs on canvas in IE.
+
+0.16 (26/08/2008)
+-added drawoutline function
+
+0.17 (26/08/2008)
+-added minicanvas
+
+0.18 (27/08/2008)
+-added red (t/f) to the card object
+
+0.19 (27/08/2008)
+-added drawBox function
+
+0.20 + 0.20b (27/08/2008)
+-starting fills and strokes system.  Not sure if I can be bothered, since it's only IE that *might* benefit.
+-might scrap this version
+
+0.21 (27/08/2008)
+-built from 0.19
+-full option added to card: if false, only draw top of card.
+-clear also empties cards span and wipes texts array (more like canvas)
+-fixed mouse detection not lining up in IE
+
+0.22 (28/08/2008)
+-added gold crowns to kings, smaller silver crowns to queens and little sticky wickeys to jacks.
+-Sevens and Eights now draw one more symbol when not full.
+
+0.23 (30/08/2008)
+-fixed problems when div is placed anywhere on a page.
+
+0.24 (31/08/2008)
+-fixed and prevented (hopefully) future problems drawing cards really small in Opera and Safari - they refused to like arcs with a radius of 0.
+-Tens now have an extra symbol when not full. (it visibly dissapeared in simple Simon.)
+-STABLE
+
+0.25 (???)
+-??? Nothing seems to be known about this verison.
+
+0.26 (07/09/2008)
+-added support for more than one deck of cards in a deck object.
+-also added support for jokers in a deck, although the script will probably crash when drawing them, so not much point yet.
+-Added Cards.addLoadEvent, to add a function to window.load without removing what was there before.  Means this game should be able to go on really any page.
+
+0.27 (08/09/2008)
+-added suits to Deck object - optional to create a pack made up only of so many suits (intended for Spider)
+-added dropCard
+(11/09/2008)
+-workaround to inexplicable bug in Spider in IE. 6,8 and 9 now draw arcs the other direction.
+
+0.28 (11/09/2008)
+-experimenting with new clipping technique to stop minicanvas leaving cards div
+
+0.29b (12/09/2008)
+-now compatable with new clipping technique.
+-requires minicanvas AFTER canvas.
+-requires cardsdiv2 encasing everything except the menu
+
+0.30 (12/09/2008)
+-improved clipping, actually uses clip now.  Cards can't leave the black line around the edge of the canvas.
+-requires cardsdiv2 to be around only the minicanvas
+-drawBox always has outline 1 thick and it will now be crisp.

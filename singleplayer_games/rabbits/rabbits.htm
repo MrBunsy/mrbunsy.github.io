@@ -1,0 +1,2427 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html>
+<head>
+<title>Rabbits 0.69</title>
+
+
+<script language="JavaScript" type="text/javascript">
+<!--
+var IE=false;
+var IErendermode=false;
+//-->
+</script>
+<!--[if IE]>
+<script type="text/javascript" src="excanvas-compressed.js"></script>
+
+<script language="JavaScript" type="text/javascript">
+<!--
+IE=true;
+//-->
+</script>
+<![endif]-->
+<script type="text/javascript" src="json2007.compressed.js"></script>
+<script type="text/javascript" src="rsh.compressed.js"></script>
+
+<script type="text/javascript">
+//this is all for loading really simple history - so the back and forwards buttons still work despite not leaving the page
+window.dhtmlHistory.create();
+
+var yourListener = function(newLocation, historyData) {
+  if(historyData===null)//null history
+  {
+	loadleveltoeditor=false;
+	endworld();
+	leveleditor=false
+	  switch(newLocation)
+		{//doesn't really work :P
+		case 'loadmenu':loadMenu.open();break;
+		case 'help':addJSfile('everyobject');break;
+		default:
+		mainMenu.open();
+		break;
+		}
+  
+	
+	
+	}else{
+	endworld();
+	leveleditor=false;
+	loadleveltoeditor=false;
+	
+    switch(historyData[0])
+		{
+		case 0://menu navigation
+  	bigMenus[historyData[1]].open();
+		break;
+		case 1://level - historyData[1] is 3 length array or group, level and ascampaign
+		closeAllBigMenus();
+		closeAllMenus();
+		loadworld(historyData[1][0],historyData[1][1],historyData[1][2],false);
+		break;
+		case 2://custom level
+		closeAllBigMenus();
+		closeAllMenus();
+		eval(document.getElementById('loadtextarea').value);
+		  if(historyData[1])
+			{starteditor(0,0,0,true);
+			}else{
+			loadfromcustom=true;finishloading();
+			}
+		break;
+		case 3://help
+		addJSfile('everyobject');
+		break;
+		case 4://edit level
+		loadleveltoeditor=true;
+		closeAllBigMenus();
+		closeAllMenus();
+		loadworld(historyData[1][0],historyData[1][1],historyData[1][2],true);
+		break;
+		default:
+		endworld();
+		mainMenu.open();
+		break;
+	  }
+	}
+
+}
+
+window.onload = function() {
+        setupcanvas()
+				dhtmlHistory.initialize();
+        dhtmlHistory.addListener(yourListener);
+				
+};
+</script>
+<script type="text/javascript" src="rabbitdivwindows2.js"></script>
+<script type="text/javascript" src="draw0.35.js"></script>
+<script type="text/javascript" src="disableSelect.js"></script>
+<script type="text/javascript" src="objects0.13.js"></script>
+<script type="text/javascript" src="geometry0.1.js"></script>
+<script type="text/javascript" src="levels/levels.js"></script>
+<link rel="stylesheet" href="style.css" type="text/css">
+</head>
+<body>
+<span id="windowspan"></span>
+<canvas id="canvastag" width="800" height="700" style="position:absolute;"></canvas>
+<canvas id="canvastag2" width="800" height="700" style="position:absolute;"></canvas>
+<span id="bunnyspan"></span>
+<div id="clickmediv" style="position:absolute;cursor:pointer;" onmousedown="mousegonedown(event)"></div>
+
+<div id="mainmenudiv" class="menu">
+<h1 style="margin-bottom:0;">Welcome to Rabbits</h1>
+<span class="browntext">The puzzle game with bunnies!</span>
+<h2><span onclick="loadMenu.open();dhtmlHistory.add('loadmenu',[0,3]);loadleveltoeditor=false;" class="clickme">Play Game</span></h2>
+<h2><span onclick="mainMenu.close();loadworld(0,0,true,false);" class="clickme">Play Tutorial</span></h2>
+<h2><span onclick="addJSfile('everyobject');dhtmlHistory.add('help',[3,0]);" class="clickme">Help</span></h2>
+<h2><span onclick="editorMenu.open();dhtmlHistory.add('editormenu',[0,2]);" class="clickme">Level Editor</span></h2>
+<h2><span onclick="aboutMenu.open();dhtmlHistory.add('aboutmenu',[0,1]);" class="clickme">About</span></h2>
+<br><br>
+<a href="/games/rabbits">Back to Main Website</a>
+<br><br>
+<span class="smalltext">&copy Luke Wallin 2008</span>
+
+
+
+<br><br><br>
+<span id="iewarnspan" style="display:none;">You are using Internet Explorer. <br> Rabbits works in IE, but is faster, smoother and has better graphics in <a href="http://www.getfirefox.com" target="window">almost</a> <a href="http://www.opera.com/" target="window">any</a> <a href="http://www.apple.com/safari/" target="window">other</a> <a href="http://www.seamonkey-project.org/" target="window">browser</a>.</span>
+
+</div>
+
+<div id="helpdiv" class="toolbarclass2" style="display:none;z-index:1;width:600px;">
+<h2 style="margin:0;">Key</h2>
+<span class="clickme" onClick="endworld();mainMenu.open();dhtmlHistory.add('mainmenu',[0,0]);"><b>Back to Menu</b></span>
+<br>
+<br>
+<br>
+<b>Hutch</b> - The bunnies spawn from hutches, facing in the direction of the arrow.
+<br><br><br>
+<b>Warren</b> - The bunnies' home.  Get all the bunnies into one of these to win.<br>
+<br>
+<br>
+<b>Permanent Arrow</b> - Arrows which are already on the level and can't be changed
+<br>
+<br>
+<br>
+<b>User Placed Arrow</b> - Arrows which you have put down to complete the level.
+<br>
+<br>
+<br>
+<b>Gate</b> - Tick lets through only that type of bunny.  Cross lets anything except that type of bunny through.
+<br>
+<br>
+<b>Block</b> - The bunnies can't walk through these.
+<br>
+<br>
+<br>
+<b>Locks and Keys</b> - Bunnies can't walk over closed locks.  Get the bunnies to walk over the keys to open the locks.
+<br><br>
+<span class="clickme" onClick="endworld();mainMenu.open();dhtmlHistory.add('mainmenu',[0,0]);"><b>Back to Menu</b></span><br><br>
+</div>
+
+<div id="editordiv" class="toolbarclass2" style="display:none;z-index:1;">
+<div id="toolboxdiv2" class="toolboxclass2" style="display:none;top:40;">
+<span id="toolboxspan2"></span>
+<br>Add Arrow:<br>
+Type:<select id="selecttooltype"><option value="0">All Rabbits</option><option value="1">Body Colour</option><option value="2">Ear Colour</option><option value="3">Carrying</option></select><br>Colour/carrying:<select id="selecttoolspecific"><option value="0">Red / Carrot</option><option value="1">Yellow / Teddy</option><option value="2">Green / Lettuce</option><option value="3">Blue / Book</option></select><br> Number: <select id="selecttoolnumber"><option value=1>1</option><option value=2>2</option><option value=3>3</option><option value=4>4</option><option value=5>5</option><option value=6>6</option><option value=7>7</option><option value=8>8</option><option value=9>9</option><option value=10>10</option></select>
+<br>
+<b><span class='clickme' onClick='addnewtool()'>Add</span></b>
+<br><br><span class='clickme' onClick="document.getElementById('toolboxdiv2').style.display='none';"><b>Close Toolbox</b></span>
+</div>
+<h3>Level Editor</h3>
+Rabbits Will: <select id="rabbitswillselect"><option value=0>Collide</option><option value=1>Queue Up</option></select><br><br>
+Mouse Will: <select id="mousedoesselect" onChange="updateextrainfo()" onClick="updateextrainfo()"><option value="edit">Edit Existing Entity</option><option value="hutch">Add Hutch (spawn)</option><option value="warren">Add Warren (exit)</option><option value="arrow">Add Permanent Arrow</option><option value="block">Add Solid Block</option><option value="gate">Add Gate</option><option value="repaint">Add Re-paint</option><option value="lock">Add Lock</option><option value="fakelock">Add Fake Lock</option><option value="key">Add Key</option><option value="grass">Add Grass</option><option value="delete">Delete Entity</option></select>
+<br>
+<span id="editinginfospan"></span>
+<br>
+<span id="extrainfo1" style="display:none;">
+Type:<select id="selecttype" onChange="updateArrowStuff();" onClick="updateArrowStuff();"><option value=0>All Rabbits</option><option value=1>Body Colour</option><option value=2>Ear Colour</option><option value=3>Carrying</option></select>
+<br>
+<select id="selectspecific"><option value=0>Red / Carrot</option><option value=1>Yellow / Teddy</option><option value=2>Green / Lettuce</option><option value=3>Blue / Book</option></select>
+</span>
+<span id="extrainfo2" style="display:none;">
+Gate Type:<select id="gatetypeselect"><option value=0>Only</option><option value=1>Except</option></select>
+</span>
+<span id="extrainfo3" style="display:none;">
+Block Graphics:<select id="selectblocktype"><option value=0>Filled Brown</option></select>
+</span>
+<span id="extrainfo4" style="display:none;">
+Total Bunnies:<input type='text' value=20 id="hutchtotalselect" size=2>
+<br>
+Frequency of Spawn:<select id="hutchfreqselect"><option value=1>Every Loop</option><option value=2>Every 2nd Loop</option><option value=3>Every 3rd Loop</option><option value=4>Every 4th Loop</option></select>
+<br>
+Length of Body Cycle:<select id="hutchbodyselect" onChange="hutchstuff()" onClick="hutchstuff()"><option value=1>1</option><option value=2>2</option><option value=3>3</option><option value=4>4</option><option value=5>5</option><option value=6>6</option><option value=7>7</option><option value=8>8</option><option value=9>9</option><option value=10>10</option></select>
+<br>
+<span id="hutchbodycycle"></span>
+<br>
+Length of Ear Cycle:<select id="hutchearselect" onChange="hutchstuff()" onClick="hutchstuff()"><option value=1>1</option><option value=2>2</option><option value=3>3</option><option value=4>4</option><option value=5>5</option><option value=6>6</option><option value=7>7</option><option value=8>8</option><option value=9>9</option><option value=10>10</option></select>
+<br>
+<span id="hutchearcycle"></span>
+<br>
+Length of Carry Cycle:<select id="hutchcarryselect" onChange="hutchstuff()" onClick="hutchstuff()"><option value=1>1</option><option value=2>2</option><option value=3>3</option><option value=4>4</option><option value=5>5</option><option value=6>6</option><option value=7>7</option><option value=8>8</option><option value=9>9</option><option value=10>10</option></select>
+<br>
+<span id="hutchcarrycycle"></span>
+<br>
+</span>
+<span id="extrainfo5" style="display:none;">
+Keys needed: <select id="selectkeys"><option value=1>1</option><option value=2>2</option><option value=3>3</option><option value=4>4</option><option value=5>5</option><option value=6>6</option><option value=7>7</option><option value=8>8</option><option value=9>9</option><option value=10>10</option></select>
+</span>
+<span id="extrainfo6" style="display:none;">
+Toggles? <input type="checkbox" id="selectkeytoggle">
+<br>
+Opens Lock: <select id="selectlock"><option value=0>0</option><option value=1>1</option><option value=2>2</option><option value=3>3</option><option value=4>4</option><option value=5>5</option><option value=6>6</option><option value=7>7</option><option value=8>8</option><option value=9>9</option></select>
+</span>
+<span id="extrainfo7" style="display:none;">
+Linked to Lock: <span id="extrainfo7b"></span>
+</span>
+<span id="extrainfo9" style="display:none;">
+Shape:<select id="editgridshapeselect"><option value=4>Square</option><option value=6>Hexagon</option></select>
+<br>
+Width:<select id="editgridwidthselect"><option value=5>5</option><option value=6>6</option><option value=7>7</option><option value=8>8</option><option value=9>9</option><option value=10>10</option><option value=11>11</option><option value=12>12</option><option value=13>13</option><option value=14>14</option><option value=15>15</option></select>
+<br>
+height:<select id="editgridheightselect"><option value=5>5</option><option value=6>6</option><option value=7>7</option><option value=8>8</option><option value=9>9</option><option value=10>10</option><option value=11>11</option><option value=12>12</option><option value=13>13</option><option value=14>14</option><option value=15>15</option></select>
+<br>
+<input type="button" value="Update" onClick="editGridSize2();">
+</span>
+<span id="extrainfo8" style="display:none;"><br><input type="button" value="Update" onClick="updateEntity();"></span>
+<br><br>
+<span class="clickme" onClick="generatetoolbox();document.getElementById('toolboxdiv2').style.display='block';">Edit Toolbox</span>
+<br>
+<span class="clickme" onClick="editGridSize();">Edit Grid Size</span>
+<br>
+<span class="clickme" onClick="savelevel();">Save Level</span>
+<br>
+<span class="clickme" onClick="importMiniMenu.open();">Import Level</span>
+<br>
+<br>
+<span class="clickme" onClick="testlevel();">Test Level</span>
+<br><br>
+<span class="clickme" onClick="entities=new Array();redrawworld(true);">Clear Level</span>
+<br>
+<span class="clickme" onClick="endworld();mainMenu.open();dhtmlHistory.add('mainmenu',[0,0]);leveleditor=false;">Back to Menu</span><br><br>
+</div>
+
+<div id="toolbardiv" class="toolbarclass" style="display:none;z-index:2;">
+<h3 style="margin:0;">Safe Bunnies: <span id="bunnycountspan">0</span></h3>
+<span class="smalltext" id="totalrabbitsspan">Total Bunnies: </span><br>
+<br>
+<table>
+<tr valign="center"><tr><td><span class="clickme" onclick="toggletoolbox();"><img src="icons/toolbox.png"></span></td><td><span class="clickme" onclick="toggletoolbox();" id="opentoolboxspan">Open Toolbox</span><br><span class="smalltext" id="selectedspan">Nothing Selected</span></td></tr>
+</table>
+<div id="toolboxdiv" class="toolboxclass" style="display:none;top:20;left:-1;"></div>
+<br>
+<table>
+<tr valign="center"><td><span class="clickme" onclick="play()"><img src="icons/play.png"></span></td><td><span class="clickme" id="playspan" onclick="play()">Play</span></td></tr>
+<tr valign="center"><td><span class="clickme" onclick="pause()"><img src="icons/pause.png"></span></td><td><span class="clickme" id="pausespan" onclick="pause()" style="font-weight:bold;">Pause</span></td></tr>
+<tr valign="center"><td><span class="clickme" onmousedown="fastforward()"><img src="icons/fastforward.png"></span></td><td><span class="clickme" id="ffspan" onmousedown="fastforward()">Fast Foward</span></td></tr>
+<tr valign="center"><td><span class="clickme" onclick="resetRabbits()"><img src="icons/stop.png"></span></td><td><span class="clickme" id="resetspan" onclick="resetRabbits()">Reset Bunnies</span></td></tr>
+<tr valign="center"><td><span class="clickme" onclick="resetMiniMenu.open()"><img src="icons/skipback.png"></span></td><td><span class="clickme" id="resetspan2" onclick="resetMiniMenu.open();">Reset Everything</span></td></tr>
+<tr valign="center"><td><span class="clickme" onClick="ingamemenu();inGameMiniMenu.open();" id="ingamemenu1"><img src="icons/home.png"></span></td><td><span class="clickme" onClick="ingamemenu();inGameMiniMenu.open();" id="ingamemenu2"><b>Menu</b></span></td></tr>
+</table>
+<span id="ineditormenu" style="display:none;">
+<span class="clickme" onClick="backtoeditor();">Back to Editor</span><br><br>
+</span>
+</div>
+
+
+<div id="aboutdiv" class="menu" style="display:none;">
+<h3>About Rabbits</h3>
+Rabbits 0.69<br>
+<a href="http://code.google.com/p/reallysimplehistory/" target="newwindow">Really Simple History 0.6</a><br>
+<a href="http://tango.freedesktop.org/Tango_Icon_Library" target="newwindow2">Tango Icon Library 0.8.1</a><br>
+<br>
+Rabbits is loosely based on a much older game called Pit Droids (made by Lucas Learning).  Rabbits does not aim to be a clone of Pit Droids, but simply provide a similar type of gameplay.
+<br><br>
+Rabbits is written in JavaScript and uses <a href="http://en.wikipedia.org/wiki/Canvas_(HTML_element)" target="newwindow3">HTML's 5 canvas</a> (and <a href="http://excanvas.sourceforge.net/" target="newwindow2">ExplorerCanvas</a> in IE) for the 2D graphics
+<br><br>
+Script and artwork copyright Luke Wallin 2008.
+<br><br>
+<b>
+<span class="clickme" onClick="mainMenu.open();dhtmlHistory.add('mainmenu',[0,0]);">Back to Main Menu</span>
+</b>
+</div>
+
+<div id="leveleditormenudiv" class="menu" style="display:none;">
+<h2>Level Editor</h2>
+Make your own levels! (Documentation coming soon)
+<center>
+<form action="javascript:starteditor(document.getElementById('editorcols').value,document.getElementById('editorrows').value,document.getElementById('editorsides').value,false)">
+<table>
+<tr><td><h3>Cell Shape:</td><td valign="top"> <select id="editorsides"><option value=4>Square</option><option value=6>Hexagon</option></select></td></tr>
+<br>
+<tr><td><h3>Width:</td><td valign="top"> <select id="editorcols"><option value=5>5</option><option value=6>6</option><option value=7>7</option><option value=8>8</option><option value=9>9</option><option value=10>10</option><option value=11>11</option><option value=12>12</option><option value=13>13</option><option value=14>14</option><option value=15>15</option></select></td></tr>
+<br>
+<tr><td><h3>Height:</td><td valign="top"> </h3><select id="editorrows"><option value=5>5</option><option value=6>6</option><option value=7>7</option><option value=8>8</option><option value=9>9</option><option value=10>10</option><option value=11>11</option><option value=12>12</option><option value=13>13</option><option value=14>14</option><option value=15>15</option></select></td></tr>
+</table>
+</center>
+<input type='submit' value="Start New Level">
+</form>
+<br>
+<br>
+<button onClick="importMiniMenu.open();loadleveltoeditor=true;">Or Import Existing Level.</button>
+<br>
+<br>
+<b>
+<span class="clickme" onClick="mainMenu.open();dhtmlHistory.add('mainmenu',[0,0]);">Back to Menu</span>
+</b>
+</div>
+
+<div id="messageboxdiv" class="minimenu2" style="display:none;z-index:4;top:75;">
+<span id="messageboxdivspan"></span>
+<br><br>
+<input type="button" value="Okay" onClick="messageMiniMenu.close();"> 
+</div>
+
+<div id="importmenudiv" class="minimenu" style="display:none;">
+<h3>Import a Level</h3>
+<span id="alllevelsspan"></span>
+<input type="button" onClick="importLevel();" value="Import">
+<br><br>
+<button onClick="loadMapMiniMenu.open();loadleveltoeditor=true;highlighttext('loadtextarea');">Import Saved Level.</button>
+<br><br>
+<input type="button" onClick="importMiniMenu.close();" value="Cancel"><br>
+</div>
+
+
+<div id="reseteverythingdiv" class="minimenu" style="display:none;">
+<h3>Reset all your arrows?</h3>
+<input type="button" value="Yes" onClick="resetArrows();resetMiniMenu.close();"> 
+<input type="button" value="Cancel" onClick="resetMiniMenu.close();">
+</div>
+<div id="levelwondiv" class="minimenu" style="display:none;">
+<h3>Congratulations!</h3>
+You got all the bunnies safely home!<br><br>
+<span id="endlevelspan"></span>
+<br><br>
+<b>
+<span class="clickme" id="nextlevelspan" onClick="endworld();levelWonMiniMenu.close();nextlevel();"><b>Next Level</b><br></span>
+<span class="clickme" id="backtolevelspan" onClick="endworld();loadMenu.open();dhtmlHistory.add('loadmenu',[0,0]);">Load Another Level<br></span>
+<span class="clickme" id="backtomenuspan" onClick="endworld();mainMenu.open();dhtmlHistory.add('mainmenu',[0,0]);">Main Menu<br></span>
+<span class="clickme" id="backtoeditorspan" onClick="backtoeditor();">Back to Editor</span><br>
+</b>
+<input type="button" value="Cancel" onclick="levelWonMiniMenu.close();">
+</div>
+
+<div id="ingamemenudiv" class="minimenu" style="display:none;">
+<h3>In Game Menu</h3>
+<b>
+<span class="clickme" id="repeatmessagespan" onClick="inGameMiniMenu.close();levelmessage(levelGroups[inlevelGroup].levels[inlevel].description);"><b>Repeat Hints Message</b><br><br></span>
+<span class="clickme" id="nextlevelspan2" onClick="endworld();inGameMiniMenu.close();nextlevel();"><b>Next Level</b><br><br></span>
+<span class="clickme" id="backtolevelspan2" onClick="endworld();loadMenu.open();dhtmlHistory.add('loadmenu',[0,3]);">Load Another Level<br><br></span>
+<span class="clickme" id="backtomenuspan2" onClick="endworld();inGameMiniMenu.close();mainMenu.open();dhtmlHistory.add('mainmenu',[0,0]);">Main Menu<br><br></span>
+</b>
+<input type="button" onclick="inGameMiniMenu.close();" value="Cancel">
+</div>
+
+
+<div id="saveleveldiv" class="savemenu" style="display:none;z-index:4;">
+<h3>Copy this text to save your level.</h3>
+<textarea id="savetextarea" cols="60" rows="15"></textarea>
+<br>
+<b>
+<span class="clickme" onClick="endworld();mainMenu.open();dhtmlHistory.add('mainmenu',[0,0]);">Back to Main Menu</span>
+</b>
+-
+<b>
+<span class="clickme" onClick="saveMapMiniMenu.close();">Back to Editor</span> 
+</b>
+</div>
+
+<div id="loadcustomleveldiv" class="savemenu" style="display:none;z-index:4;">
+<h3>Paste the text from your saved level here.</h3><br>
+<textarea id="loadtextarea" cols="60" rows="15"></textarea>
+<br>
+<b>
+<span class="clickme" onClick="loadMapMiniMenu.close();">Back to Menu</span>
+</b>
+-
+<b>
+<span class="clickme" onClick="closeAllBigMenus();closeAllMenus();eval(document.getElementById('loadtextarea').value);if(loadleveltoeditor){starteditor(0,0,0,true);}else{loadfromcustom=true;finishloading();};dhtmlHistory.add('customlevel',[2,loadleveltoeditor]);">Load Level</span> 
+</b>
+</div>
+
+<div id="loadleveldiv" class="menu" style="display:none;">
+<h1>Choose level to load</h1>
+<center>
+<table>
+<tr><td><h3>Category:</h3></td><td valign="top"> <span id="levelgroupsspan"></span></td></tr>
+<tr><td><h3>Level Name:</h3></td><td valign="top"> <span id="levelgroupsspan2"></span></td></tr>
+</table>
+
+</center>
+<button onClick="loadworld(document.getElementById('levelgroupselect').value*1,document.getElementById('levelgroupselect2').value*1,false,false)">Load this Level</button>
+<br>
+<br>
+<button onClick="loadMapMiniMenu.open();loadleveltoeditor=false;highlighttext('loadtextarea')">Or Load a Saved Level.</button>
+<br><br>
+<span class="clickme" onClick="mainMenu.open();dhtmlHistory.add('mainmenu',[0,0]);"><b>Back to Main Menu</b></span>
+</div>
+
+
+<script language="JavaScript" type="text/javascript">
+<!--
+
+//are we in the level editor?
+var leveleditor=false;
+//where are we loading to?
+var loadleveltoeditor=false;
+//one off level or a set of levels?
+var incampaign=false;
+
+var loopme;
+var worldsize=new Array();
+var canvas=new Array();
+//defaults in case someones hits load to a blank textbox
+var gridsides=4;
+var gridsize=50;
+var gridcols=5;
+var gridrows=5;
+//array of fillstyle data
+var gridgreens=new Array();
+//array of cells
+var gridcells=new Array();
+//array of moving things
+var rabbits=new Array();
+var entities=new Array();
+
+var gridwidth;
+
+//big menus
+var mainMenu=new bigMenu('mainmenudiv');
+var aboutMenu=new bigMenu('aboutdiv');
+var editorMenu=new bigMenu('leveleditormenudiv');
+var loadMenu=new bigMenu('loadleveldiv');
+var helpMenu=new bigMenu('helpdiv');
+
+//mini menus
+var resetMiniMenu=new miniMenu('reseteverythingdiv',false);
+var levelWonMiniMenu=new miniMenu('levelwondiv',false);
+var inGameMiniMenu=new miniMenu('ingamemenudiv',false);
+var saveMapMiniMenu=new miniMenu('saveleveldiv',true);
+var loadMapMiniMenu=new miniMenu('loadcustomleveldiv',true);
+var messageMiniMenu=new miniMenu('messageboxdiv',false);
+var importMiniMenu=new miniMenu('importmenudiv',false);
+
+disableSelection(document.getElementById('editordiv'))
+disableSelection(document.getElementById('toolbardiv'))
+
+var canvassetup=false;
+
+function setupcanvas()
+{
+canvassetup=true;
+if(IErendermode)
+{
+document.getElementById('iewarnspan').style.display="block";
+}
+
+var worldcanvas= document.getElementById('canvastag');
+var topcanvas= document.getElementById('canvastag2');
+if (worldcanvas.getContext){//alert('setupcanvas')
+canvas[0] = worldcanvas.getContext('2d');
+canvas[0].strokeStyle="black";}
+
+if (topcanvas.getContext){
+canvas[1] = topcanvas.getContext('2d');
+canvas[1].strokeStyle="black";}
+
+
+
+//set up the levels
+var html1="<select id='campaignselect' onChange='updatelevellist(\"campaignselect\",\"campaignselect2\",\"campaignsspan2\");' >";
+var html2="<select id='levelgroupselect' onChange='updatelevellist(\"levelgroupselect\",\"levelgroupselect2\",\"levelgroupsspan2\");' >";
+var html3="<select id='alllevelsspanselect'>";
+
+for(var i=levelGroups.length-1;i>=0;i--)
+{
+  for(var i2=0;i2<levelGroups[i].levels.length;i2++)
+	{
+	html3+="<option value="+i+"l"+i2+">"+levelGroups[i].levels[i2].name+"</option>";
+	}
+
+  if(levelGroups[i].onlist)
+	{
+    if(levelGroups[i].leadto)//if this is a collection of linked levels
+		{
+		html1+="<option value="+i+">"+levelGroups[i].name+"</option>";
+		html2+="<option value="+i+">"+levelGroups[i].name+"</option>";
+		}else{//these aren't linked, just a group - only add to load single level menu
+		html2+="<option value="+i+">"+levelGroups[i].name+"</option>";
+		}
+	}
+
+}
+html1+="</select>";
+html2+="</select>";
+html3+="</select>";
+
+//document.getElementById('campaignsspan').innerHTML=html1;
+document.getElementById('levelgroupsspan').innerHTML=html2;
+document.getElementById('alllevelsspan').innerHTML=html3;
+
+//updatelevellist("campaignselect","campaignselect2","campaignsspan2");
+updatelevellist("levelgroupselect","levelgroupselect2","levelgroupsspan2");
+updateArrowStuff();
+}
+//if(IE){setTimeout(setupcanvas,10);}else{setupcanvas();}
+
+function closeAllMenus()
+{//close all the little windows
+document.getElementById('messageboxdiv').style.display='none';
+document.getElementById('levelwondiv').style.display='none';
+document.getElementById('ingamemenudiv').style.display='none';
+document.getElementById('saveleveldiv').style.display='none';
+document.getElementById('loadcustomleveldiv').style.display='none';
+document.getElementById('loadcustomleveldiv').style.display='none';
+}
+
+function updatelevellist(levelfromid,givehtmlid,putinid)
+{//update list of levels in the campaign selected
+var thisgroup=document.getElementById(levelfromid).value*1;
+var html='<select id="'+givehtmlid+'">';
+    for(var i=0;i<levelGroups[thisgroup].levels.length;i++)
+		{
+		html+="<option value="+i+">"+levelGroups[thisgroup].levels[i].name+"</option>";
+		}
+html+="</select>";
+document.getElementById(putinid).innerHTML=html;
+}
+
+function hide(thisid)
+{
+document.getElementById(thisid).style.display="none";
+}
+
+function show(thisid)
+{
+document.getElementById(thisid).style.display="block";
+}
+
+function updateArrowStuff()
+{//update selects for arrows, gates, etc so that it's Red or Carrot or All Rabbits is hidden 
+
+if(document.getElementById('mousedoesselect').value=='gate' || (editingobject!==false && entities[editingobject].type==4 && document.getElementById('mousedoesselect').value=='edit'))
+{//it's a gate, hide 'All Rabbits' option.
+document.getElementById('selecttype').options[0].style.display="none";
+}else{
+document.getElementById('selecttype').options[0].style.display="block";
+
+  if(document.getElementById('mousedoesselect').value=='repaint' || (editingobject!==false && entities[editingobject].type==5 && document.getElementById('mousedoesselect').value=='edit'))
+	{//re-paint, so we don't want it to say 'all rabbits', but 'brown' instead.
+	document.getElementById('selecttype').options[0].text='Brown';
+	}else{
+	document.getElementById('selecttype').options[0].text='All Rabbits';
+	}
+}
+
+
+
+  if(document.getElementById('selecttype').value*1==0)
+	{//all rabbits - show or hide colour options?
+	hide('selectspecific');
+	}else{
+	show('selectspecific');
+	
+	  if(document.getElementById('selecttype').value*1==3)//carrying
+		{
+		document.getElementById('selectspecific').options[0].text="Carrot";
+		document.getElementById('selectspecific').options[1].text="Teddy";
+		document.getElementById('selectspecific').options[2].text="Lettuce";
+		document.getElementById('selectspecific').options[3].text="Book";
+		}else{//colours
+		document.getElementById('selectspecific').options[0].text="Red";
+		document.getElementById('selectspecific').options[1].text="Yellow";
+		document.getElementById('selectspecific').options[2].text="Green";
+		document.getElementById('selectspecific').options[3].text="Blue";
+		}
+	
+	}
+	
+}
+
+function levelmessage(saythis)
+{//ping up a message box when loading a level
+document.getElementById('messageboxdivspan').innerHTML=saythis;
+document.getElementById('messageboxdiv').style.display='block';
+}
+
+function editGridSize()
+{//display options
+closeextras();
+document.getElementById('extrainfo9').style.display='block';
+document.getElementById('editinginfospan').innerHTML="<br><b>Edit Grid Size</b><br>";
+document.getElementById('editgridshapeselect').value=gridsides;
+document.getElementById('editgridwidthselect').value=gridcols;
+document.getElementById('editgridheightselect').value=gridrows;
+
+}
+
+function editGridSize2()
+{//put options in place
+gridcells=new Array();
+starteditor(document.getElementById('editgridwidthselect').value*1,document.getElementById('editgridheightselect').value*1,document.getElementById('editgridshapeselect').value*1,false)
+editGridSize()
+}
+
+
+function closeextras()
+{
+for(var c=1;c<10;c++)
+{//1 to 9
+document.getElementById('extrainfo'+c).style.display='none';
+}
+}
+
+function updateextrainfo()
+{
+closeextras();
+updateArrowStuff();
+
+document.getElementById('editinginfospan').innerHTML='';
+
+switch(document.getElementById('mousedoesselect').value)
+{
+case 'hutch':
+document.getElementById('extrainfo4').style.display='block';
+hutchstuff();
+break;
+case 'warren':
+document.getElementById('extrainfo1').style.display='block';
+break;
+case 'arrow':
+document.getElementById('extrainfo1').style.display='block';
+break;
+case 'block':
+document.getElementById('extrainfo3').style.display='block';
+break;
+case 'gate':
+document.getElementById('extrainfo1').style.display='block';
+document.getElementById('extrainfo2').style.display='block';
+if(document.getElementById('selecttype').value==0){document.getElementById('selecttype').value=1;}
+break;
+case 'repaint':
+document.getElementById('extrainfo1').style.display='block';
+break;
+case 'lock':
+document.getElementById('extrainfo5').style.display='block';
+break;
+case 'key':
+document.getElementById('extrainfo6').style.display='block';
+break;
+case 'fakelock':
+document.getElementById('extrainfo7').style.display='block';
+var html='<select id="fakelockselect">';
+for(var l=0;l<locks.length;l++)
+{
+html+="<option value="+l+">"+l+"</option>";
+}
+html+="</select>"
+document.getElementById('extrainfo7b').innerHTML=html;
+break;
+}
+
+
+}
+
+function ingamemenu()
+{//fire up the in-game menu
+if((incampaign || levelGroups[inlevelGroup].leadto) && inlevel < levelGroups[inlevelGroup].levels.length-1)
+{//show next level option
+document.getElementById('nextlevelspan2').style.display="block";
+}else{//or don't
+document.getElementById('nextlevelspan2').style.display="none";
+}
+
+if(!(levelGroups[inlevelGroup].levels[inlevel].description===false) && !loadfromcustom)
+{//ping up message when loading level.
+document.getElementById('repeatmessagespan').style.display="block";
+}else{
+document.getElementById('repeatmessagespan').style.display="none";
+}
+
+document.getElementById('ingamemenudiv').style.display="block";
+
+}
+
+var oldbodycycle=0;
+var oldearcycle=0;
+var oldcarrycycle=0;
+
+function hutchstuff()
+{
+if(document.getElementById('hutchbodyselect').value*1!==oldbodycycle)
+{
+var bodyhtml='Body Cycle:'
+for(var i=0;i<document.getElementById('hutchbodyselect').value*1;i++)
+{
+bodyhtml+="<select id='hutchbodycycle"+i+"'><option value='false'>None</option><option value=0>Red</option><option value=1>Yellow</option><option value=2>Green</option><option value=3>Blue</option></select>"
+}
+document.getElementById('hutchbodycycle').innerHTML=bodyhtml
+oldbodycycle=document.getElementById('hutchbodyselect').value*1
+}
+
+if(document.getElementById('hutchearselect').value*1!==oldearcycle)
+{
+var bodyhtml='Ear Cycle:'
+for(var i=0;i<document.getElementById('hutchearselect').value*1;i++)
+{
+bodyhtml+="<select id='hutchearcycle"+i+"'><option value='false'>None</option><option value=0>Red</option><option value=1>Yellow</option><option value=2>Green</option><option value=3>Blue</option></select>"
+}
+document.getElementById('hutchearcycle').innerHTML=bodyhtml
+oldearcycle=document.getElementById('hutchearselect').value*1
+}
+
+if(document.getElementById('hutchcarryselect').value*1!==oldcarrycycle)
+{
+var bodyhtml='Body Cycle:'
+for(var i=0;i<document.getElementById('hutchcarryselect').value*1;i++)
+{
+bodyhtml+="<select id='hutchcarrycycle"+i+"'><option value='false'>Nothing</option><option value=0>Carrot</option><option value=1>Teddy</option><option value=2>Lettuce</option><option value=3>Book</option></select>"
+}
+document.getElementById('hutchcarrycycle').innerHTML=bodyhtml
+oldcarrycycle=document.getElementById('hutchcarryselect').value*1
+}
+
+}
+
+var tools=new Array();
+
+function generatetoolbox()
+{
+var html='<table>';
+if(!leveleditor)
+{
+var toolcount=0;
+var anytools=false;
+for(var i=0;i<tools.length;i++)
+{
+if(tools[i].howmanyleft>0)
+{
+if(toolcount%2==0)
+  {
+  html+="<tr valign='center'>";
+  }
+html+="<td><span class='clickme' onClick='useTool("+i+");'><img style='border:solid black 1px;' id='tool"+i+"img' src='icons/"+tools[i].type+(tools[i].type==0?0:tools[i].specific)+".png'></span></td>"
+html+="<td><span id='tool"+i+"span' class='clickme' onClick='useTool("+i+");'>";
+//html+=toolname(i);
+html+=" x "+tools[i].howmanyleft;
+html+="</span></td>";
+if(toolcount%2==1)
+  {
+  html+="</tr>";
+  }
+toolcount++
+anytools=true;
+}//end of how many
+}
+
+if(toolcount%2==1)
+  {
+  html+="</tr>";
+  }
+html+="</table>"
+if(!anytools){html+="Toolbox is empty."}
+if(leveleditor){html+="<br><span class='clickme' onClick=\"document.getElementById('toolboxdiv').style.display='none';\"><b>Close Toolbox</b></span>";}
+
+document.getElementById('toolboxdiv').innerHTML=html;
+
+}else{//level editor:
+
+for(var i=0;i<tools.length;i++)
+{
+html+=toolname(i)+" (x "+tools[i].howmanyleft+")";
+html+=" <span class='clickme' onClick='addTool("+i+",1);'> <b>+</b> </span> <span class='clickme' onClick='addTool("+i+",-1);'> <b>-</b> </span><br>";
+
+}//end of toolloop
+
+document.getElementById('toolboxspan2').innerHTML=html;
+}//end of if editor
+
+}
+
+var toolboxopen=false;
+function toggletoolbox()
+{//toggles toolbox open and close - used for in-game, but not in editor.
+if(toolboxopen)
+{toolboxopen=false;
+document.getElementById('toolboxdiv').style.display='none';
+document.getElementById('opentoolboxspan').innerHTML="Open Toolbox";
+}else{
+toolboxopen=true;
+document.getElementById('opentoolboxspan').innerHTML="<b>Close Toolbox</b>";
+document.getElementById('toolboxdiv').style.display='block';
+}
+}
+
+function addnewtool()
+{
+var neednew=true;
+for(var i=0;i<tools.length;i++)
+{
+if(tools[i].type==document.getElementById("selecttooltype").value*1 && tools[i].specific==document.getElementById("selecttoolspecific").value*1)
+{
+tools[i].howmany+=document.getElementById("selecttoolnumber").value*1;
+tools[i].howmanyleft+=document.getElementById("selecttoolnumber").value*1;
+neednew=false
+}
+}
+if(neednew){new tool(document.getElementById("selecttooltype").value*1 , document.getElementById("selecttoolspecific").value*1 , document.getElementById("selecttoolnumber").value*1);}
+generatetoolbox();
+}
+
+function addTool(toolnum,addthis)
+{
+if(tools[toolnum].howmany+addthis >0)
+{
+tools[toolnum].howmanyleft+=addthis;
+tools[toolnum].howmany+=addthis;
+generatetoolbox()
+}else{
+tools.splice(toolnum,1);
+}
+generatetoolbox();
+}
+
+var mousedoes=false;
+var mousedoes2=false;
+
+function deboldtools()
+{//makes all tools not bolded 
+  for(var b=0;b<tools.length;b++)
+	{
+	  if(tools[b].howmanyleft>0)
+		{
+		document.getElementById('tool'+b+'span').style.fontWeight='normal';
+		document.getElementById('tool'+b+'img').style.border='solid black 1px';
+		}
+	}
+}
+
+function useTool(temptool)
+{
+if(temptool===mousedoes2)//if tool already selected, unselect it.
+{mousedoes2=false;
+mousedoes=false;
+deboldtools();
+}else{
+
+mousedoes="placearrow";
+mousedoes2=temptool;
+deboldtools();
+document.getElementById('tool'+temptool+'span').style.fontWeight="bold";
+document.getElementById('tool'+temptool+'img').style.border="solid yellow 1px";
+//document.getElementById('toolboxdiv').style.display='none';
+}
+document.getElementById('selectedspan').innerHTML=toolname(mousedoes2)+" Selected";
+}
+
+function toolname(toolnum)
+{
+if(toolnum===false){return 'Nothing';}
+var text='';
+switch(tools[toolnum].type)
+{
+case 1://body colour
+case 2://ear colour 
+switch(tools[toolnum].specific)
+{
+case 0:text+="Red ";break;
+case 1:text+="Yellow ";break;
+case 2:text+="Green ";break;
+case 3:text+="Blue ";break;
+}
+break;
+case 3://carrying
+switch(tools[toolnum].specific)
+{
+case 0:text+="Carrot ";break;
+case 1:text+="Teddy ";break;
+case 2:text+="Lettuce ";break;
+case 3:text+="Book ";break;
+}
+break;
+}
+
+switch(tools[toolnum].type)
+{
+case 0:text+="Normal Arrow";break;
+case 1:text+="Body Arrow";break;
+case 2:text+="Ears Arrow";break;
+case 3:text+="Arrow";break;
+}
+return text;
+}
+
+
+function play()
+{
+if(paused){
+loopme=setInterval(loop,speed);
+paused=false;
+document.getElementById('playspan').style.fontWeight="bold";
+document.getElementById('pausespan').style.fontWeight="normal";
+}
+}
+
+function pause()
+{
+if(!paused){
+clearInterval(loopme);
+//stops bunnies 'leaping' whilst paused and placing an arrow.
+realloopcount--;
+paused=true;
+document.getElementById('pausespan').style.fontWeight="bold";
+document.getElementById('playspan').style.fontWeight="normal";
+}
+}
+
+
+
+function fastforward()
+{
+if(paused){paused=false;}else{clearInterval(loopme);}
+fast=true;
+document.getElementById('pausespan').style.fontWeight="normal";
+document.getElementById('playspan').style.fontWeight="normal";
+document.getElementById('ffspan').style.fontWeight="bold";
+
+if(IE){setAnimateQuality(0);
+loopme=setInterval(loop,speed/6);
+}else{
+loopme=setInterval(loop,speed/4);}
+
+}
+
+function endfastforward()
+{
+document.getElementById('ffspan').style.fontWeight="normal";
+document.getElementById('playspan').style.fontWeight="bold";
+clearInterval(loopme);
+if(IE){setAnimateQuality(1);}
+loopme=setInterval(loop,speed);
+fast=false;
+}
+
+function resetRabbits()
+{//resets bunnies
+saferabbits=0;
+loopcount=0;
+realloopcount=0;
+document.getElementById('bunnycountspan').innerHTML=0;
+document.getElementById('bunnyspan').innerHTML='';
+pause();
+rabbits=new Array();
+resetEntities();
+
+
+clearworld(true);
+redrawworld(true);
+}
+
+function resetArrows()
+{//puts all the arrows back into the toolbox
+var oldworld=entities.slice(0,originalentities);
+entities=new Array();
+entities=oldworld;
+
+resetRabbits();
+resetTools();
+redrawworld(true);
+generatetoolbox();
+}
+
+
+function setAnimateQuality(newanimate)
+{
+animatequality=newanimate;
+animatesync=animatequality*4;
+speed=realspeed/(animatesync+1)
+}
+
+//fastforward?
+var fast=false;
+var paused=true;
+var realspeed=1000;
+if(IE){realspeed=700;}
+//number of game cycles:
+var loopcount=0;
+var saferabbits=0;
+//number of times the loop has actually looped: (used for animations)
+var realloopcount=0;
+//quality of animations, 0=none, 1=simple, 2=quite smooth, 3=ubersmooth, can go higher, but not much need :P
+var animatequality=1;
+//steps of animation - must be divisible by 4?.  set to 0 for no animations
+var animatesync=animatequality*4;
+//+1 because one loop will be empty - to provide a pause in the movement.
+var speed=realspeed/(animatesync+1)
+
+var needfullredraw=false;
+var rabbitsWillWait=false;
+//----------------------------------- main game loop -------------------------------------
+
+function loop()
+{
+
+if(realloopcount%(animatesync+1)==0)
+{//if this loop is the one where the world needs updating
+
+//draw them in their old position:
+//clearworld();
+if(animatesync>0){redrawworld(false);}
+
+//also check win for old position:
+if(saferabbits==totalrabbits)
+{//set up the end of level window
+document.getElementById('backtoeditorspan').style.display='none';
+document.getElementById('nextlevelspan').style.display='none';
+document.getElementById('backtolevelspan').style.display='none';
+document.getElementById('backtomenuspan').style.display='none';
+document.getElementById('endlevelspan').innerHTML=''
+
+
+if(testinglevel)
+{//was in editor testing a level
+document.getElementById('backtoeditorspan').style.display='block';
+}else{
+document.getElementById('backtomenuspan').style.display='block';
+document.getElementById('backtolevelspan').style.display='block';
+
+   if(incampaign || levelGroups[inlevelGroup].leadto)
+	 {
+	     if(inlevel < levelGroups[inlevelGroup].levels.length-1)
+			 {//still another level to go in the campaign
+			 document.getElementById('nextlevelspan').style.display='block';
+//			 document.getElementById('backtocampaignmenuspan').style.display='block';
+			 }else{
+//			 document.getElementById('backtocampaignmenuspan').style.display='block';
+			 document.getElementById('endlevelspan').innerHTML=levelGroups[inlevelGroup].endmessage;
+			 }
+	 
+	 }
+
+}
+document.getElementById('levelwondiv').style.display='block';
+if(fast){endfastforward();
+}
+pause();}
+
+if(!rabbitsWillWait)//rabbits collide - old style: move, then check and kill.
+{
+//update world state:
+moveRabbits();
+updateEntities();
+//entities before keys in case new rabbits spawn
+updateLocksAndKeys();
+checkRabbits();
+}else{
+//find where the rabbits want to move to.
+getRabbitsWant();
+
+juggleRabbitsWants();
+updateEntities();
+//for any bunnies which just spawned:
+juggleRabbitsWants();
+updateLocksAndKeys();
+checkRabbits();
+}
+
+if(animatesync==0){redrawworld(false);}
+
+loopcount++
+
+}else{//this loop is for the animation
+
+//redraw world:
+//clearworld();
+redrawworld(false);
+//alert(realloopcount%(animatesync+1))
+
+}
+
+realloopcount++
+}
+
+function updateEntities()
+{//some entities do things on certain loops
+
+for(var i=0;i<entities.length;i++)
+{
+if(entities[i].active)
+{
+switch(entities[i].type)
+{
+case 0://hutch
+if(entities[i].spawned<entities[i].total && loopcount%entities[i].freq==0)//if hutch has some left to spawn and this is the right loop to spawn.
+{
+var whereto=getCoordsInDir(entities[i].row,entities[i].facing);
+var bodycolour=entities[i].bodycolour[entities[i].spawned%entities[i].bodycolour.length]
+var earcolour=entities[i].earcolour[entities[i].spawned%entities[i].earcolour.length];
+var carrying=entities[i].carrying[entities[i].spawned%entities[i].carrying.length];
+
+  if(!rabbitsWillWait)
+	{
+	new rabbit(entities[i].col+whereto[0] , entities[i].row+whereto[1] , bodycolour , earcolour , carrying , entities[i].facing)
+	rabbits[rabbits.length-1].oldcol=entities[i].col;
+	rabbits[rabbits.length-1].oldrow=entities[i].row;
+	rabbits[rabbits.length-1].oldcoords=getCentreXY(rabbits[rabbits.length-1].oldcol,rabbits[rabbits.length-1].oldrow);
+	rabbits[rabbits.length-1].oldfacing=entities[i].facing;
+	rabbits[rabbits.length-1].oldalive=true;
+	
+	rabbits[rabbits.length-1].coords=getCentreXY(rabbits[rabbits.length-1].col,rabbits[rabbits.length-1].row);
+	entities[i].spawned++
+	}else{
+	
+	var cellfull=findBunnies(entities[i].col+whereto[0],entities[i].row+whereto[1])
+//	alert((rabbits.length>0)? foundbunny+" "+rabbits[foundbunny].standstill : "")
+	  if(!cellfull || (cellfull && !rabbits[foundbunny].standstill))
+		{
+		//rabbit(col,row,bodycolour,earcolour,carrying,facing)
+		new rabbit(entities[i].col , entities[i].row , bodycolour , earcolour , carrying , entities[i].facing)
+		rabbits[rabbits.length-1].oldcol=entities[i].col;
+		rabbits[rabbits.length-1].oldrow=entities[i].row;
+		rabbits[rabbits.length-1].oldcoords=getCentreXY(entities[i].col,entities[i].row);
+		rabbits[rabbits.length-1].oldfacing=entities[i].facing;
+		rabbits[rabbits.length-1].oldalive=true;
+		rabbits[rabbits.length-1].coords=getCentreXY(rabbits[rabbits.length-1].col,rabbits[rabbits.length-1].row);
+ 		entities[i].spawned++
+		checkRabbitWant(rabbits.length-1)
+		
+		//rabbits[rabbits.length-1].gotwant=true;		
+		
+		}
+  }
+
+
+}
+break;
+}//end of type switch
+}//end of if active
+}//end of i
+
+}
+
+function getRabbitsWant()
+{
+for(var i=0;i<rabbits.length;i++)
+{
+   if(rabbits[i].alive)
+	 {
+	 checkRabbitWant(i)
+	 }
+rabbits[i].oldalive=rabbits[i].alive;
+}
+}
+
+function rabbitSafeCell(i,col,row)
+{
+//if(cellempty(col,row)){return true;}
+
+for(var i2=0;i2<entities.length;i2++)
+{
+if(entities[i2].active && col==entities[i2].col && row==entities[i2].row)
+{//rabbit ontop of active entity
+switch(entities[i2].type)
+{
+case 0://hutch
+case 3://block
+return false;
+break;
+case 1://warren
+case 2://arrow
+case 5://repaint
+return true;
+break;
+case 4://gate
+  switch(entities[i2].gatetype)
+	{
+	case 0://only lets through specicics
+	  if((entities[i2].rabbittype==1 && entities[i2].specific!==rabbits[i].bodycolour) || (entities[i2].rabbittype==2 && entities[i2].specific!==rabbits[i].earcolour) || (entities[i2].rabbittype==3 && entities[i2].specific!==rabbits[i].carrying))
+		{
+		return false;
+		}
+	break;
+	case 1://does not let through specifics
+	  if((entities[i2].rabbittype==1 && entities[i2].specific===rabbits[i].bodycolour) || (entities[i2].rabbittype==2 && entities[i2].specific===rabbits[i].earcolour) || (entities[i2].rabbittype==3 && entities[i2].specific===rabbits[i].carrying))
+		{
+		return false;
+		}
+	break;
+	}
+break;
+case 6://lock
+if(!entities[i2].open)
+{//lock isn't open - treat as solid.
+return false;
+}
+break;
+case 8://fake lock - linked to a lock
+if(!locks[entities[i2].reallock].open)
+{//lock isn't open - treat as solid.
+return false;
+}
+break;
+}
+
+}//end of collide with entitiy
+}//end of i2
+
+return true;
+}
+
+function checkRabbitWant(i)
+{
+	 rabbits[i].gotwant=false;
+	 var whereto=getCoordsInDir(rabbits[i].row,rabbits[i].facing);
+	   if(rabbitSafeCell(i,rabbits[i].col+whereto[0],rabbits[i].row+whereto[1]) && onGrid(rabbits[i].col+whereto[0],rabbits[i].row+whereto[1]))
+	 	 {//if next cell is free of objects, and on-screen
+	 	 rabbits[i].wantcol=rabbits[i].col+whereto[0];
+	 	 rabbits[i].wantrow=rabbits[i].row+whereto[1];
+		 rabbits[i].standstill=false;
+//		 alert('wantcol='+rabbits[i].wantcol)
+		 }else{
+//		 alert(i)
+		 rabbits[i].standstill=true;
+		 rabbits[i].gotwant=true;
+		 rabbits[i].oldcol=rabbits[i].col;
+		 rabbits[i].oldrow=rabbits[i].row;
+		 rabbits[i].oldfacing=rabbits[i].facing;
+		 rabbits[i].oldcoords=getCentreXY(rabbits[i].oldcol,rabbits[i].oldrow);
+		 rabbits[i].coords=getCentreXY(rabbits[i].col,rabbits[i].row);
+		 rabbits[i].oldalive=rabbits[i].alive;
+		 }
+}
+
+function juggleRabbitsWants()
+{//keep going till all rabbits have gotwant==true and col and row are set to wanted coords
+//bunnies wants have been checked for buildings and edge of map - so only other bunnies (& keys) to worry about
+/*
+var livebunnies=0;
+for(var i=0;i<rabbits.length;i++)
+{
+   if(rabbits[i].alive)
+	 {
+	 livebunnies++;
+	 }
+}
+*/
+
+var notgotwant=1;
+var loopcount=0;
+
+while(notgotwant>0 && loopcount<100)
+{
+notgotwant=0;
+loopcount++;
+
+  for(var i=0;i<rabbits.length;i++)
+  {
+     if(rabbits[i].alive && !rabbits[i].gotwant)
+	   {
+	     if(!findBunnies(rabbits[i].wantcol,rabbits[i].wantrow))
+	 	 	 {//nothing in cell where bunny wants to be.
+		 	 rabbits[i].gotwant=true;
+		 	 rabbits[i].oldcol=rabbits[i].col;
+		 	 rabbits[i].oldrow=rabbits[i].row;
+			 rabbits[i].oldcoords=getCentreXY(rabbits[i].oldcol,rabbits[i].oldrow);
+		 	 rabbits[i].col=rabbits[i].wantcol;
+		 	 rabbits[i].row=rabbits[i].wantrow;
+			 rabbits[i].coords=getCentreXY(rabbits[i].col,rabbits[i].row);
+		 	 rabbits[i].oldfacing=rabbits[i].facing;
+			 rabbits[i].animate=1;
+//			 alert('gotcol'+rabbits[i].col)
+		 	 }else if(rabbits[foundbunny].gotwant)
+		 	 {//is a bunny in cell where we want to be - but it can't move either
+//			 alert(i+' foundbunnycan;t move')
+		 	 rabbits[i].standstill=true;
+		 	 rabbits[i].gotwant=true;
+		 	 rabbits[i].oldcol=rabbits[i].col;
+		 	 rabbits[i].oldrow=rabbits[i].row;
+		 	 rabbits[i].oldfacing=rabbits[i].facing;
+		 	 }else if(rabbits[foundbunny].col+getCoordsInDir(rabbits[foundbunny].row,rabbits[foundbunny].facing)[0] == rabbits[i].col && rabbits[foundbunny].row+getCoordsInDir(rabbits[foundbunny].row,rabbits[foundbunny].facing)[1] == rabbits[i].row)
+			 {//both rabbits are facing each other
+			 rabbits[i].standstill=true;
+		 	 rabbits[i].gotwant=true;
+		 	 rabbits[i].oldcol=rabbits[i].col;
+		 	 rabbits[i].oldrow=rabbits[i].row;
+		 	 rabbits[i].oldfacing=rabbits[i].facing;
+			 }else if(loopcount==100)
+			 {//looped and not met everyone's needs, just set everyone to standstill.
+			 rabbits[i].standstill=true;
+		 	 rabbits[i].gotwant=true;
+		 	 rabbits[i].oldcol=rabbits[i].col;
+		 	 rabbits[i].oldrow=rabbits[i].row;
+		 	 rabbits[i].oldfacing=rabbits[i].facing;
+			 }else{
+		 	 notgotwant++
+		 	 }
+	  }
+  }
+}
+
+}
+
+function onGrid(col,row)
+{//is a cell on the grid?
+if(col > gridcols-1 || row > gridrows-1 || col < 0 || row < 0)
+{return false;}
+return true;
+}
+
+var foundbunny=0;
+
+function findBunnies(col,row)
+{//find if there are any bunnies in a certain cell - used for keys
+for(var i3=0;i3<rabbits.length;i3++)
+{
+   if(rabbits[i3].alive && rabbits[i3].col==col && rabbits[i3].row==row)
+	 {
+	 foundbunny=i3;
+	 return true;
+	 }
+}
+return false;
+}
+
+function getCoordsInDir(row,facing)
+{//returns change in col and row if you were to move in a certain direction
+//[col,row]
+switch(facing)
+{case 0:return [ -1 , 0 ];break;
+case 1:return [ row%2==0 ? -1:0 , -1 ];break;
+case 2:return [ 0 , -1 ];break;
+case 3:return [ row%2==1 ? 1:0 , -1 ];break;
+case 4:return [ 1 , 0 ];break;
+case 5:return [ row%2==1 ? 1:0 , 1 ];break;
+case 6:return [ 0 , 1 ];break;
+case 7:return [ row%2==0 ? -1:0 , 1 ];break;}
+}
+
+function moveRabbits()
+{//move rabbits one cell in direction they are facing.
+for(var i=0;i<rabbits.length;i++)
+{
+   if(rabbits[i].alive)
+	 {var whereto=getCoordsInDir(rabbits[i].row,rabbits[i].facing);
+	 //for animations:
+	 rabbits[i].oldcol=rabbits[i].col;
+	 rabbits[i].oldcoords=getCentreXY(rabbits[i].col,rabbits[i].row);
+	 rabbits[i].oldrow=rabbits[i].row;
+	 rabbits[i].oldfacing=rabbits[i].facing;
+	 
+	 rabbits[i].col+=whereto[0];
+	 rabbits[i].row+=whereto[1];
+	 rabbits[i].coords=getCentreXY(rabbits[i].col,rabbits[i].row);
+	 }
+rabbits[i].oldalive=rabbits[i].alive;
+}
+
+
+}
+
+
+function updateLocksAndKeys()
+{
+
+  for(var k=0;k<entities.length;k++)
+	{
+	  if(entities[k].type==7 && entities[k].active)//key
+		{
+		  if(entities[k].toggle && entities[k].used && !findBunnies(entities[k].col,entities[k].row))
+			{
+			//if been used, but can be toggled and there are no bunnies currently on key - turn it off again.
+			entities[k].used=false;
+			locks[entities[k].locknum].keycount--;
+			needfullredraw=true;
+			}
+			if(!entities[k].used && findBunnies(entities[k].col,entities[k].row))
+			{
+			//not currently used, but a bunny on top - turn it on
+			entities[k].used=true;
+			locks[entities[k].locknum].keycount++;
+			needfullredraw=true;
+			}
+		}
+	}
+
+
+//check the locks
+  for(var k=0;k<locks.length;k++)
+	{
+	  if(locks[k].keycount==locks[k].keys && !locks[k].open)
+		{
+		//enough keys have been walked over to open this lock
+		locks[k].open=true;
+		needfullredraw=true;
+		}
+		
+		if(locks[k].keycount!==locks[k].keys && locks[k].open)
+		{
+		//a key has been un-used since lock was opened
+		needfullredraw=true;
+		locks[k].open=false;
+		}
+  }
+
+}
+
+/*
+
+animations:
+0=carry on moving
+1=rotate to new facing
+2='die' (draw a cross, or write OW?)
+3=get home (write YEY?)
+
+*/
+
+function checkRabbits()
+{//check to see what rabbits are colliding with, and do what is needed.
+
+for(var i=0;i<rabbits.length;i++)//check rabbits against each other.
+{
+if(rabbits[i].alive)
+{
+rabbits[i].animate=0;//carry on moving.
+for(var i2=0;i2<rabbits.length;i2++)
+{
+if(i!==i2 && rabbits[i].alive && rabbits[i2].alive && rabbits[i].col==rabbits[i2].col && rabbits[i].row==rabbits[i2].row)
+{//two rabbits have collided.
+rabbits[i].alive=false;
+rabbits[i].animate=2;
+rabbits[i2].alive=false;
+rabbits[i2].animate=2;
+}//end of collide
+}//end of i2
+
+//off grid
+if(rabbits[i].col > gridcols-1 || rabbits[i].row > gridrows-1 || rabbits[i].col < 0 || rabbits[i].row < 0)
+{
+rabbits[i].alive=false;
+rabbits[i].animate=2;
+}
+
+}//end of if rabbits[i].alive
+
+
+
+if(rabbits[i].alive)//second check in case a rabbit collides with another rabbit AND a building.
+{
+for(var i2=0;i2<entities.length;i2++)
+{
+if(entities[i2].active && rabbits[i].col==entities[i2].col && rabbits[i].row==entities[i2].row)
+{//rabbit ontop of active entity
+switch(entities[i2].type)
+{
+case 0://hutch
+case 3://block
+rabbits[i].alive=false;
+rabbits[i].animate=2;
+break;
+case 1://warren
+if(entities[i2].rabbittype===0 || (entities[i2].rabbittype==1 && entities[i2].specific==rabbits[i].bodycolour) || (entities[i2].rabbittype==2 && entities[i2].specific==rabbits[i].earcolour) || (entities[i2].rabbittype==3 && entities[i2].specific==rabbits[i].carrying))
+{rabbits[i].alive=false;
+rabbits[i].animate=3;
+saferabbits++;
+document.getElementById('bunnycountspan').innerHTML=saferabbits;}
+break;
+case 2://arrow
+if(entities[i2].rabbittype===0 || (entities[i2].rabbittype==1 && entities[i2].specific==rabbits[i].bodycolour) || (entities[i2].rabbittype==2 && entities[i2].specific==rabbits[i].earcolour) || (entities[i2].rabbittype==3 && entities[i2].specific==rabbits[i].carrying))
+{
+rabbits[i].facing=entities[i2].facing;
+rabbits[i].animate=1;
+}
+break;
+case 4://gate
+  switch(entities[i2].gatetype)
+	{
+	case 0://only lets through specicics
+	if((entities[i2].rabbittype==1 && entities[i2].specific!==rabbits[i].bodycolour) || (entities[i2].rabbittype==2 && entities[i2].specific!==rabbits[i].earcolour) || (entities[i2].rabbittype==3 && entities[i2].specific!==rabbits[i].carrying))
+	{rabbits[i].alive=false;
+	rabbits[i].animate=2;
+	}
+	break;
+	case 1://does not let through specifics
+	if((entities[i2].rabbittype==1 && entities[i2].specific===rabbits[i].bodycolour) || (entities[i2].rabbittype==2 && entities[i2].specific===rabbits[i].earcolour) || (entities[i2].rabbittype==3 && entities[i2].specific===rabbits[i].carrying))
+	{rabbits[i].alive=false;
+	rabbits[i].animate=2;}
+	break;
+	}
+break;
+case 5://repaint
+  switch(entities[i2].rabbittype)
+	{
+	case 0://make no colour
+	rabbits[i].bodycolour=false;
+	break;
+	case 1://give body colour
+	rabbits[i].bodycolour=entities[i2].specific;
+	break;
+	case 2://give ear colour
+	rabbits[i].earcolour=entities[i2].specific;
+	break;
+	case 3://give something to carry
+	rabbits[i].carrying=entities[i2].specific;
+	break;
+	}
+break;
+case 6://lock
+if(!entities[i2].open)
+{//lock isn't open - treat as solid.
+rabbits[i].alive=false;
+rabbits[i].animate=2;
+}
+break;
+case 8://fake lock - linked to a lock
+if(!locks[entities[i2].reallock].open)
+{//lock isn't open - treat as solid.
+rabbits[i].alive=false;
+rabbits[i].animate=2;
+}
+break;
+}
+
+}//end of collide with entitiy
+}//end of i2
+}//end of if rabbits[i].alive
+
+}//end of i
+
+}
+
+function addJSfile(filename)
+{//load up a .js file.
+var newScr = document.createElement("SCRIPT");
+newScr.src = "levels/"+filename+".js";
+newScr.type="text/javascript";
+document.getElementsByTagName("head")[0].appendChild(newScr); 
+}
+
+var inlevelGroup=0;
+var inlevel=0;
+
+function importLevel()
+{
+var levelinfo=document.getElementById('alllevelsspanselect').value
+var levelstuff=levelinfo.split("l");
+
+loadleveltoeditor=true;
+loadworld(levelstuff[0]*1,levelstuff[1]*1,false,true);
+}
+
+function loadworld(groupnum,levelnum,ascampaign,intoeditor)
+{//adds JS file of world
+  if(intoeditor)
+	{
+	dhtmlHistory.add('editlevel'+groupnum+levelnum,[4,[groupnum,levelnum,ascampaign]]);
+	}else{
+	dhtmlHistory.add('level'+groupnum+levelnum,[1,[groupnum,levelnum,ascampaign]]);
+	}
+endworld();
+loopcount=0;
+realloopcount=0;
+
+inlevelGroup=groupnum;
+inlevel=levelnum;
+
+//older levels wouldn't have this saved.
+rabbitsWillWait=false;
+addJSfile(levelGroups[groupnum].levels[levelnum].file)
+
+
+document.getElementById('loadleveldiv').style.display='none';
+//document.getElementById('loadcampaigndiv').style.display='none';
+
+//can a level lead to another?
+incampaign=ascampaign;
+
+}
+
+function savelevel()
+{
+var savetext=''
+var bodycolours;
+var earcolours
+var carryings
+
+for(var i=0;i<entities.length;i++)
+{
+if(entities[i].active)
+{
+switch(entities[i].type)
+{case 0://hutch
+bodycolours='[';
+for(var b=0;b<entities[i].bodycolour.length;b++)
+{bodycolours+=entities[i].bodycolour[b];
+if(b<entities[i].bodycolour.length-1){bodycolours+=',';}}
+bodycolours+="]";
+
+earcolours='[';
+for(var b=0;b<entities[i].earcolour.length;b++)
+{earcolours+=entities[i].earcolour[b];
+if(b<entities[i].earcolour.length-1){earcolours+=',';}}
+earcolours+="]";
+
+carryings='[';
+for(var b=0;b<entities[i].carrying.length;b++)
+{carryings+=entities[i].carrying[b];
+if(b<entities[i].carrying.length-1){carryings+=',';}}
+carryings+="]";
+
+savetext+="new hutch("+entities[i].col+","+entities[i].row+","+bodycolours+","+earcolours+","+carryings+","+entities[i].facing+","+entities[i].freq+","+entities[i].total+"); \n";
+break;
+case 1:
+savetext+="new warren("+entities[i].col+","+entities[i].row+","+entities[i].rabbittype+","+entities[i].specific+"); \n";
+break;
+case 2:
+savetext+="new arrow("+entities[i].col+","+entities[i].row+","+entities[i].facing+","+entities[i].rabbittype+","+entities[i].specific+","+entities[i].editable+","+entities[i].active+"); \n";
+break;
+case 3:
+savetext+="new block("+entities[i].col+","+entities[i].row+","+entities[i].graphics+"); \n";
+break;
+case 4:
+savetext+="new gate("+entities[i].col+","+entities[i].row+","+entities[i].rabbittype+","+entities[i].specific+","+entities[i].gatetype+"); \n";
+break;
+case 5:
+savetext+="new repaint("+entities[i].col+","+entities[i].row+","+entities[i].rabbittype+","+entities[i].specific+"); \n";
+break;
+case 6:
+savetext+="new lock("+entities[i].col+","+entities[i].row+","+entities[i].keys+"); \n";
+break;
+case 7:
+savetext+="new key("+entities[i].col+","+entities[i].row+","+entities[i].toggle+","+entities[i].locknum+"); \n";
+break;
+case 8:
+savetext+="new fakelock("+entities[i].col+","+entities[i].row+","+entities[i].reallock+"); \n";
+break;
+case 9:
+savetext+="new grass("+entities[i].col+","+entities[i].row+"); \n";
+break;}
+}
+}
+
+savetext+="gridcols="+gridcols+";gridrows="+gridrows+";gridsize="+gridsize+";gridsides="+gridsides+";\n";
+
+for(var b=0;b<tools.length;b++)
+{
+savetext+="new tool("+tools[b].type+","+tools[b].specific+","+tools[b].howmany+"); \n";
+}
+
+switch(document.getElementById('rabbitswillselect').value*1)
+{
+case 0:savetext+="rabbitsWillWait=false;";break;
+case 1:savetext+="rabbitsWillWait=true;";break;
+}
+
+//document.getElementById('saveleveldiv').style.display="block";
+saveMapMiniMenu.open();
+document.getElementById('savetextarea').value=savetext;
+
+highlighttext('savetextarea')
+}
+
+function highlighttext(thisdiv)
+{
+document.getElementById(thisdiv).focus();
+document.getElementById(thisdiv).select();
+}
+
+var originalentities;
+var originaltools;
+var totalrabbits=0;
+var testinglevel=false
+
+function testlevel()
+{
+//so map can be reset
+originalentities=entities.length;
+saferabbits=0;
+document.getElementById('bunnycountspan').innerHTML=0;
+totalrabbits=0
+for(var i=0;i<entities.length;i++)
+{
+if(entities[i].active && entities[i].type==0)//active hutch
+{totalrabbits+=entities[i].startingtotal;}
+}
+document.getElementById('totalrabbitsspan').innerHTML="Total Bunnies: "+totalrabbits;
+//generate locks array;
+resetLocks();
+leveleditor=false;
+testinglevel=true;
+generatetoolbox();
+document.getElementById('ineditormenu').style.display='block';
+document.getElementById('ingamemenu2').style.display='none';
+document.getElementById('ingamemenu1').style.display='none';
+
+document.getElementById('toolbardiv').style.display="block";
+document.getElementById('editordiv').style.display='none';
+
+switch(document.getElementById('rabbitswillselect').value*1)
+{
+case 0:rabbitsWillWait=false;break;
+case 1:rabbitsWillWait=true;break;
+}
+
+redrawworld(true);
+}
+
+function backtoeditor()
+{//finished testing level - back to editing it.
+//clearInterval(loopme);
+pause();
+var oldworld=entities.slice(0,originalentities);
+entities=new Array();
+entities=oldworld;
+
+resetEntities();
+resetTools();
+
+rabbits=new Array();
+generatetoolbox();
+document.getElementById('toolbardiv').style.display="none";
+document.getElementById('levelwondiv').style.display="none";
+document.getElementById('editordiv').style.display='block';
+redrawworld(true);
+leveleditor=true;
+testinglevel=false;
+redrawworld(true);
+}
+
+
+var loadfromcustom=false;
+function finishloading()
+{
+
+if(!(levelGroups[inlevelGroup].levels[inlevel].description===false) && !loadfromcustom)
+{//ping up message when loading level.
+levelmessage(levelGroups[inlevelGroup].levels[inlevel].description)
+}
+loadfromcustom=false;
+
+newGrid();
+redrawworld(true)
+//so map can be reset
+originalentities=entities.length;
+generatetoolbox();
+resetLocks();//generate locks array
+totalrabbits=0
+for(var i=0;i<entities.length;i++)
+{
+if(entities[i].active && entities[i].type==0)//active hutch
+{totalrabbits+=entities[i].startingtotal;}
+}
+document.getElementById('totalrabbitsspan').innerHTML="Total Bunnies: "+totalrabbits;
+document.getElementById('ineditormenu').style.display='none';
+document.getElementById('ingamemenu1').style.display='block';
+document.getElementById('ingamemenu2').style.display='block';
+
+if(loadleveltoeditor)
+{
+starteditor(0,0,0,true);
+loadleveltoeditor=false;
+}
+
+}
+
+function loadhelp()
+{//similar to finishloading
+newGrid();
+redrawworld(true)
+
+document.getElementById('toolbardiv').style.display="none";
+document.getElementById('mainmenudiv').style.display="none";
+
+document.getElementById('helpdiv').style.left=(worldsize[0]+50+offset);
+document.getElementById('helpdiv').style.display='block';
+
+}
+
+
+function starteditor(cols,rows,sides,fromsaved)
+{
+if(!fromsaved)
+{
+gridcols=cols*1;
+gridrows=rows*1;
+gridsides=sides*1;
+
+
+switch(gridsides)
+{case 4:
+if(gridcols<7 || gridrows>9)
+{//go for 600pixels wide
+gridsize=Math.round( (600/gridcols)/10 )*10//nearest 10
+}else{
+gridsize=Math.round( (700/gridcols)/10 )*10//nearest 10
+}
+break;
+case 6:
+if(gridcols<7 || gridrows>9)
+{
+gridsize=Math.round( (0.577*(600/(gridcols*1+0.5)))/10 )*10//nearest 10
+}else{
+gridsize=Math.round( (0.577*(680/(gridcols*1+0.5)))/10 )*10//nearest 10
+}
+break;}
+
+}
+
+
+leveleditor=true;
+newGrid();
+resetLocks();
+redrawworld(true);
+
+switch(rabbitsWillWait)
+{
+case true:
+document.getElementById('rabbitswillselect').value=1;
+break;
+case false:
+document.getElementById('rabbitswillselect').value=0;
+break;
+}
+
+document.getElementById('toolbardiv').style.display="none";
+closeAllBigMenus();
+closeAllMiniMenus();
+
+document.getElementById('editordiv').style.left=(worldsize[0]+50+offset);
+document.getElementById('editordiv').style.display='block';
+
+updateextrainfo();
+}
+
+
+//using an array of arrays to draw all of one colour in one layer at the same time.  this will see little benefit with only a few bunnies, but hopefully drawing many bunnies will be as fast as only drawing a few.  Certainly it will in IE.
+//first array is layer, 0 drawn first.
+//layers: 0=bunny bodies and ears, 1=teddy arms + carrot top , 2= carrot body, teddy body + ears, 3= teddy head and feet.
+//second array is colour:
+//colours: 0=red, 1=yellow, 2=green, 3=blue, 4=bunny brown, 5=carrot green, 6=carrot orange, 7=teddy brown, 8=lettuce green 1, 9=lettuce green 2 (share carrot green as well?), 10=book blue 1, 11=book blue 2.
+var fills=new Array(5);
+var strokes=new Array(5);
+var colourStrokes=new Array(5);
+
+function redrawworld(wholeworld)
+{
+  if(!wholeworld && needfullredraw)
+	{
+	wholeworld=true;
+	needfullredraw=false;
+	}
+
+	for(var i=0;i<fills.length;i++)
+	{//reset bunny fills and strokes
+	fills[i]=new Array(14);
+	colourStrokes[i]=new Array(14);
+	
+	  for(var i2=0;i2<fills[i].length;i2++)
+		{
+		fills[i][i2]=new Array();
+		colourStrokes[i][i2]=new Array();
+		}
+	
+	strokes[i]=new Array();
+	}
+
+  if(wholeworld)
+	{
+	canvas[0].clearRect(0,0,800,700);
+	}
+
+canvas[1].clearRect(0,0,800,700);
+document.getElementById('bunnyspan').innerHTML='';
+//document.getElementById('canvastag').style.display='none';
+
+if(wholeworld)
+{
+drawCells();
+drawEntities();
+}
+
+//generate fills and strokes
+drawRabbits();
+
+  for(var i=0;i<fills.length;i++)
+	{//cycle through layers
+	
+	  for(var i2=0;i2<fills[i].length;i2++)
+		{//cycle through each colour in this layer
+		
+		canvas[1].fillStyle=getColour(i2);
+		canvas[1].beginPath();
+		  for(var i3=0;i3<fills[i][i2].length;i3++)
+			{
+			fills[i][i2][i3]();
+			}
+		canvas[1].fill();
+		canvas[1].save();
+		canvas[1].strokeStyle=getColour(i2);
+		canvas[1].beginPath();
+		  for(var i3=0;i3<colourStrokes[i][i2].length;i3++)
+			{
+			colourStrokes[i][i2][i3]();
+			}
+		canvas[1].stroke();
+		canvas[1].restore();
+		}
+		
+		canvas[1].beginPath();
+		for(var i2=0;i2<strokes[i].length;i2++)
+		{
+		strokes[i][i2]();
+		}
+		canvas[1].stroke();
+	
+	}
+
+
+}
+
+function nextlevel()
+{
+endworld();
+loadworld(inlevelGroup,inlevel+1,true,false);
+}
+
+function endworld()
+{//clear everything - like for quitting a game
+//clearInterval(loopme)
+pause();
+canvas[0].clearRect(0,0,800,700);
+canvas[1].clearRect(0,0,800,700);
+document.getElementById('toolbardiv').style.display='none';
+document.getElementById('editordiv').style.display='none';
+//document.getElementById('toolboxdiv').style.display='none';
+if(toolboxopen){toggletoolbox();}
+gridcells=new Array();
+rabbits=new Array();
+entities=new Array();
+tools=new Array();
+totalrabbits=0;
+saferabbits=0;
+document.getElementById('bunnycountspan').innerHTML='0';
+document.getElementById('bunnyspan').innerHTML='';
+}
+
+function clearworld()
+{//wipe canvas
+canvas[0].clearRect(0,0,800,700);
+canvas[1].clearRect(0,0,800,700);
+}
+
+var whatsincell=false;
+
+function cellempty(col,row)
+{//checks for entities in cell
+
+for(var i=0;i<entities.length;i++)
+{
+if(entities[i].col == col && entities[i].row==row && entities[i].active)
+{whatsincell=i;return false;}
+}
+return true;
+}
+
+function getEntity(col,row)
+{
+for(var i=0;i<entities.length;i++)
+{
+if(entities[i].col == col && entities[i].row==row && entities[i].active)
+{return i;}
+}
+return false;
+}
+
+function getFacingFromAngle(angle)
+{
+switch(gridsides)
+{
+case 6:
+if(angle < -Math.PI*5/6){return 0;}
+else if(angle < -Math.PI/2){return 1;}
+else if(angle < -Math.PI/6){return 3;}
+else if(angle < Math.PI/6){return 4;}
+else if(angle < Math.PI/2){return 5;}
+else if(angle < Math.PI*5/6){return 7;}
+else{return 0;}
+break;
+case 4:
+if(angle < -Math.PI*3/4){return 0;}
+else if(angle < -Math.PI/4){return 2;}
+else if(angle < Math.PI/4){return 4;}
+else if(angle < Math.PI*3/4){return 6;}
+else{return 0;}
+break;
+}
+}
+
+
+
+function updateEntity()
+{//called by clicking Update after selecting an object with Edit Entity
+  switch(entities[editingobject].type)
+	{
+	case 0://hutch
+	
+	var bodycolours=new Array();
+	var earcolours=new Array();
+	var carryings=new Array();
+	
+	if(!isNaN(parseFloat(document.getElementById('hutchtotalselect').value))){var hutchtotal=parseFloat(document.getElementById('hutchtotalselect').value)}else{var hutchtotal=20;document.getElementById('hutchtotalselect').value=20;}
+	
+	//make arrays from the list of body,ear,carry colours selected
+	
+	for(var i=0;i<document.getElementById('hutchbodyselect').value*1;i++)
+	{if(document.getElementById('hutchbodycycle'+i).value!=='false')
+	{bodycolours.push(document.getElementById('hutchbodycycle'+i).value*1);
+	}else{bodycolours.push(false);}}
+	
+	for(var i=0;i<document.getElementById('hutchearselect').value*1;i++)
+	{if(document.getElementById('hutchearcycle'+i).value!=='false')
+	{earcolours.push(document.getElementById('hutchearcycle'+i).value*1);
+	}else{earcolours.push(false);}}
+	
+	for(var i=0;i<document.getElementById('hutchcarryselect').value*1;i++)
+	{if(document.getElementById('hutchcarrycycle'+i).value!=='false')
+	{carryings.push(document.getElementById('hutchcarrycycle'+i).value*1);
+	}else{carryings.push(false);}}
+		
+	entities[editingobject].total=hutchtotal;
+	entities[editingobject].startingtotal=hutchtotal;
+	entities[editingobject].bodycolour=bodycolours;
+	entities[editingobject].earcolour=earcolours;
+	entities[editingobject].carrying=carryings;
+	entities[editingobject].freq=document.getElementById('hutchfreqselect').value*1;
+			
+	break;
+	case 4://gate
+	entities[editingobject].gatetype=document.getElementById('gatetypeselect').value*1
+	case 1://warren
+	case 2://arrow
+	case 5://repaint
+	entities[editingobject].rabbittype=document.getElementById('selecttype').value*1;
+	entities[editingobject].specific=document.getElementById('selectspecific').value*1;
+	break;
+	case 3://block 
+	entities[editingobject].graphics=document.getElementById('selectblocktype').value*1;
+	break;
+	case 6://lock
+	entities[editingobject].keys=document.getElementById('selectkeys').value*1;
+	break;
+	case 7://key
+	entities[editingobject].toggle=document.getElementById('selectkeytoggle').checked;
+	entities[editingobject].locknum=document.getElementById('selectlock').value*1;
+	break;
+	case 8://fakelock
+	entities[editingobject].reallock=document.getElementById('fakelockselect').value*1;
+	break;
+	}
+redrawworld(true);
+}
+
+var oldarrowfacing=false;
+var editingobject=false;
+
+function mousegonedown(event)
+{
+var incell=false;
+for(var k=0;k<gridcells.length;k++)
+{
+if(inpoly(cmouseX,cmouseY,gridcells[k].Xs,gridcells[k].Ys))
+{
+incell=[gridcells[k].col,gridcells[k].row];
+}
+}
+
+if(!(incell===false))
+{
+if(cellempty(incell[0],incell[1]) || (leveleditor && (document.getElementById('mousedoesselect').value=='delete' ||document.getElementById('mousedoesselect').value=='edit') ) )
+{
+switch(mousedoes)
+{
+case 'placearrow':
+var centrexy=getCentreXY(incell[0],incell[1]);
+var angle=Math.atan2(cmouseY-centrexy[1] , cmouseX-centrexy[0]);
+//arrow(col,row,facing,rabbittype,specific,editable,active)
+new arrow(incell[0],incell[1],getFacingFromAngle(angle),tools[mousedoes2].type,tools[mousedoes2].specific,true,true)
+tools[mousedoes2].howmanyleft--;
+mousedoes=false;
+mousedoes2=false;
+generatetoolbox();
+document.getElementById('selectedspan').innerHTML="Nothing Selected";
+redrawworld(true);
+break;}
+
+if(leveleditor)
+{//editing level
+switch(document.getElementById('mousedoesselect').value)
+{
+case 'hutch':
+
+var bodycolours=new Array();
+var earcolours=new Array();
+var carryings=new Array();
+
+if(!isNaN(parseFloat(document.getElementById('hutchtotalselect').value))){var hutchtotal=parseFloat(document.getElementById('hutchtotalselect').value)}else{var hutchtotal=20;document.getElementById('hutchtotalselect').value=20;}
+
+//make arrays from the list of body,ear,carry colours selected
+
+for(var i=0;i<document.getElementById('hutchbodyselect').value*1;i++)
+{if(document.getElementById('hutchbodycycle'+i).value!=='false')
+{bodycolours.push(document.getElementById('hutchbodycycle'+i).value*1);
+}else{bodycolours.push(false);}}
+
+for(var i=0;i<document.getElementById('hutchearselect').value*1;i++)
+{if(document.getElementById('hutchearcycle'+i).value!=='false')
+{earcolours.push(document.getElementById('hutchearcycle'+i).value*1);
+}else{earcolours.push(false);}}
+
+for(var i=0;i<document.getElementById('hutchcarryselect').value*1;i++)
+{if(document.getElementById('hutchcarrycycle'+i).value!=='false')
+{carryings.push(document.getElementById('hutchcarrycycle'+i).value*1);
+}else{carryings.push(false);}}
+
+
+var centrexy=getCentreXY(incell[0],incell[1]);
+var angle=Math.atan2(cmouseY-centrexy[1] , cmouseX-centrexy[0]);
+new hutch(incell[0],incell[1],bodycolours,earcolours,carryings,getFacingFromAngle(angle),document.getElementById('hutchfreqselect').value*1,hutchtotal)
+
+break;
+case 'warren':
+new warren(incell[0],incell[1],document.getElementById('selecttype').value*1,document.getElementById('selectspecific').value*1);
+break;
+case 'arrow':
+var centrexy=getCentreXY(incell[0],incell[1]);
+var angle=Math.atan2(cmouseY-centrexy[1] , cmouseX-centrexy[0]);
+new arrow(incell[0],incell[1],getFacingFromAngle(angle),document.getElementById('selecttype').value*1,document.getElementById('selectspecific').value*1,false,true)
+break;
+case 'block':
+new block(incell[0],incell[1],document.getElementById('selectblocktype').value*1);
+break;
+case 'gate':
+new gate(incell[0],incell[1],document.getElementById('selecttype').value*1,document.getElementById('selectspecific').value*1,document.getElementById('gatetypeselect').value*1);
+break;
+case 'repaint':
+new repaint(incell[0],incell[1],document.getElementById('selecttype').value*1,document.getElementById('selectspecific').value*1);
+break;
+case 'lock':
+new lock(incell[0],incell[1],document.getElementById('selectkeys').value*1);
+resetLocks();
+break;
+case 'key':
+new key(incell[0],incell[1],document.getElementById('selectkeytoggle').checked,document.getElementById('selectlock').value*1);
+break;
+case 'fakelock':
+if(locks.length>0)
+{
+new fakelock(incell[0],incell[1],document.getElementById('fakelockselect').value)
+}
+break;
+case 'grass':
+new grass(incell[0],incell[1]);
+break;
+case 'delete':
+
+  if(entities[getEntity(incell[0],incell[1])].type==6)//lock
+	{
+	var templock=entities[getEntity(incell[0],incell[1])].locknum
+	
+	  for(var l=0;l<entities.length;l++)
+		{//change the locknums of all fakelocks and keys
+			if(entities[l].type==7 && entities[l].locknum==templock)//key which belongs to the lock being deleted
+			{
+			entities[l].active=false;
+			}else if(entities[l].type==7 && entities[l].locknum>templock)//key which belongs to a lock with a higher number than the one being deleted
+			{
+			entities[l].locknum--;
+			}else if(entities[l].type==8 && entities[l].reallock==templock)//fakelock which belongs to the lock being deleted
+			{
+			entities[l].active=false;
+			}else if(entities[l].type==8 && entities[l].reallock>templock)//fakelock which belongs to a lock with a higher number than the one being deleted
+			{
+			entities[l].reallock--;
+			}
+		}
+	
+	}
+
+entities[getEntity(incell[0],incell[1])].active=false;
+resetLocks();
+break;
+case 'edit':
+  if(!cellempty(incell[0],incell[1]))
+	{
+	updateextrainfo();
+	//update button:
+	document.getElementById('extrainfo8').style.display='block';
+	editingobject=getEntity(incell[0],incell[1])
+	
+	  switch(entities[editingobject].type)
+		{
+		case 0://hutch
+		document.getElementById('editinginfospan').innerHTML="<br><b>Editing Hutch</b><br>";
+		document.getElementById('extrainfo4').style.display='block';
+		document.getElementById('hutchtotalselect').value=entities[editingobject].total;
+		document.getElementById('hutchfreqselect').value=entities[editingobject].freq;
+		document.getElementById('hutchbodyselect').value=entities[editingobject].bodycolour.length;
+		document.getElementById('hutchearselect').value=entities[editingobject].earcolour.length;
+		document.getElementById('hutchcarryselect').value=entities[editingobject].carrying.length;
+		hutchstuff();
+		
+		  for(var e=0;e<entities[editingobject].bodycolour.length;e++)
+			{
+			document.getElementById('hutchbodycycle'+e).value=entities[editingobject].bodycolour[e]
+			}
+		  for(var e=0;e<entities[editingobject].earcolour.length;e++)
+			{
+			document.getElementById('hutchearcycle'+e).value=entities[editingobject].earcolour[e]
+			}
+		  for(var e=0;e<entities[editingobject].carrying.length;e++)
+			{
+			document.getElementById('hutchcarrycycle'+e).value=entities[editingobject].carrying[e]
+			}
+		
+		break;
+		case 1://warren
+		document.getElementById('extrainfo1').style.display='block';
+		document.getElementById('editinginfospan').innerHTML="<br><b>Editing Warren</b><br>";
+		document.getElementById('selecttype').value=entities[editingobject].rabbittype;
+	  document.getElementById('selectspecific').value=entities[editingobject].specific;
+		break;
+		case 2://arrow
+		document.getElementById('extrainfo1').style.display='block';
+		document.getElementById('editinginfospan').innerHTML="<br><b>Editing Arrow</b><br>";
+		document.getElementById('selecttype').value=entities[editingobject].rabbittype;
+	  document.getElementById('selectspecific').value=entities[editingobject].specific;
+		break;
+		case 3://block
+		document.getElementById('extrainfo3').style.display='block';
+		document.getElementById('editinginfospan').innerHTML="<br><b>Editing Block</b><br>";
+		break;
+		case 4://gate
+		document.getElementById('editinginfospan').innerHTML="<br><b>Editing Gate</b><br>";
+		document.getElementById('extrainfo1').style.display='block';
+		document.getElementById('extrainfo2').style.display='block';
+		document.getElementById('selecttype').value=entities[editingobject].rabbittype;
+	  document.getElementById('selectspecific').value=entities[editingobject].specific;
+		document.getElementById('gatetypeselect').value=entities[editingobject].gatetype;
+		break;
+		case 5://repaint
+		document.getElementById('editinginfospan').innerHTML="<br><b>Editing Re-Supply</b><br>";
+		document.getElementById('extrainfo1').style.display='block';
+		document.getElementById('selecttype').value=entities[editingobject].rabbittype;
+	  document.getElementById('selectspecific').value=entities[editingobject].specific;
+		break;
+		case 6://lock
+		document.getElementById('extrainfo5').style.display='block';
+		document.getElementById('editinginfospan').innerHTML="<br><b>Editing Lock</b><br>";
+		document.getElementById('selectkeys').value=entities[editingobject].keys;
+		break;
+		case 7://key
+		document.getElementById('selectkeytoggle').checked=entities[editingobject].toggle;
+		document.getElementById('extrainfo6').style.display='block';
+		document.getElementById('editinginfospan').innerHTML="<br><b>Editing Key</b><br>";
+		document.getElementById('selectkeytoggle').checked=entities[editingobject].toggle;
+		document.getElementById('selectlock').value=entities[editingobject].locknum;
+		break;
+		case 8://fakelock
+		document.getElementById('extrainfo7').style.display='block';
+		document.getElementById('editinginfospan').innerHTML="<br><b>Editing Fake Lock</b><br>";
+		var html='<select id="fakelockselect">';
+	    for(var l=0;l<locks.length;l++)
+			{
+			html+="<option value="+l+">"+l+"</option>";
+			}
+		html+="</select>"
+		document.getElementById('extrainfo7b').innerHTML=html;
+		document.getElementById('fakelockselect').value=entities[editingobject].reallock;
+		break;
+		}
+	
+	}
+updateArrowStuff();
+break;
+}
+
+redrawworld(true);
+
+}//end of level editor
+
+}else{//not empty
+
+var centrexy=getCentreXY(incell[0],incell[1]);
+
+if((entities[whatsincell].type!==2 && entities[whatsincell].type!==0) || dsqrd(centrexy[0],centrexy[1],cmouseX,cmouseY) < (gridsize/3)*(gridsize/3))
+{//clicked near centre and this object can't face a direction - so we're not trying to rotate it
+
+  if(leveleditor)
+	{//editing level
+	  if(whatsincell===mousedoes2)//clicked on an object which was being moved - put it back down again
+		{
+		//document.getElementById('mousedoesselect').value='move';
+		mousedoes=false;
+		mousedoes2=false;
+		}else{
+		mousedoes="move";
+		//document.getElementById('mousedoesselect').value='placemoved';
+		mousedoes2=whatsincell;
+		}
+  }//end of level editor
+	else{
+	  if(entities[whatsincell].editable)
+		{//this occupied cell can be edited by the user - therefore must be an arrow
+		mousedoes='dragarrow';
+		
+		  for(var i=0;i<tools.length;i++)
+			{
+			  if(tools[i].type==entities[whatsincell].rabbittype && tools[i].specific==entities[whatsincell].specific)
+				{tools[i].howmanyleft++;
+				entities[whatsincell].active=false;
+				oldarrowfacing=entities[whatsincell].facing
+				mousedoes2=i;}
+			}
+
+		document.getElementById('selectedspan').innerHTML=toolname(mousedoes2)+" Selected"
+		redrawworld(true);
+		}//end of editable
+
+	}//not leveleditor
+
+}else{//trying to rotate
+
+if(entities[whatsincell].editable || (leveleditor && (entities[whatsincell].type==2 || entities[whatsincell].type==0)))
+{
+var angle=Math.atan2(cmouseY-centrexy[1] , cmouseX-centrexy[0])
+
+entities[whatsincell].facing=getFacingFromAngle(angle);
+
+redrawworld(true);
+}//end of editable
+}//end of rotate
+
+}//end of not empty
+
+}
+
+if (event.preventDefault){event.preventDefault();}
+event.returnValue = false;
+}
+
+
+//this is called anytime the mouse button is released on the page. Stops windows 'sticking' to the mouse
+function finalmouseup()
+{for(var i=0;i<windows.length;i++){windows[i].moveme=false;}
+
+if(fast)
+{
+endfastforward();
+}
+
+switch(mousedoes)
+{
+case 'dragarrow':
+var incell=false;
+for(var k=0;k<gridcells.length;k++)
+{
+if(inpoly(cmouseX,cmouseY,gridcells[k].Xs,gridcells[k].Ys))
+{
+incell=[gridcells[k].col,gridcells[k].row];
+}
+}
+
+if(!(incell===false) && cellempty(incell[0],incell[1]))
+{
+new arrow(incell[0],incell[1],oldarrowfacing,tools[mousedoes2].type,tools[mousedoes2].specific,true,true)
+tools[mousedoes2].howmanyleft--;
+mousedoes=false;
+mousedoes2=false;
+generatetoolbox();
+document.getElementById('selectedspan').innerHTML="Nothing Selected";
+redrawworld(true);
+}else{//couldn't drag arrow - put it back in inventory
+mousedoes=false;
+document.getElementById('selectedspan').innerHTML="Nothing Selected";
+generatetoolbox();
+}
+
+break;
+case 'move':
+
+var incell=false;
+for(var k=0;k<gridcells.length;k++)
+{
+if(inpoly(cmouseX,cmouseY,gridcells[k].Xs,gridcells[k].Ys))
+{
+incell=[gridcells[k].col,gridcells[k].row];
+}
+}
+if(!(incell===false) && cellempty(incell[0],incell[1]))
+{
+entities[mousedoes2].col=incell[0];
+entities[mousedoes2].row=incell[1];
+redrawworld(true);
+
+mousedoes2=false;
+mousedoes=false;
+//document.getElementById('mousedoesselect').value='move';
+
+}else{//can't be moved here
+mousedoes2=false;
+mousedoes=false;
+//document.getElementById('mousedoesselect').value='move';
+}
+break;
+}
+
+}
+
+
+document.onmouseup   = finalmouseup;
+document.onmousemove = getMouseXY;
+
+//-->
+</script>
+
+</body>
+</html>

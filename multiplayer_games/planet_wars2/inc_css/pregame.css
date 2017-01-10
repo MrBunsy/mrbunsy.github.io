@@ -1,0 +1,72 @@
+/* ====== People in Room ===== */
+#people_in_room_container {
+	float: left;
+	width: 300px;
+	margin-left: 30px;
+	margin-top: 50px;
+}
+#people_in_room {
+	height: 100px;
+	padding-top: 10px;
+	padding-left: 30px;
+}
+
+/* ===== Game Settings ===== */
+#game_settings_container {
+	float: left;
+	clear: left;
+	width: 300px;
+	margin-left: 30px;
+	margin-top: 30px;
+}
+#game_settings {
+	height: 100px;
+	padding-top: 20px;
+	padding-left: 20px;
+	overflow-y: auto;
+}
+#game_settings li {
+	list-style: none;	
+}
+#game_settings li:before {
+	content: '- ';
+}
+
+/* ===== Players / Games ===== */
+#players_container {
+	float: left;
+	clear: left;
+	width: 300px;
+}
+#players {
+	height: 300px;
+}
+
+/* ===== Map ===== */
+#map_container {
+	width: 500px;
+	margin-left: 380px;
+	margin-top: 50px;
+}
+#map {
+	height: 380px;
+	padding-top: 10px;
+	padding-left: 5px;
+}
+#planet_wars_div {
+	margin-left: auto;
+	margin-right: auto;
+}
+
+/* ===== Chat ===== */
+#chat_container {
+	width: 500px;
+	margin-left: 380px;
+	margin-top: 30px;
+}
+#chat_container #chat_messages {
+	height: 188px;
+}
+#chat_container input {
+	width: 498px;
+}

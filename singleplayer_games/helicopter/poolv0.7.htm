@@ -1,0 +1,370 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html>
+<head>
+<title>'Pool' - Testing the helicopter engine version 0.68</title>
+<script src="keys.js" type="text/javascript"></script>
+</head>
+<body onkeydown="keydown(event)" onkeyup="keyup(event)">
+<span id="worldspan"></span>
+<span id="testspan"></span>
+<script language="JavaScript" type="text/javascript">
+<!--
+//objects can't move
+var worldobjects=new Array()
+//entities can move
+var worldentities=new Array()
+//collidables can be collided with, these can be both objects and entities
+var worldcollideables=new Array()
+var world=document.getElementById('worldspan');
+var gravity=0.125;
+gravity=0
+
+//velocity retained during collision (as fraction)
+var dampen=0.98
+
+//vx, vy = velocity (pixels per refresh);  fx,fy = forces
+function entity(name,x,y,width,height,mass,div,image,type,vx,vy,fx,fy,hard,sticky,shape)
+{
+this.name=name;
+this.x=x;
+this.y=y;
+this.width=width;
+this.height=height;
+this.mass=mass;
+//div= name+'div'
+this.div=div;
+this.image=image;
+//types 0 =moveable entitiy, 1= still object
+this.type=type;
+//v=veloctity,f=force
+this.vx=vx;
+this.vy=vy;
+this.fx=fx;
+this.fy=fy;
+//not currently used
+//this.state=state
+//what type of collision?
+this.sticky=sticky;
+//shapes, 1= rectangle, 0=circle
+this.shape=shape
+//object or entity?
+switch (type)
+{case 0:
+worldentities.push(this.name);
+break;
+case 1:
+worldobjects.push(this.name);
+break;}
+//can it collide?
+this.hard=hard
+if(hard){worldcollideables.push(this.name)}
+if(!testfordiv(div)){world.innerHTML+="<div id=\'"+div+"' style='position:absolute;  width:"+width+"; height:"+height+";  top:"+y+"; left:"+x+"'><img src='"+image+"'></div>"}
+}
+
+function testfordiv(id)
+{var testme=document.getElementById(id);
+if(testme){return true;}else{return false;}}
+
+var lowerborder=new entity('lowerborder',0,700,800,100,10,'lowerborderdiv','orange.gif',1,0,0,0,0,true,false,1);
+var upperborder=new entity('upperborder',0,-100,800,100,10,'upperborderdiv','orange.gif',1,0,0,0,0,true,false,1);
+var leftborder=new entity('leftborder',-100,0,100,800,10,'leftborderdiv','orange.gif',1,0,0,0,0,true,false,1);
+var rightborder=new entity('rightborder',800,0,100,800,10,'rightborderdiv','orange.gif',1,0,0,0,0,true,false,1);
+
+var heli=new entity('heli',200,250,50,50,100,'helidiv','balls/black.gif',0,0,0,0,0,true,false,0);
+
+var ball1=new entity('ball1',300,250,50,50,110,'ball1div','balls/green.gif',0,0,0,0,0,true,false,0);
+var ball2=new entity('ball2',370,610,50,50,90,'ball2div','balls/blue.gif',0,0,0,0,0,true,false,0);
+var ball3=new entity('ball3',370,390,50,50,205,'ball3div','balls/red.gif',0,0,0,0,0,true,false,0);
+var ball4=new entity('ball4',440,550,50,50,50,'ball4div','balls/yellow.gif',0,0,0,0,0,true,false,0);
+var ball5=new entity('ball5',440,220,50,50,95,'ball5div','balls/green.gif',0,0,0,0,0,true,false,0);
+var ball6=new entity('ball6',440,280,50,50,102,'ball6div','balls/green.gif',0,0,0,0,0,true,false,0);
+var square=new entity('square',440,380,50,50,102,'squarediv','square.gif',0,0,0,0,0,true,false,1);
+
+function whatsinworld()
+{for (i=0;i<worldobjects.length;i++)
+{if(testfordiv(worldobjects[i])){alert(worldobjects[i]+" exists")}else{alert(worldobjects[i]+" doesn't exist")}}}
+
+//loop stuff
+var loopme=setInterval('loop()',20)
+function loop()
+{
+moveheli()
+updateentities()
+}
+//displacement
+var currentleft;
+var currenttop;
+//velocity
+var currentvx;
+var currentvy;
+var newvx
+var newvy
+//force
+var currentfx;
+var currentfy;
+//acceleration
+var ax
+var ay
+
+//seconds per loop
+var time= 0.02
+var collide;
+var collide2;
+var ourvx;
+var theirvx;
+var ourvy;
+var theirvy;
+
+var whichdiv;
+var ournewvx;
+var ournewvy;
+var theirnewvx;
+var theirnewvy;
+
+var ourleft
+var ourright
+var ourtop
+var ourbottom
+var theirleft
+var theirright
+var theirtop
+var theirbottom
+var dontcontinue
+
+var diffinx
+var diffiny
+var collisionangle
+
+function updateentities()
+{
+
+for (i=0;i<worldentities.length;i++)
+{
+currentleft=eval(worldentities[i]+".x")
+currenttop=eval(worldentities[i]+".y")
+currentvx=eval(worldentities[i]+".vx")
+currentvy=eval(worldentities[i]+".vy")
+currentfx=eval(worldentities[i]+".fx")
+currentfy=eval(worldentities[i]+".fy")
+currentmass=eval(worldentities[i]+".mass")
+ax=(currentfx)/currentmass
+ay=(currentfy+gravity*currentmass)/currentmass
+//v=u+at
+newvx=currentvx+ax
+newvy=currentvy+ay
+//'friction'
+//if(newvx > 0){newvx-=0.01}
+//if(newvx < 0){newvx+=0.01}
+eval(worldentities[i]+".vy=Math.round(newvy*10)/10")
+eval(worldentities[i]+".vx=Math.round(newvx*10)/10")
+//s=ut + 0.5at^2
+newleft=(newvx+1/2*ax)+currentleft
+newleft=Math.round(newleft)
+
+//collide=checkcollide(worldentities[i])
+newtop=(newvy+1/2*ay)+currenttop
+newtop=Math.round(newtop)
+collide=checkpotentialcollide(worldentities[i],newleft,newtop)
+//collide=checkcollide(worldentities[i])
+//if (checkcollide(worldentities[i]) == false){}
+if (collide !== false){
+//----------------------------------there has been a collision----------------------------------
+for(i3=0;i3<collide;i3++)
+{
+//if(i3>1){alert(i3)}
+
+
+switch(eval(collidewith[i3]+'.type')){
+case 0:
+
+newleft=currentleft;
+newtop=currenttop;
+
+ourcentrex=eval('currentleft+'+worldentities[i]+'.width/2')
+ourcentrey=eval('currenttop+'+worldentities[i]+'.height/2')
+
+theircentrex=eval(collidewith[i3]+'.x+'+collidewith[i3]+'.width/2')
+theircentrey=eval(collidewith[i3]+'.y+'+collidewith[i3]+'.height/2')
+
+diffinx=theircentrex-ourcentrex
+diffiny=theircentrey-ourcentrey
+if(diffinx == 0){collisionangle=0}else{collisionangle=Math.atan(diffiny/diffinx)}
+
+ourvx=currentvx
+ourvy=currentvy
+ourmass=currentmass
+theirvy=eval(collidewith[i3]+'.vy')
+theirvx=eval(collidewith[i3]+'.vx')
+theirmass=eval(collidewith[i3]+'.mass')
+//momentum=mass*velocity
+//Kinetic Energy = 0.5*mass*velocity^2
+//both are conserved
+//from an equation I found on the internet (elastic collisons, re-arrengement of the above two equations)
+ournewvx=( (ourmass-theirmass)/(ourmass+theirmass))*ourvx+( (2*theirmass)/(ourmass+theirmass) )*theirvx
+ournewvy=( (ourmass-theirmass)/(ourmass+theirmass))*ourvy+( (2*theirmass)/(ourmass+theirmass) )*theirvy
+
+theirnewvx=( (theirmass-ourmass)/(theirmass+ourmass))*theirvx+( (2*ourmass)/(theirmass+ourmass) )*ourvx
+theirnewvy=( (theirmass-ourmass)/(theirmass+ourmass))*theirvy+( (2*ourmass)/(theirmass+ourmass) )*ourvy
+
+eval(worldentities[i]+".vx=ournewvx*dampen")
+eval(collidewith[i3]+".vx=theirnewvx*dampen")
+eval(worldentities[i]+".vy=ournewvy*dampen")
+eval(collidewith[i3]+".vy=theirnewvy*dampen")
+newleft=newleft+ournewvx
+newtop=newtop+ournewvy
+break;
+
+case 1:
+switch(eval(collidewith[i3]+'.sticky'))
+{
+case false:
+ourleft=eval(worldentities[i]+'.x')
+ourright=eval(worldentities[i]+'.x+'+worldentities[i]+'.width')
+ourtop=eval(worldentities[i]+'.y')
+ourbottom=eval(worldentities[i]+'.y+'+worldentities[i]+'.height')
+
+theirleft=eval(collidewith[i3]+'.x')
+theirright=eval(collidewith[i3]+'.x+'+collidewith[i3]+'.width')
+theirtop=eval(collidewith[i3]+'.y')
+theirbottom=eval(collidewith[i3]+'.y+'+collidewith[i3]+'.height')
+dontcontinue=0
+//these two work for tiny things colliding with big things, provided you're not at the edges of the big things:
+if(ourtop > theirtop && ourbottom < theirbottom){eval(worldentities[i]+".vx=currentvx*(-1)*dampen");eval(worldentities[i]+".vy=currentvy*dampen");dontcontinue++}
+if(ourright < theirright && ourleft > theirleft){eval(worldentities[i]+".vy=currentvy*(-1)*dampen");eval(worldentities[i]+".vx=currentvx*dampen");dontcontinue++}
+if(dontcontinue==0){
+eval(worldentities[i]+".vx=currentvx*(-1)*dampen")
+eval(worldentities[i]+".vy=currentvy*(-1)*dampen")
+}
+
+//if(rightx > eval(worldcollideables[i2]+'.x') && leftx < eval(worldcollideables[i2]+'.x+'+worldcollideables[i2]+'.width') && topy < eval(worldcollideables[i2]+'.y+'+worldcollideables[i2]+'.height') && bottomy > eval(worldcollideables[i2]+'.y')){collidewith.push(worldcollideables[i2])
+
+//if(newleft < eval(collidewith[i3]+'.x+'+collidewith[i3]+'.width') && eval('newleft+'+worldentities[i]+'.width') > eval(collidewith[i3]+'.x') ){eval(worldentities[i]+".vy=currentvy*(-1)")}
+//else{eval(worldentities[i]+".vx=currentvx*(-1)")}
+//if(newtop < eval(collidewith[i3]+'.y+'+collidewith[i3]+'.height') && eval('newtop+'+worldentities[i]+'.height')> eval(collidewith[i3]+'.y') ){eval(worldentities[i]+".vx=currentvx*(-1)")}
+//eval(worldentities[i]+".vx=currentvx*(-1)")
+//eval(worldentities[i]+".vy=currentvy*(-1)")
+break;
+case true:
+eval(worldentities[i]+".vx=0");
+eval(worldentities[i]+".vy=0");
+break;}
+//if(newleft < eval(collidewith[i3]+'.x+'+collidewith[i3]+'.width') || eval('newleft+'+worldentities[i]+'.width') > eval(collidewith[i3]+'.x') ){eval(worldentities[i]+".vy=currentvy*(-1)")}
+//eval(worldentities[i]+".vx=newvx*(-1)")
+//eval(worldentities[i]+".vy=currentvy*(-1)")
+//eval(worldentities[i]+".vx=0")
+//eval(worldentities[i]+".vy=0")
+
+//if(newvx>0){newleft=newleft-10;}
+//if(newvx<0){newleft=newleft+10;}
+newleft=currentleft
+newtop=currenttop;
+
+break;}
+//end of collidewith loop
+}
+collidewith=new Array;
+//end of if collision if statement
+}
+//----------------------------------end of collisions----------------------------------
+eval(worldentities[i]+".x=newleft");
+eval(worldentities[i]+".y=newtop");
+whichdiv=document.getElementById(worldentities[i]+'div');
+whichdiv.style.left=newleft;
+whichdiv.style.top=newtop;
+}
+}
+
+function moveheli()
+{
+if (moveright){heli.fx+=2; if (heli.fx>20){heli.fx=20}}
+if (moveleft){heli.fx-=2; if (heli.fx<-20){heli.fx=-20}}
+if(!moveright && !moveleft){if (heli.fx>0){heli.fx-=5};if (heli.fx<0){heli.fx+=5}}
+if (moveup){heli.fy-=2; if (heli.fy < -20){heli.fy=-20}}
+if (movedown){heli.fy+=2; if (heli.fy > 10){heli.fy=10}}
+if (!moveup && !movedown){heli.fy+=2; if (heli.fy > 0){heli.fy=0}}
+}
+
+var rightx;
+var leftx;
+var topy;
+var bottomy;
+var collidewith=new Array()
+var ourcentrex
+var ourcentrey
+var theircentrex
+var theircentrey
+var ourradius
+var theirradius
+var circledistance
+
+function checkcollide(whichentity)
+{
+leftx=eval(whichentity+'.x')
+rightx=eval(whichentity+'.x+'+whichentity+'.width')
+topy=eval(whichentity+'.y')
+bottomy=eval(whichentity+'.y+'+whichentity+'.height')
+for (i2=0;i2<worldcollideables.length;i2++)
+{
+if (worldcollideables[i2] !== whichentity)
+{if(rightx > eval(worldcollideables[i2]+'.x') && leftx < eval(worldcollideables[i2]+'.x+'+worldcollideables[i2]+'.width') && topy < eval(worldcollideables[i2]+'.y+'+worldcollideables[i2]+'.height') && bottomy > eval(worldcollideables[i2]+'.y')){return worldcollideables[i2];}}
+}
+return false;
+}
+
+function checkpotentialcollide(whichentity,testthisx,testthisy)
+{
+leftx=testthisx
+rightx=eval('leftx+'+whichentity+'.width')
+topy=testthisy
+bottomy=eval('topy+'+whichentity+'.height')
+
+ourcentrex=eval('testthisx+'+whichentity+'.width/2')
+ourcentrey=eval('testthisy+'+whichentity+'.height/2')
+ourradius=eval(whichentity+'.height/2')
+
+
+for (i2=0;i2<worldcollideables.length;i2++)
+{
+
+if(eval(whichentity+'.shape')==0 && eval(worldcollideables[i2]+'.shape')==0)
+{
+//both entities are circles
+if (worldcollideables[i2] !== whichentity)
+{
+theircentrex=eval(worldcollideables[i2]+'.x+'+worldcollideables[i2]+'.width/2')
+theircentrey=eval(worldcollideables[i2]+'.y+'+worldcollideables[i2]+'.height/2')
+theirradius=eval(worldcollideables[i2]+'.height/2')
+
+//pythagoras
+circledistance=Math.sqrt( (ourcentrex-theircentrex)*(ourcentrex-theircentrex)+(ourcentrey-theircentrey)*(ourcentrey-theircentrey) ) 
+//if the distance between the two circles is less than or equal to the sum of their two radii then they'll collide
+if(circledistance<(theirradius+ourradius) || circledistance==(theirradius+ourradius)){collidewith.push(worldcollideables[i2])}
+
+}
+
+}else{
+//one of us isn't a circle
+if (worldcollideables[i2] !== whichentity)
+{if(rightx > eval(worldcollideables[i2]+'.x') && leftx < eval(worldcollideables[i2]+'.x+'+worldcollideables[i2]+'.width') && topy < eval(worldcollideables[i2]+'.y+'+worldcollideables[i2]+'.height') && bottomy > eval(worldcollideables[i2]+'.y')){collidewith.push(worldcollideables[i2]) }}
+}
+
+}
+if (collidewith.length!==0){return collidewith.length}
+
+
+
+
+
+
+return false;
+
+
+
+}
+//script and artwork copyright Luke Wallin 2007 
+//-->
+</script>
+
+</body>
+</html>

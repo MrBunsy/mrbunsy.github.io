@@ -1,0 +1,552 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html>
+<head>
+<title>Tetris</title>
+</head>
+<body onkeydown="javascript:keyDown()" onload="javascript:s=setInterval('main()',30);">
+<table summary="">
+<tr><td>
+<center>
+<h1>Tetris</h1>
+<img src="blank.gif" name='blank.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="blank.gif" name='blank.gif' width="24" height="24" alt=""><br>
+<img src="blank.gif" name='blank.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="blank.gif" name='blank.gif' width="24" height="24" alt=""><br>
+<img src="blank.gif" name='blank.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="blank.gif" name='blank.gif' width="24" height="24" alt=""><br>
+<img src="blank.gif" name='blank.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="blank.gif" name='blank.gif' width="24" height="24" alt=""><br>
+<img src="blank.gif" name='blank.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="blank.gif" name='blank.gif' width="24" height="24" alt=""><br>
+<img src="blank.gif" name='blank.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="blank.gif" name='blank.gif' width="24" height="24" alt=""><br>
+<img src="blank.gif" name='blank.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="blank.gif" name='blank.gif' width="24" height="24" alt=""><br>
+<img src="blank.gif" name='blank.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="blank.gif" name='blank.gif' width="24" height="24" alt=""><br>
+<img src="blank.gif" name='blank.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="blank.gif" name='blank.gif' width="24" height="24" alt=""><br>
+<img src="blank.gif" name='blank.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="blank.gif" name='blank.gif' width="24" height="24" alt=""><br>
+<img src="blank.gif" name='blank.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="blank.gif" name='blank.gif' width="24" height="24" alt=""><br>
+<img src="blank.gif" name='blank.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="blank.gif" name='blank.gif' width="24" height="24" alt=""><br>
+<img src="blank.gif" name='blank.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="blank.gif" name='blank.gif' width="24" height="24" alt=""><br>
+<img src="blank.gif" name='blank.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="blank.gif" name='blank.gif' width="24" height="24" alt=""><br>
+<img src="blank.gif" name='blank.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="blank.gif" name='blank.gif' width="24" height="24" alt=""><br>
+<img src="blank.gif" name='blank.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="blank.gif" name='blank.gif' width="24" height="24" alt=""><br>
+<img src="blank.gif" name='blank.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="blank.gif" name='blank.gif' width="24" height="24" alt=""><br>
+<img src="blank.gif" name='blank.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="blank.gif" name='blank.gif' width="24" height="24" alt=""><br>
+<img src="blank.gif" name='blank.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="blank.gif" name='blank.gif' width="24" height="24" alt=""><br>
+<img src="blank.gif" name='blank.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="white.gif" name='white.gif' width="24" height="24" alt=""><img src="blank.gif" name='blank.gif' width="24" height="24" alt=""><br>
+<img src="blank.gif" name='blank.gif' width="24" height="24" alt=""><img src="blank.gif" name='blank.gif' width="24" height="24" alt=""><img src="blank.gif" name='blank.gif' width="24" height="24" alt=""><img src="blank.gif" name='blank.gif' width="24" height="24" alt=""><img src="blank.gif" name='blank.gif' width="24" height="24" alt=""><img src="blank.gif" name='blank.gif' width="24" height="24" alt=""><img src="blank.gif" name='blank.gif' width="24" height="24" alt=""><img src="blank.gif" name='blank.gif' width="24" height="24" alt=""><img src="blank.gif" name='blank.gif' width="24" height="24" alt=""><img src="blank.gif" name='blank.gif' width="24" height="24" alt=""><img src="blank.gif" name='blank.gif' width="24" height="24" alt=""><img src="blank.gif" name='blank.gif' width="24" height="24" alt=""><br>
+</td><td>
+Next Peice =<br>
+<img src="white.gif" name="previewimage" border="1" width="96" height="96" ><br><br>
+<div id="scorebox"></div><br>
+<u>Options</u><br><br>
+Peice Preview:<br>
+<form name="previewoptions">
+<input type="radio" name ="onbutton" onClick="previewfeatureon();" checked>On 
+<input type="radio" name ="offbutton" onClick="previewfeatureoff();">Off
+</form>
+</td></tr>
+</table>
+</center>
+<script language="JavaScript" type="text/javascript">
+<!--
+var oldoccupy1;
+var oldoccupy2;
+var oldoccupy3;
+var oldoccupy4;
+var evalthis;
+var evalthis2;
+var evalthis3;
+var evalthis4;
+var activeshape;
+var gamespeed = 10
+var numbers = 0
+var totalshapes = 1
+var randomnumber;
+var level = 1
+var redshape    = "activeshape = new Shape(totalshapes,'red.gif',0,4,5,6,7)"
+var greenshape  = "activeshape = new Shape(totalshapes,'green.gif',0,4,5,17,18)"
+var greyshape   = "activeshape = new Shape(totalshapes,'grey.gif',0,4,5,6,17)"
+var blueshape   = "activeshape = new Shape(totalshapes,'blue.gif',0,5,6,17,18)"
+var yellowshape = "activeshape = new Shape(totalshapes,'yellow.gif',0,5,17,29,30)"
+var purpleshape = "activeshape = new Shape(totalshapes,'purple.gif',0,6,18,29,30)"
+var indigoshape = "activeshape = new Shape(totalshapes,'indigo.gif',0,5,6,16,17)"
+var ended = 0
+var loop;
+var testforline;
+// 229 = left hand square of bottom line
+var wheretostart1 = 229
+var wheretostart2 = 229
+var linesmade = 0
+var score = 0
+var linehadbeenscanned;
+var continues =0
+var occupy1rotate
+var occupy2rotate
+var occupy3rotate
+var occupy4rotate
+var hitground = 0
+var oldoccupy1;
+var oldoccupy2;
+var oldoccupy3;
+var oldoccupy4;
+var paused = "true"
+var endofscript = '</script>'
+var fforie;
+var peicepreview = 0
+var nextpeice;
+var startyet = 1
+
+document.previewoptions.offbutton.checked = false;
+document.previewoptions.onbutton.checked = true;
+
+document.getElementById('scorebox').innerHTML="<br><b>Press Enter to start</b><br><br>"
+
+function previewfeatureon()
+{
+document.previewoptions.offbutton.checked = false;
+peicepreview = 0
+}
+
+function previewfeatureoff()
+{
+document.previewimage.src="white.gif"
+document.previewoptions.onbutton.checked = false;
+peicepreview = 10
+}
+
+randomnumber = Math.floor(Math.random()*7+1)
+//randomnumber=1
+if (randomnumber == 1){nextpeice=redshape , document.previewimage.src="preview_red.gif"}
+if (randomnumber == 2){nextpeice=greenshape , document.previewimage.src="preview_green.gif"}
+if (randomnumber == 3){nextpeice=greyshape , document.previewimage.src="preview_grey.gif"}
+if (randomnumber == 4){nextpeice=blueshape , document.previewimage.src="preview_blue.gif"}
+if (randomnumber == 5){nextpeice=yellowshape , document.previewimage.src="preview_yellow.gif"}
+if (randomnumber == 6){nextpeice=purpleshape , document.previewimage.src="preview_purple.gif"}
+if (randomnumber == 7){nextpeice=indigoshape , document.previewimage.src="preview_indigo.gif"}
+
+randomnumber = Math.floor(Math.random()*7+1)
+randomnumber=1
+if (randomnumber == 1){eval (redshape)}
+//if (randomnumber == 2){eval (greenshape)}
+if (randomnumber == 3){eval (greyshape)}
+if (randomnumber == 4){eval (blueshape)}
+if (randomnumber == 5){eval (yellowshape)}
+if (randomnumber == 6){eval (purpleshape)}
+//if (randomnumber == 7){eval (indigoshape)}
+
+function gameover()
+{ended = 1
+alert("Game Over!")
+var newgame = confirm("New Game?")
+if (newgame == true){history.go(0)}}
+
+function main()
+{
+if (startyet == 0){
+if (ended == 0){
+if (numbers > gamespeed){
+activeshape.movedown(), numbers = 0}else{numbers++}}
+countscore()
+document.getElementById('scorebox').innerHTML="Score: "+score+"<br>"+"Lines: "+linesmade+"<br>"+"Level: "+level}
+}
+
+function countscore()
+{if (linesmade > 3 && level == 1){document.bgColor='#ffff00'     , level++, gamespeed=9 , score=score+10}
+if (linesmade > 7 && level == 2){document.bgColor='#ff00ff'  , level++, gamespeed=8 , score=score+20}
+if (linesmade > 11 && level == 3){document.bgColor='#ff0000'  , level++, gamespeed=7 , score=score+30}
+if (linesmade > 15 && level == 4){document.bgColor='#c0c0c0'  , level++, gamespeed=6 , score=score+40}
+if (linesmade > 19 && level == 5){document.bgColor='#808080'  , level++, gamespeed=5 , score=score+50}
+if (linesmade > 23 && level == 6){document.bgColor='#808000' , level++, gamespeed=4 , score=score+60}
+if (linesmade > 27 && level == 7){document.bgColor='#00ff00' , level++, gamespeed=3 , score=score+70}
+if (linesmade > 31 && level == 8){document.bgColor='#800080' , level++, gamespeed=3 , score=score+70}
+if (linesmade > 35 && level == 9){document.bgColor='#800000' , level++, gamespeed=3 , score=score+70}}
+
+function checkforline()
+{testforline1 = 0
+wheretostart1 = 229
+wheretostart2 = 229
+linehadbeenscanned=0
+
+//whole lot runs 18 times (scans every line)
+for(var loop4=0; loop4<18; loop4++)
+{testforline1 = 0
+
+//scans a line
+for (loop=0; loop < 10; loop++)
+{linehadbeenscanned=0
+evalthis2 = eval(wheretostart2+loop)
+evalthis = eval("document.images["+evalthis2+"]")
+if (evalthis.name == "white.gif"){testforline1++}}
+
+//acts on results of scan
+if (testforline1 == 0)
+{linesmade++
+score=score+10
+linehadbeenscanned=1
+wheretostart1=wheretostart2
+howmany = Math.floor(wheretostart1/12)
+howmany=howmany-2
+// wipes out line, and brings down 'howmany' lines above the one wiped
+for (var loop3=0; loop3< howmany; loop3++)
+{for (var loop2=0; loop2 < 10; loop2++)
+{evalthis2 = eval(wheretostart1+loop2)
+evalthis = eval("document.images["+evalthis2+"]")
+evalthis.src="blank.gif";
+evalthis.name="white.gif";
+evalthis3 = eval(evalthis2-12)
+evalthis4 = eval("document.images["+evalthis3+"]")
+evalthis.src = evalthis4.src
+evalthis.name = evalthis4.name}
+wheretostart1=wheretostart1-12}}
+//prevents problems when more than one line has been completed at once, the line scanner scans the same line until it is no longer complete
+if (linehadbeenscanned !== 1){
+wheretostart2=wheretostart2-12}}}
+
+
+
+function nextshape()
+{
+eval(nextpeice)
+randomnumber = Math.floor(Math.random()*7+1)
+//randomnumber=1
+if (randomnumber == 1){nextpeice=redshape
+if(peicepreview == 0){document.previewimage.src="preview_red.gif"}}
+if (randomnumber == 2){nextpeice=greenshape
+if(peicepreview == 0){document.previewimage.src="preview_green.gif"}}
+if (randomnumber == 3){nextpeice=greyshape
+if(peicepreview == 0){document.previewimage.src="preview_grey.gif"}}
+if (randomnumber == 4){nextpeice=blueshape
+if(peicepreview == 0){document.previewimage.src="preview_blue.gif"}}
+if (randomnumber == 5){nextpeice=yellowshape
+if(peicepreview == 0){document.previewimage.src="preview_yellow.gif"}}
+if (randomnumber == 6){nextpeice=purpleshape
+if(peicepreview == 0){document.previewimage.src="preview_purple.gif"}}
+if (randomnumber == 7){nextpeice=indigoshape
+if(peicepreview == 0){document.previewimage.src="preview_indigo.gif"}}
+
+if (level == 1){score=score+1+peicepreview}
+if (level == 2){score=score+2+peicepreview}
+if (level == 3){score=score+3+peicepreview}
+if (level == 4){score=score+4+peicepreview}
+if (level == 5){score=score+5+peicepreview}
+if (level == 6){score=score+6+peicepreview}
+if (level == 7){score=score+7+peicepreview}
+checkforline()
+totalshapes++
+}
+
+function movedown()
+{continues=0
+//check for other shapes
+evalthis = eval(this.occupy1+12)
+evalthis2 = eval("document.images["+evalthis+"]")
+if (evalthis2.name !== "white.gif"){continues++}
+evalthis = eval(this.occupy2+12)
+evalthis2 = eval("document.images["+evalthis+"]")
+if (evalthis2.name !== "white.gif"){continues++}
+evalthis = eval(this.occupy3+12)
+evalthis2 = eval("document.images["+evalthis+"]")
+if (evalthis2.name !== "white.gif"){continues++}
+evalthis = eval(this.occupy4+12)
+evalthis2 = eval("document.images["+evalthis+"]")
+if (evalthis2.name !== "white.gif"){continues++}
+//if no other shapes in the way, shape will set image names to its colour
+if (continues !== 0)
+{continues=0, 
+evalthis2 = eval("document.images["+this.occupy1+"]")
+evalthis2.name = this.colour
+evalthis2 = eval("document.images["+this.occupy2+"]")
+evalthis2.name = this.colour
+evalthis2 = eval("document.images["+this.occupy3+"]")
+evalthis2.name = this.colour
+evalthis2 = eval("document.images["+this.occupy4+"]")
+evalthis2.name = this.colour
+//if shape didn't stop at the top of the screen, another shape is created
+if (this.occupy4 < 20){gameover()}
+nextshape()
+hitground = 1
+}else{
+//shape moves down the screen
+oldoccupy1=this.occupy1
+oldoccupy2=this.occupy2
+oldoccupy3=this.occupy3
+oldoccupy4=this.occupy4
+this.occupy1=this.occupy1+12
+this.occupy2=this.occupy2+12
+this.occupy3=this.occupy3+12
+this.occupy4=this.occupy4+12
+evalthis= eval("document.images["+oldoccupy1+"]")
+evalthis.src="white.gif"
+evalthis= eval("document.images["+oldoccupy2+"]")
+evalthis.src="white.gif"
+evalthis= eval("document.images["+oldoccupy3+"]")
+evalthis.src="white.gif"
+evalthis= eval("document.images["+oldoccupy4+"]")
+evalthis.src="white.gif"
+evalthis= eval("document.images["+this.occupy1+"]")
+evalthis.src=this.colour
+evalthis= eval("document.images["+this.occupy2+"]")
+evalthis.src=this.colour
+evalthis= eval("document.images["+this.occupy3+"]")
+evalthis.src=this.colour
+evalthis= eval("document.images["+this.occupy4+"]")
+evalthis.src=this.colour}}
+// red    = |
+// grey   = T
+// blue   = []
+// yellow = L
+// purple = _|
+// blue   = __--
+// green  = --__
+
+// rotations:
+
+// 0 = normal:           _|
+
+// 2 = 90 clockwise:     |_
+
+// 3 = upside down   	   |-
+
+// 4 = 90 anticlockwise  -|
+
+function rotate()
+{
+//blue
+if (this.colour == "blue.gif"){occupy1rotate=0 , occupy2rotate=0 , occupy3rotate=0 , occupy4rotate=0}
+//red
+if (this.colour == "red.gif")
+{if (this.rotation == 0 || this.rotation == 2){occupy1rotate=-11 , occupy2rotate=0 , occupy3rotate=11 , occupy4rotate=22}
+if (this.rotation == 1 || this.rotation == 3){occupy1rotate=11 , occupy2rotate=0 , occupy3rotate=-11 , occupy4rotate=-22}}
+//green
+if (this.colour == "green.gif")
+{if (this.rotation == 0 || this.rotation == 2){occupy1rotate=1 , occupy2rotate=11 , occupy3rotate=0 , occupy4rotate=10}
+if (this.rotation == 1 || this.rotation == 3){occupy1rotate=-1 , occupy2rotate=-11 , occupy3rotate=0 , occupy4rotate=-10}}
+//indigo (dark blue)
+if (this.colour == "indigo.gif")
+{if (this.rotation == 0 || this.rotation == 2){occupy1rotate=0 , occupy2rotate=11 , occupy3rotate=2 , occupy4rotate=13}
+if (this.rotation == 1 || this.rotation == 3){occupy1rotate=0 , occupy2rotate=-11 , occupy3rotate=-2 , occupy4rotate=-13}}
+//yellow
+if (this.colour == "yellow.gif")
+{if (this.rotation == 0){occupy1rotate=11 , occupy2rotate=0 , occupy3rotate=-11 , occupy4rotate=-2}
+if (this.rotation == 1){occupy1rotate=-12 , occupy2rotate=-12 , occupy3rotate=-1 , occupy4rotate=1}
+if (this.rotation == 2){occupy1rotate=2 , occupy2rotate=11 , occupy3rotate=0 , occupy4rotate=-11}
+if (this.rotation == 3){occupy1rotate=-1 , occupy2rotate=1 , occupy3rotate=12 , occupy4rotate=12}}
+//purple
+if (this.colour == "purple.gif")
+{if (this.rotation == 0){occupy1rotate=-1 , occupy2rotate=-1 , occupy3rotate=-11 , occupy4rotate=-11}
+if (this.rotation == 1){occupy1rotate=1 , occupy2rotate=-10 , occupy3rotate=0 , occupy4rotate=11}
+if (this.rotation == 2){occupy1rotate=11 , occupy2rotate=11 , occupy3rotate=1 , occupy4rotate=1}
+if (this.rotation == 3){occupy1rotate=-11 , occupy2rotate=0 , occupy3rotate=10 , occupy4rotate=-1}}
+//grey
+if (this.colour == "grey.gif")
+{if (this.rotation == 0){occupy1rotate=-11 , occupy2rotate=-1 , occupy3rotate=-1 , occupy4rotate=0}
+if (this.rotation == 1){occupy1rotate=0 , occupy2rotate=0 , occupy3rotate=0 , occupy4rotate=-11}
+if (this.rotation == 2){occupy1rotate=0 , occupy2rotate=1 , occupy3rotate=1 , occupy4rotate=11}
+if (this.rotation == 3){occupy1rotate=11 , occupy2rotate=0 , occupy3rotate=0 , occupy4rotate=0}}
+// check if possible to rotate shape according to above set variables
+evalthis = eval(this.occupy1+occupy1rotate)
+evalthis2 = eval("document.images["+evalthis+"]")
+if (evalthis2.name !== "white.gif"){continues++}
+evalthis = eval(this.occupy2+occupy2rotate)
+evalthis2 = eval("document.images["+evalthis+"]")
+if (evalthis2.name !== "white.gif"){continues++}
+evalthis = eval(this.occupy3+occupy3rotate)
+evalthis2 = eval("document.images["+evalthis+"]")
+if (evalthis2.name !== "white.gif"){continues++}
+evalthis = eval(this.occupy4+occupy4rotate)
+evalthis2 = eval("document.images["+evalthis+"]")
+if (evalthis2.name !== "white.gif"){continues++}
+if (continues !== 0)
+{continues = 0}else{
+//rotates shape!
+this.rotation++
+oldoccupy1=this.occupy1
+oldoccupy2=this.occupy2
+oldoccupy3=this.occupy3
+oldoccupy4=this.occupy4
+this.occupy1=this.occupy1+occupy1rotate
+this.occupy2=this.occupy2+occupy2rotate
+this.occupy3=this.occupy3+occupy3rotate
+this.occupy4=this.occupy4+occupy4rotate
+evalthis= eval("document.images["+oldoccupy1+"]")
+evalthis.src="white.gif"
+evalthis= eval("document.images["+oldoccupy2+"]")
+evalthis.src="white.gif"
+evalthis= eval("document.images["+oldoccupy3+"]")
+evalthis.src="white.gif"
+evalthis= eval("document.images["+oldoccupy4+"]")
+evalthis.src="white.gif"
+evalthis= eval("document.images["+this.occupy1+"]")
+evalthis.src=this.colour
+evalthis= eval("document.images["+this.occupy2+"]")
+evalthis.src=this.colour
+evalthis= eval("document.images["+this.occupy3+"]")
+evalthis.src=this.colour
+evalthis= eval("document.images["+this.occupy4+"]")
+evalthis.src=this.colour}
+if (this.rotation == 4){this.rotation=0}
+occupy1rotate=0
+occupy2rotate=0
+occupy3rotate=0
+occupy4rotate=0}
+
+//The shape array itself!  Exciting stuff!
+function Shape(num,colour,rotation,occupy1,occupy2,occupy3,occupy4)
+{this.num = num
+this.colour = colour;
+this.rotation = rotation;
+this.occupy1 = occupy1;
+this.occupy2 = occupy2;
+this.occupy3 = occupy3;
+this.occupy4 = occupy4;
+this.movedown = movedown;
+this.moveleft = moveleft;
+this.moveright = moveright;
+this.rotate = rotate;}
+
+function moveright()
+{
+//check for other shapes (same code as move down, basically)
+evalthis = eval(this.occupy1+1)
+evalthis2 = eval("document.images["+evalthis+"]")
+if (evalthis2.name !== "white.gif"){continues++}
+evalthis = eval(this.occupy2+1)
+evalthis2 = eval("document.images["+evalthis+"]")
+if (evalthis2.name !== "white.gif"){continues++}
+evalthis = eval(this.occupy3+1)
+evalthis2 = eval("document.images["+evalthis+"]")
+if (evalthis2.name !== "white.gif"){continues++}
+evalthis = eval(this.occupy4+1)
+evalthis2 = eval("document.images["+evalthis+"]")
+if (evalthis2.name !== "white.gif"){continues++}
+if (continues !== 0)
+{continues = 0}else{
+oldoccupy1=this.occupy1
+oldoccupy2=this.occupy2
+oldoccupy3=this.occupy3
+oldoccupy4=this.occupy4
+this.occupy1=this.occupy1+1
+this.occupy2=this.occupy2+1
+this.occupy3=this.occupy3+1
+this.occupy4=this.occupy4+1
+evalthis= eval("document.images["+oldoccupy1+"]")
+evalthis.src="white.gif"
+evalthis= eval("document.images["+oldoccupy2+"]")
+evalthis.src="white.gif"
+evalthis= eval("document.images["+oldoccupy3+"]")
+evalthis.src="white.gif"
+evalthis= eval("document.images["+oldoccupy4+"]")
+evalthis.src="white.gif"
+evalthis= eval("document.images["+this.occupy1+"]")
+evalthis.src=this.colour
+evalthis= eval("document.images["+this.occupy2+"]")
+evalthis.src=this.colour
+evalthis= eval("document.images["+this.occupy3+"]")
+evalthis.src=this.colour
+evalthis= eval("document.images["+this.occupy4+"]")
+evalthis.src=this.colour}}
+
+function moveleft()
+{
+//check for other shapes
+evalthis = eval(this.occupy1-1)
+evalthis2 = eval("document.images["+evalthis+"]")
+if (evalthis2.name !== "white.gif"){continues++}
+evalthis = eval(this.occupy2-1)
+evalthis2 = eval("document.images["+evalthis+"]")
+if (evalthis2.name !== "white.gif"){continues++}
+evalthis = eval(this.occupy3-1)
+evalthis2 = eval("document.images["+evalthis+"]")
+if (evalthis2.name !== "white.gif"){continues++}
+evalthis = eval(this.occupy4-1)
+evalthis2 = eval("document.images["+evalthis+"]")
+if (evalthis2.name !== "white.gif"){continues++}
+if (continues !== 0)
+{continues = 0}else{
+oldoccupy1=this.occupy1
+oldoccupy2=this.occupy2
+oldoccupy3=this.occupy3
+oldoccupy4=this.occupy4
+this.occupy1=this.occupy1-1
+this.occupy2=this.occupy2-1
+this.occupy3=this.occupy3-1
+this.occupy4=this.occupy4-1
+evalthis= eval("document.images["+oldoccupy1+"]")
+evalthis.src="white.gif"
+evalthis= eval("document.images["+oldoccupy2+"]")
+evalthis.src="white.gif"
+evalthis= eval("document.images["+oldoccupy3+"]")
+evalthis.src="white.gif"
+evalthis= eval("document.images["+oldoccupy4+"]")
+evalthis.src="white.gif"
+evalthis= eval("document.images["+this.occupy1+"]")
+evalthis.src=this.colour
+evalthis= eval("document.images["+this.occupy2+"]")
+evalthis.src=this.colour
+evalthis= eval("document.images["+this.occupy3+"]")
+evalthis.src=this.colour
+evalthis= eval("document.images["+this.occupy4+"]")
+evalthis.src=this.colour}}
+
+function pause()
+{
+if (startyet == 0){
+if (paused !== "true" )
+{document.getElementById('scorebox').innerHTML="<br><b>PAUSED</b><br><br>"
+clearInterval(s)
+paused = "true"
+}else{
+s=setInterval('main()',30)
+paused = "false"
+//document.getElementById('scorebox').innerHTML=""
+}
+}
+}
+
+function instantmovedown()
+{
+//hitground variable is set to 1 briefly when a new shape is called up
+hitground=0
+while (hitground == 0)
+{activeshape.movedown()}}
+
+//detects browser and re-writes key detection codes as required
+if (navigator.appName == "Microsoft Internet Explorer")
+{fforie = true}
+if (fforie == true){
+document.writeln('<script>')
+document.writeln('function keyDown()')
+document.writeln('{')
+document.writeln('if(event.keyCode == 39){if (paused !== "true"){activeshape.moveright()}}')
+document.writeln('if(event.keyCode == 37){if (paused !== "true"){activeshape.moveleft()}}')
+document.writeln('if(event.keyCode == 40){if (paused !== "true"){activeshape.movedown()}}')
+document.writeln('if(event.keyCode == 38){if (paused !== "true"){activeshape.rotate()}}')
+document.writeln('if(event.keyCode == 32){if (paused !== "true"){instantmovedown()}}')
+document.writeln('if(event.keyCode == 80){if (ended !== 1){pause()}};')
+document.writeln('if(event.keyCode == 13){startyet=0 , paused="false"}')
+document.writeln('if(event.keyCode == 27){self.close()};')
+document.writeln('}')
+document.writeln(endofscript)
+}else{
+document.writeln('<script>')
+document.writeln('function keyDown(e)')
+document.writeln('{')
+document.writeln('if(e.which == 39){if (paused !== "true"){activeshape.moveright()}}')
+document.writeln('if(e.which == 37){if (paused !== "true"){activeshape.moveleft()}}')
+document.writeln('if(e.which == 40){if (paused !== "true"){activeshape.movedown()}}')
+document.writeln('if(e.which == 38)if (paused !== "true"){{activeshape.rotate()}}')
+document.writeln('if(e.which == 32)if (paused !== "true"){{instantmovedown()}}')
+document.writeln('if(e.which == 80){if (ended !== 1){pause()}}')
+document.writeln('if(e.which == 13){startyet=0 , paused="false"}')
+document.writeln('if(e.which == 27){self.close()};')
+document.writeln('}')
+document.writeln('document.onkeydown=keyDown;')
+document.writeln(endofscript)}
+//-->
+</script>
+
+<script language="JavaScript" type="text/javascript">
+<!--
+
+
+//-->
+</script>
+
+</body>
+</html>

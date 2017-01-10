@@ -1,0 +1,45 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html>
+<head>
+<title>Cartesean to Polar</title>
+</head>
+<body>
+Converts x,y coords to angle,dist coords.
+<script language="JavaScript" type="text/javascript">
+<!--
+var run=true;
+
+while(run)
+  {
+	var point1=[0,0]
+	var point2=new Array(2)
+	point2[0]=prompt("Point X coord");
+	point2[1]=prompt("Point Y coord");
+	
+  dx=point2[0]-point1[0];
+  dy=point2[1]-point1[1];
+  var angle=Math.atan2(dy,dx);
+  
+  angle/=Math.PI;
+  angle=Math.round(angle*100)/100;
+  
+  dist=Math.round(Math.sqrt(Math.pow(dx,2)+Math.pow(dy,2))*10)/10;
+  
+  var temp=confirm("angle: "+angle);
+  var temp2=confirm("dist: "+dist);
+	
+	if(temp===false || temp2===false)
+  	{
+  	run=false;
+  	}
+	}
+
+//-->
+</script>
+
+
+
+
+</body>
+</html>
