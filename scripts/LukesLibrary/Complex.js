@@ -37,8 +37,4 @@ var Complex = function(x,y){
     this.magnitudeSqrd = function(){
         return this.x*this.x + this.y*this.y;
     }
-    
-    this.toString=function(){
-        return "("+Math.round(this.x*100.0)/100.0+","+Math.round(this.y*100.0)/100.0+")";
-    }
 }

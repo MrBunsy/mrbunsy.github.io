@@ -1,0 +1,7 @@
+Lots of projects have a common.js, I need to go through them all and find the useful stuff in there that isn't in something like jquery.
+
+
+shooter line:
+if(this.entities[j].getPos().subtract(this.entities[i].getPos()).getMagnitudeSqrd() < d){
+
+errors occasionally, only seems ot hapeen after jets witih rockets are about
